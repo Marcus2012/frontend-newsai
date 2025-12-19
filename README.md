@@ -31,7 +31,7 @@
    ```bash
    cp frontend/.env.local.example frontend/.env.local
    # Apunta al backend en Cloud Run
-   export NEXT_PUBLIC_API_ENDPOINT=https://newsai-backend-855091632688.us-central1.run.app
+   export NEXT_PUBLIC_API_ENDPOINT=https://newsai-backend-855091632688.us-east4.run.app
    # Ajusta NEXT_PUBLIC_GRAPHQL_ENDPOINT si no usas localhost:8080
    ```
 2) Instala dependencias y arranca dev:
