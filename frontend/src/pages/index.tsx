@@ -1,84 +1,29 @@
-'use client';
-
-import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
+import { GetStaticProps } from 'next';
+
+interface Props {
+  articles: any[];
+}
 
 interface Article {
   id: string;
   title: string;
-  created_at: string;
+  created_at?: string;
   category?: string;
   author?: string;
-  status?: string;
   image_url?: string;
   description?: string;
 }
 
-const API_ENDPOINT = process.env.NEXT_PUBLIC_API_ENDPOINT;
-const API_USERNAME = 'admin';
-const API_PASSWORD = 'admin123';
+const STRAPI = process.env.NEXT_PUBLIC_STRAPI_URL || process.env.NEXT_PUBLIC_API_ENDPOINT;
 
-export default function HomePage() {
-  const [articles, setArticles] = useState<Article[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchArticles = async () => {
-      try {
-        if (!API_ENDPOINT) {
-          throw new Error('Falta NEXT_PUBLIC_API_ENDPOINT');
-        }
-
-        const loginResponse = await fetch(`${API_ENDPOINT}/auth/login`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            username: API_USERNAME,
-            password: API_PASSWORD,
-          }),
-        });
-
-        if (!loginResponse.ok) {
-          throw new Error('Error de autenticación');
-        }
-
-        const loginData = await loginResponse.json();
-        const token = loginData.access_token;
-
-        const articlesResponse = await fetch(`${API_ENDPOINT}/admin/articles`, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        });
-
-        if (!articlesResponse.ok) {
-          throw new Error(`Error ${articlesResponse.status}: ${articlesResponse.statusText}`);
-        }
-
-        const data = await articlesResponse.json();
-        setArticles(data || []);
-      } catch (err) {
-        const errorMsg = err instanceof Error ? err.message : 'Error desconocido';
-        console.error('Error:', errorMsg);
-        setError(errorMsg);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchArticles();
-  }, []);
-
+export default function HomePage({ articles }: Props) {
   const featured = articles[0];
   const highlighted = articles.slice(1, 4);
 
-  if (loading) return <div style={{ background: '#0a0e27', color: '#fff', padding: '40px', textAlign: 'center', minHeight: '100vh' }}>Cargando...</div>;
-
   return (
-    <div style={{ background: '#0a0e27', color: '#fff', minHeight: '100vh', fontFamily: '"Poppins", "-apple-system", "BlinkMacSystemFont", "Segoe UI", sans-serif' }}>
+    <div className="min-h-screen" style={{ background: '#0a0e27', color: '#fff' }}>
       {/* Header */}
       <header style={{
         background: 'rgba(10, 14, 39, 0.95)',
@@ -139,8 +84,8 @@ export default function HomePage() {
             }}>
               
               {featured.image_url && (
-                <div style={{ height: '300px', overflow: 'hidden' }}>
-                  <img src={featured.image_url} alt={featured.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                <div style={{ height: '300px', position: 'relative' }}>
+                  <Image src={featured.image_url} alt={featured.title || 'featured'} fill style={{ objectFit: 'cover' }} />
                 </div>
               )}
               
@@ -204,8 +149,8 @@ export default function HomePage() {
                 }}>
                   
                   {article.image_url && (
-                    <div style={{ width: '80px', height: '80px', minWidth: '80px', overflow: 'hidden' }}>
-                      <img src={article.image_url} alt={article.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    <div style={{ width: '80px', height: '80px', minWidth: '80px', overflow: 'hidden', position: 'relative' }}>
+                      <Image src={article.image_url} alt={article.title} fill style={{ objectFit: 'cover' }} />
                     </div>
                   )}
                   
@@ -274,8 +219,8 @@ export default function HomePage() {
                   }}
                 >
                   {article.image_url && (
-                    <div style={{ height: '120px', overflow: 'hidden' }}>
-                      <img src={article.image_url} alt={article.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    <div style={{ height: '120px', overflow: 'hidden', position: 'relative' }}>
+                      <Image src={article.image_url} alt={article.title} fill style={{ objectFit: 'cover' }} />
                     </div>
                   )}
                   <div style={{ padding: '12px', flex: 1, display: 'flex', flexDirection: 'column' }}>
@@ -314,3 +259,29 @@ export default function HomePage() {
     </div>
   );
 }
+
+export const getStaticProps: GetStaticProps = async () => {
+  const STRAPI = process.env.NEXT_PUBLIC_STRAPI_URL || process.env.NEXT_PUBLIC_API_ENDPOINT;
+  try {
+    const res = await fetch(`${STRAPI}/api/articles?publicationState=live&populate=*&sort[0]=publishedAt:desc`);
+    if (!res.ok) throw new Error('Failed to fetch');
+    const json = await res.json();
+    const items = (json.data || []).map((item: any) => {
+      const attrs = item.attributes || {};
+      return {
+        id: String(item.id),
+        title: attrs.title,
+        created_at: attrs.publishedAt || attrs.createdAt,
+        category: attrs.category,
+        author: attrs.author,
+        image_url: attrs.image?.data?.attributes?.url || undefined,
+        description: attrs.excerpt || undefined
+      };
+    });
+
+    return { props: { articles: items }, revalidate: 120 };
+  } catch (err) {
+    return { props: { articles: [] }, revalidate: 60 };
+  }
+};
+

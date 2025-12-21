@@ -1,0 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap');
+
+:root{
+  --bg: #0a0e27;
+  --accent: #00ffc8;
+  --muted: #aaa;
+}
+
+html,body,#__next{
+  height:100%;
+}
+
+body{
+  background-color: var(--bg);
+  color: #fff;
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* Utility for container */
+.container-max{
+  max-width:1200px;
+  margin-left:auto;
+  margin-right:auto;
+  padding-left:1rem;
+  padding-right:1rem;
+}

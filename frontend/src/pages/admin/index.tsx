@@ -16,6 +16,7 @@ interface Article {
 const API_ENDPOINT = process.env.NEXT_PUBLIC_API_ENDPOINT || 'http://localhost:8000';
 
 export default function AdminPage() {
+  
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -85,6 +86,8 @@ export default function AdminPage() {
     }
   };
 
+  
+
   const getStatusColor = (status?: string) => {
     switch (status) {
       case 'published': return '#00ff88';
@@ -121,6 +124,8 @@ export default function AdminPage() {
             <h2 style={{ marginTop: 0, marginBottom: '30px', color: '#00ffc8' }}>
               📋 Noticias ({articles.length})
             </h2>
+
+            
 
             {articles.length === 0 ? (
               <p style={{ textAlign: 'center', color: '#aaa' }}>No hay artículos</p>

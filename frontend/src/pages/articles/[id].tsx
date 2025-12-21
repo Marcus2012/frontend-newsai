@@ -1,8 +1,8 @@
-'use client';
-
+"use client";
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
+import Image from 'next/image';
 
 interface Article {
   id: string;
@@ -137,8 +137,8 @@ export default function ArticlePage() {
 
       {/* Featured Image */}
       {article?.image_url && (
-        <div style={{ width: '100%', height: '400px', overflow: 'hidden' }}>
-          <img src={article.image_url} alt={article.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        <div style={{ width: '100%', height: '400px', overflow: 'hidden', position: 'relative' }}>
+          <Image src={article.image_url} alt={article.title} fill style={{ objectFit: 'cover' }} />
         </div>
       )}
 
