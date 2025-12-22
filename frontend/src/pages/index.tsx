@@ -19,8 +19,14 @@ interface Article {
 const STRAPI = process.env.NEXT_PUBLIC_STRAPI_URL || process.env.NEXT_PUBLIC_API_ENDPOINT;
 
 export default function HomePage({ articles }: Props) {
-  const featured = articles[0];
-  const highlighted = articles.slice(1, 4);
+  // Ordenar por fecha descendente
+  const sortedArticles = [...articles].sort((a, b) => {
+    const dateA = new Date(a.created_at || a.publishedAt || a.createdAt || 0).getTime();
+    const dateB = new Date(b.created_at || b.publishedAt || b.createdAt || 0).getTime();
+    return dateB - dateA;
+  });
+  const featured = sortedArticles[0];
+  const highlighted = sortedArticles.slice(1, 4);
 
   return (
     <div className="min-h-screen" style={{ background: '#0a0e27', color: '#fff' }}>
@@ -37,7 +43,7 @@ export default function HomePage({ articles }: Props) {
       }}>
         <div style={{ maxWidth: '100%', padding: '0 40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <div style={{ background: '#00ffc8', width: '35px', height: '35px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', color: '#000' }}>⚽</div>
+            <img src="https://ipetcead.com/new/asieselfutbol.png" alt="Logo" style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#fff', objectFit: 'cover' }} />
             <div style={{ fontSize: '0.9em' }}>
               <div style={{ color: '#00ffc8', fontWeight: 'bold' }}>AI Sports</div>
               <div style={{ fontSize: '0.75em', color: '#aaa' }}>Predictor</div>
@@ -45,11 +51,12 @@ export default function HomePage({ articles }: Props) {
           </div>
 
           <nav style={{ display: 'flex', gap: '30px', alignItems: 'center', flex: 1, justifyContent: 'center' }}>
-            {['Inicio', 'Noticias', 'Predicciones', 'Calculadora', 'Nosotros', 'Contacto'].map(item => (
-              <a key={item} href="#" style={{ color: '#aaa', textDecoration: 'none', fontSize: '0.9em', cursor: 'pointer', transition: 'color 0.3s' }}>
-                {item}
-              </a>
-            ))}
+            <Link href="/" style={{ color: '#aaa', textDecoration: 'none', fontSize: '0.9em', cursor: 'pointer', transition: 'color 0.3s' }}>Inicio</Link>
+            <Link href="/noticias" style={{ color: '#aaa', textDecoration: 'none', fontSize: '0.9em', cursor: 'pointer', transition: 'color 0.3s' }}>Noticias</Link>
+            <a href="#" style={{ color: '#aaa', textDecoration: 'none', fontSize: '0.9em', cursor: 'pointer', transition: 'color 0.3s' }}>Predicciones</a>
+            <a href="#" style={{ color: '#aaa', textDecoration: 'none', fontSize: '0.9em', cursor: 'pointer', transition: 'color 0.3s' }}>Calculadora</a>
+            <Link href="/nosotros" style={{ color: '#aaa', textDecoration: 'none', fontSize: '0.9em', cursor: 'pointer', transition: 'color 0.3s' }}>Nosotros</Link>
+            <Link href="/contacto" style={{ color: '#aaa', textDecoration: 'none', fontSize: '0.9em', cursor: 'pointer', transition: 'color 0.3s' }}>Contacto</Link>
           </nav>
 
           <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
@@ -111,7 +118,7 @@ export default function HomePage({ articles }: Props) {
                 
                 {featured.description && (
                   <p style={{ color: '#aaa', fontSize: '0.95em', lineHeight: '1.6', marginBottom: '20px' }}>
-                    {featured.description.substring(0, 200)}...
+                    {featured.description ? featured.description.substring(0, 200) + '...' : null}
                   </p>
                 )}
                 
@@ -171,7 +178,7 @@ export default function HomePage({ articles }: Props) {
                     )}
                     
                     <h4 style={{ fontSize: '0.85em', margin: '5px 0', lineHeight: '1.2', fontWeight: 'bold' }}>
-                      {article.title.substring(0, 50)}...
+                      {article.title ? article.title.substring(0, 50) + '...' : null}
                     </h4>
                     
                     {article.created_at && (
@@ -191,11 +198,11 @@ export default function HomePage({ articles }: Props) {
       <div style={{ maxWidth: '100%', padding: '40px', borderTop: '1px solid rgba(0, 255, 200, 0.1)' }}>
         <h3 style={{ color: '#00ffc8', fontSize: '1.3em', marginTop: 0, marginBottom: '30px' }}>📋 Todas las Noticias</h3>
         
-        {articles.length === 0 ? (
+        {sortedArticles.length === 0 ? (
           <p style={{ textAlign: 'center', color: '#aaa' }}>No hay artículos disponibles</p>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '20px' }}>
-            {articles.map((article) => (
+            {sortedArticles.map((article) => (
               <Link key={article.id} href={`/articles/${article.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                 <article 
                   style={{
@@ -238,9 +245,11 @@ export default function HomePage({ articles }: Props) {
                         {article.category}
                       </span>
                     )}
-                    <h4 style={{ fontSize: '0.9em', margin: '0 0 8px 0', lineHeight: '1.2', fontWeight: 'bold' }}>
-                      {article.title.substring(0, 60)}...
-                    </h4>
+                    {article.title ? (
+                      <h4 style={{ fontSize: '0.9em', margin: '0 0 8px 0', lineHeight: '1.2', fontWeight: 'bold' }}>
+                        {article.title ? article.title.substring(0, 60) + '...' : null}
+                      </h4>
+                    ) : null}
                     <div style={{ marginTop: 'auto', fontSize: '0.75em', color: '#888' }}>
                       {article.created_at && new Date(article.created_at).toLocaleDateString('es-ES')}
                     </div>
@@ -262,20 +271,26 @@ export default function HomePage({ articles }: Props) {
 
 export const getStaticProps: GetStaticProps = async () => {
   const STRAPI = process.env.NEXT_PUBLIC_STRAPI_URL || process.env.NEXT_PUBLIC_API_ENDPOINT;
+  const STRAPI_TOKEN = process.env.NEXT_PUBLIC_STRAPI_TOKEN;
   try {
-    const res = await fetch(`${STRAPI}/api/articles?publicationState=live&populate=*&sort[0]=publishedAt:desc`);
+    const res = await fetch(`${STRAPI}/api/articles?publicationState=live&populate=*&sort[0]=publishedAt:desc`, {
+      headers: STRAPI_TOKEN ? { 'Authorization': `Bearer ${STRAPI_TOKEN}` } : {}
+    });
     if (!res.ok) throw new Error('Failed to fetch');
     const json = await res.json();
-    const items = (json.data || []).map((item: any) => {
-      const attrs = item.attributes || {};
+    // Si la respuesta es un array plano, úsalo directamente; si es { data: [...] }, usa data
+    const arr = Array.isArray(json) ? json : (json.data || []);
+    const items = arr.map((item: any) => {
+      // Si es formato plano, los campos están en item; si es formato data, están en item.attributes
+      const attrs = item.attributes || item;
       return {
         id: String(item.id),
-        title: attrs.title,
-        created_at: attrs.publishedAt || attrs.createdAt,
-        category: attrs.category,
-        author: attrs.author,
-        image_url: attrs.image?.data?.attributes?.url || undefined,
-        description: attrs.excerpt || undefined
+        title: attrs.title ?? null,
+        created_at: attrs.publishedAt ?? attrs.createdAt ?? attrs.created_at ?? null,
+        category: attrs.category ?? null,
+        author: attrs.author ?? null,
+        image_url: attrs.image?.data?.attributes?.url ?? attrs.image?.url ?? null,
+        description: attrs.excerpt ?? null
       };
     });
 

@@ -22,7 +22,8 @@ interface Article {
 export default function ArticlePage() {
   const router = useRouter();
   const { id } = router.query;
-  const apiEndpoint = process.env.NEXT_PUBLIC_API_ENDPOINT;
+  const strapiUrl = process.env.NEXT_PUBLIC_STRAPI_URL;
+  const strapiToken = process.env.NEXT_PUBLIC_STRAPI_TOKEN;
   
   const [article, setArticle] = useState<Article | null>(null);
   const [loading, setLoading] = useState(true);
@@ -31,44 +32,38 @@ export default function ArticlePage() {
   useEffect(() => {
     if (!id) return;
 
+
     const fetchArticle = async () => {
       try {
-        if (!apiEndpoint) {
-          throw new Error('Falta NEXT_PUBLIC_API_ENDPOINT');
+        if (!strapiUrl) {
+          throw new Error('Falta NEXT_PUBLIC_STRAPI_URL');
         }
-
-        // Obtener token
-        const loginResponse = await fetch(`${apiEndpoint}/auth/login`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            username: 'admin',
-            password: 'admin123',
-          }),
+        // Usar el endpoint con filtro por ID
+        const res = await fetch(`${strapiUrl}/api/articles?filters[id][$eq]=${id}&populate=*`, {
+          headers: strapiToken ? { 'Authorization': `Bearer ${strapiToken}` } : {}
         });
-
-        if (!loginResponse.ok) {
-          throw new Error('Error de autenticación');
+        if (!res.ok) {
+          throw new Error(`Error ${res.status}: ${res.statusText}`);
         }
-
-        const loginData = await loginResponse.json();
-        const token = loginData.access_token;
-
-        // Obtener artículo específico
-        const articleResponse = await fetch(`${apiEndpoint}/admin/articles/${id}`, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
+        const json = await res.json();
+        const arr = Array.isArray(json) ? json : (json.data || []);
+        const item = arr[0] || arr;
+        if (!item) throw new Error('Noticia no encontrada');
+        const attrs = item.attributes || item;
+        setArticle({
+          id: String(item.id),
+          title: attrs.title ?? null,
+          description: attrs.excerpt ?? null,
+          created_at: attrs.publishedAt ?? attrs.createdAt ?? attrs.created_at ?? null,
+          category: attrs.category ?? null,
+          author: attrs.author ?? null,
+          status: attrs.status ?? null,
+          image_url: attrs.image?.data?.attributes?.url ?? attrs.image?.url ?? null,
+          seo_meta: attrs.seo_meta ?? null,
+          keywords: attrs.keywords ?? null,
+          meta_description: attrs.meta_description ?? null,
+          ...attrs
         });
-
-        if (!articleResponse.ok) {
-          throw new Error(`Error ${articleResponse.status}: ${articleResponse.statusText}`);
-        }
-
-        const data = await articleResponse.json();
-        setArticle(data);
       } catch (err) {
         const errorMsg = err instanceof Error ? err.message : 'Error desconocido';
         console.error('Error:', errorMsg);
