@@ -20,7 +20,13 @@ type Props = {
 
 export default function BannerSlots({ position = 'top' }: Props) {
   const [banners, setBanners] = useState<Banner[]>([]);
-  const STRAPI = process.env.NEXT_PUBLIC_STRAPI_URL;
+  const ENV = process.env.NEXT_PUBLIC_VERCEL_ENV || process.env.NODE_ENV || '';
+  const STRAPI = (() => {
+    const prd = process.env.NEXT_PUBLIC_STRAPI_PRD?.replace(/\/admin$/, '').replace(/\/$/, '');
+    const dev = process.env.NEXT_PUBLIC_STRAPI_URL?.replace(/\/$/, '');
+    if ((ENV === 'production' || ENV === 'production') && prd) return prd;
+    return dev || '';
+  })();
 
   useEffect(() => {
     let mounted = true;
