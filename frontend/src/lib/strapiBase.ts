@@ -5,11 +5,14 @@ export function getStrapiBase(): string {
 
   // On the browser prefer PRD if current protocol is https
   if (typeof window !== 'undefined') {
+    // If using proxy, return relative API path
+    if ((process.env.NEXT_PUBLIC_USE_STRAPI_PROXY || 'false') === 'true') return '/api/strapi';
     if (window.location.protocol === 'https:' && prd) return prd;
   }
 
   // On server/runtime prefer PRD when building for production
   if ((env === 'production' || process.env.NODE_ENV === 'production') && prd) return prd;
 
+  if ((process.env.NEXT_PUBLIC_USE_STRAPI_PROXY || 'false') === 'true') return '/api/strapi';
   return dev || '';
 }
