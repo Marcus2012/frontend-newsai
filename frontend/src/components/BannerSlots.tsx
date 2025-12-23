@@ -24,13 +24,20 @@ export default function BannerSlots({ position = 'top' }: Props) {
   const STRAPI = (() => {
     const prd = process.env.NEXT_PUBLIC_STRAPI_PRD?.replace(/\/admin$/, '').replace(/\/$/, '');
     const dev = process.env.NEXT_PUBLIC_STRAPI_URL?.replace(/\/$/, '');
-    if ((ENV === 'production' || ENV === 'production') && prd) return prd;
+    // Prefer PRD when on a secure origin or when explicitly in production env
+    if (typeof window !== 'undefined') {
+      if (window.location.protocol === 'https:' && prd) return prd;
+    }
+    if (ENV === 'production' && prd) return prd;
     return dev || '';
   })();
+
+  const ENABLE_BANNERS = (process.env.NEXT_PUBLIC_ENABLE_BANNERS || 'false') === 'true';
 
   useEffect(() => {
     let mounted = true;
     const fetchBanners = async () => {
+      if (!ENABLE_BANNERS) return; // disabled via env
       if (!STRAPI) return;
       try {
         const url = `${STRAPI.replace(/\/$/, '')}/api/banners?populate=*`;
