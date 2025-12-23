@@ -28,3 +28,53 @@ body{
   padding-left:1rem;
   padding-right:1rem;
 }
+
+/* Layout helpers for responsive pages */
+.main-layout{
+  padding:40px;
+  display:grid;
+  grid-template-columns: 1fr 350px;
+  gap:40px;
+  align-items:start;
+}
+
+.stack-on-mobile{
+  display:block;
+}
+
+@media (max-width: 900px){
+  .main-layout{
+    grid-template-columns: 1fr;
+    padding:20px;
+    gap:20px;
+  }
+  .sidebar-aside{
+    order: 2;
+    width:100%;
+  }
+  .featured-aside{
+    order: 1;
+    width:100%;
+  }
+  .hero-image{height:220px !important}
+}
+
+/* specific hero adjustments for larger desktop like reference */
+.featured-aside .hero-image{min-height:360px}
+.featured-aside h1{font-size:2.2rem}
+
+/* News + sidebar layout adjustments */
+.news-layout{grid-template-columns: 1fr 320px}
+.news-layout aside{width:320px}
+
+@media (max-width:900px){
+  .news-layout{grid-template-columns: 1fr;}
+  .news-layout aside{width:100%;order:2}
+  .news-layout > div:first-child{order:1}
+}
+
+@media (max-width:420px){
+  .main-layout{padding:12px;gap:12px}
+  .hero-image{height:180px !important}
+  .logo{width:54px;height:54px}
+}

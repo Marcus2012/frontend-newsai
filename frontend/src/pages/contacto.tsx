@@ -1,43 +1,11 @@
 
 import Link from 'next/link';
+import Header from '../components/Header';
 
 export default function Contacto() {
   return (
     <div className="min-h-screen" style={{ background: '#0a0e27', color: '#fff' }}>
-      {/* Header */}
-      <header style={{
-        background: 'rgba(10, 14, 39, 0.95)',
-        backdropFilter: 'blur(10px)',
-        borderBottom: '1px solid rgba(0, 255, 200, 0.1)',
-        padding: '15px 0',
-        position: 'sticky',
-        top: 0,
-        zIndex: 100,
-        fontFamily: '"Poppins", "-apple-system", "BlinkMacSystemFont", "Segoe UI", sans-serif'
-      }}>
-        <div style={{ maxWidth: '100%', padding: '0 40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <img src="https://ipetcead.com/new/asieselfutbol.png" alt="Logo" style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#fff', objectFit: 'cover' }} />
-            <div style={{ fontSize: '0.9em' }}>
-              <div style={{ color: '#00ffc8', fontWeight: 'bold' }}>AI Sports</div>
-              <div style={{ fontSize: '0.75em', color: '#aaa' }}>Predictor</div>
-            </div>
-          </div>
-          <nav style={{ display: 'flex', gap: '30px', alignItems: 'center', flex: 1, justifyContent: 'center' }}>
-            <Link href="/" style={{ color: '#aaa', textDecoration: 'none', fontSize: '0.9em', cursor: 'pointer', transition: 'color 0.3s' }}>Inicio</Link>
-            <Link href="/noticias" style={{ color: '#aaa', textDecoration: 'none', fontSize: '0.9em', cursor: 'pointer', transition: 'color 0.3s' }}>Noticias</Link>
-            <a href="#" style={{ color: '#aaa', textDecoration: 'none', fontSize: '0.9em', cursor: 'pointer', transition: 'color 0.3s' }}>Predicciones</a>
-            <a href="#" style={{ color: '#aaa', textDecoration: 'none', fontSize: '0.9em', cursor: 'pointer', transition: 'color 0.3s' }}>Calculadora</a>
-            <Link href="/nosotros" style={{ color: '#aaa', textDecoration: 'none', fontSize: '0.9em', cursor: 'pointer', transition: 'color 0.3s' }}>Nosotros</Link>
-            <Link href="/contacto" style={{ color: '#00ffc8', textDecoration: 'none', fontSize: '0.9em', cursor: 'pointer', fontWeight: 'bold', transition: 'color 0.3s' }}>Contacto</Link>
-          </nav>
-          <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
-            <Link href="/admin" style={{ background: '#00ffc8', color: '#000', padding: '8px 16px', borderRadius: '4px', textDecoration: 'none', fontWeight: 'bold', fontSize: '0.85em', cursor: 'pointer' }}>
-              ADMIN
-            </Link>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       {/* Main Content */}
       <div style={{ maxWidth: '100%', padding: '40px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
@@ -97,7 +65,7 @@ export default function Contacto() {
 
       {/* Footer */}
       <footer style={{ borderTop: '1px solid rgba(0, 255, 200, 0.1)', padding: '30px 40px', textAlign: 'center', color: '#888', fontSize: '0.85em' }}>
-        <p>© 2025 AI Sports Predictor. Todos los derechos reservados.</p>
+        <p>© 2025 asi es el futbol. Todos los derechos reservados.</p>
       </footer>
     </div>
   );

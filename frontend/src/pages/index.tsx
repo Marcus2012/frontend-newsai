@@ -1,5 +1,8 @@
 import Link from 'next/link';
 import Image from 'next/image';
+import Header from '../components/Header';
+import BannerSlots from '../components/BannerSlots';
+import MatchTicker from '../components/MatchTicker';
 import { GetStaticProps } from 'next';
 
 interface Props {
@@ -31,55 +34,25 @@ export default function HomePage({ articles }: Props) {
   return (
     <div className="min-h-screen" style={{ background: '#0a0e27', color: '#fff' }}>
       {/* Header */}
-      <header style={{
-        background: 'rgba(10, 14, 39, 0.95)',
-        backdropFilter: 'blur(10px)',
-        borderBottom: '1px solid rgba(0, 255, 200, 0.1)',
-        padding: '15px 0',
-        position: 'sticky',
-        top: 0,
-        zIndex: 100,
-        fontFamily: '"Poppins", "-apple-system", "BlinkMacSystemFont", "Segoe UI", sans-serif'
-      }}>
-        <div style={{ maxWidth: '100%', padding: '0 40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <img src="https://ipetcead.com/new/asieselfutbol.png" alt="Logo" style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#fff', objectFit: 'cover' }} />
-            <div style={{ fontSize: '0.9em' }}>
-              <div style={{ color: '#00ffc8', fontWeight: 'bold' }}>AI Sports</div>
-              <div style={{ fontSize: '0.75em', color: '#aaa' }}>Predictor</div>
-            </div>
-          </div>
+      <Header />
 
-          <nav style={{ display: 'flex', gap: '30px', alignItems: 'center', flex: 1, justifyContent: 'center' }}>
-            <Link href="/" style={{ color: '#aaa', textDecoration: 'none', fontSize: '0.9em', cursor: 'pointer', transition: 'color 0.3s' }}>Inicio</Link>
-            <Link href="/noticias" style={{ color: '#aaa', textDecoration: 'none', fontSize: '0.9em', cursor: 'pointer', transition: 'color 0.3s' }}>Noticias</Link>
-            <a href="#" style={{ color: '#aaa', textDecoration: 'none', fontSize: '0.9em', cursor: 'pointer', transition: 'color 0.3s' }}>Predicciones</a>
-            <a href="#" style={{ color: '#aaa', textDecoration: 'none', fontSize: '0.9em', cursor: 'pointer', transition: 'color 0.3s' }}>Calculadora</a>
-            <Link href="/nosotros" style={{ color: '#aaa', textDecoration: 'none', fontSize: '0.9em', cursor: 'pointer', transition: 'color 0.3s' }}>Nosotros</Link>
-            <Link href="/contacto" style={{ color: '#aaa', textDecoration: 'none', fontSize: '0.9em', cursor: 'pointer', transition: 'color 0.3s' }}>Contacto</Link>
-          </nav>
+      {/* Top banner */}
+      <BannerSlots position="top" />
 
-          <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
-            <Link href="/admin" style={{ background: '#00ffc8', color: '#000', padding: '8px 16px', borderRadius: '4px', textDecoration: 'none', fontWeight: 'bold', fontSize: '0.85em', cursor: 'pointer' }}>
-              ADMIN
-            </Link>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <div style={{ maxWidth: '100%', padding: '40px', display: 'grid', gridTemplateColumns: '1fr 350px', gap: '40px', alignItems: 'start' }}>
-        
-        {/* Featured Article */}
+      {/* Main Content: hero left + two stacked cards right */}
+      <div className="main-layout container-max">
+        {/* Left: Hero */}
         {featured && (
           <Link href={`/articles/${featured.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-            <div style={{
-              background: 'linear-gradient(135deg, rgba(10, 14, 39, 0.8), rgba(26, 31, 66, 0.8))',
-              border: '1px solid rgba(0, 255, 200, 0.2)',
+            <div className="featured-aside" style={{
+              background: 'linear-gradient(135deg, rgba(10, 14, 39, 0.9), rgba(20, 26, 56, 0.9))',
+              border: '1px solid rgba(0, 255, 200, 0.12)',
               borderRadius: '12px',
               overflow: 'hidden',
               cursor: 'pointer',
               transition: 'all 0.3s ease',
+              display: 'flex',
+              flexDirection: 'column',
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.borderColor = 'rgba(0, 255, 200, 0.6)';
@@ -91,8 +64,8 @@ export default function HomePage({ articles }: Props) {
             }}>
               
               {featured.image_url && (
-                <div style={{ height: '300px', position: 'relative' }}>
-                  <Image src={featured.image_url} alt={featured.title || 'featured'} fill style={{ objectFit: 'cover' }} />
+                <div className="hero-image" style={{ height: '420px', position: 'relative' }}>
+                  <Image src={featured.image_url} alt={featured.title || 'featured'} fill style={{ objectFit: 'cover' }} unoptimized />
                 </div>
               )}
               
@@ -131,139 +104,129 @@ export default function HomePage({ articles }: Props) {
           </Link>
         )}
 
-        {/* Sidebar - Noticias Destacadas */}
-        <div>
-          <h3 style={{ color: '#00ffc8', fontSize: '1.1em', marginTop: 0, marginBottom: '20px' }}>📰 Noticias Destacadas</h3>
-          
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-            {highlighted.map((article) => (
-              <Link key={article.id} href={`/articles/${article.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-                <div style={{
-                  background: 'rgba(26, 31, 66, 0.6)',
-                  border: '1px solid rgba(0, 255, 200, 0.1)',
-                  borderRadius: '8px',
-                  overflow: 'hidden',
-                  cursor: 'pointer',
-                  transition: 'all 0.3s ease',
-                  display: 'flex',
-                  gap: '12px'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = 'rgba(0, 255, 200, 0.4)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = 'rgba(0, 255, 200, 0.1)';
-                }}>
-                  
-                  {article.image_url && (
-                    <div style={{ width: '80px', height: '80px', minWidth: '80px', overflow: 'hidden', position: 'relative' }}>
-                      <Image src={article.image_url} alt={article.title} fill style={{ objectFit: 'cover' }} />
-                    </div>
-                  )}
-                  
-                  <div style={{ padding: '10px', flex: 1 }}>
-                    {article.category && (
-                      <span style={{
-                        background: 'rgba(0, 255, 200, 0.15)',
-                        color: '#00ffc8',
-                        padding: '2px 6px',
-                        borderRadius: '3px',
-                        fontSize: '0.7em',
-                        fontWeight: 'bold',
-                        marginBottom: '5px',
-                        display: 'inline-block'
-                      }}>
-                        {article.category}
-                      </span>
-                    )}
-                    
-                    <h4 style={{ fontSize: '0.85em', margin: '5px 0', lineHeight: '1.2', fontWeight: 'bold' }}>
-                      {article.title ? article.title.substring(0, 50) + '...' : null}
-                    </h4>
-                    
-                    {article.created_at && (
-                      <span style={{ fontSize: '0.75em', color: '#888' }}>
-                        {new Date(article.created_at).toLocaleDateString('es-ES')}
-                      </span>
-                    )}
+        {/* Right column: two stacked highlighted cards */}
+        <aside className="sidebar-aside" style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+          {highlighted.slice(0,2).map((article, idx) => (
+            <Link key={article.id} href={`/articles/${article.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+              <div style={{
+                background: 'linear-gradient(180deg, rgba(20,26,46,0.6), rgba(12,15,30,0.6))',
+                border: '1px solid rgba(0,255,200,0.06)',
+                borderRadius: '12px',
+                overflow: 'hidden',
+                cursor: 'pointer',
+                display: 'flex',
+                gap: '12px',
+                alignItems: 'center',
+                padding: '12px'
+              }}>
+                {article.image_url && (
+                  <div style={{ width: '110px', height: '80px', overflow: 'hidden', borderRadius: '8px', position: 'relative' }}>
+                    <Image src={article.image_url} alt={article.title} fill style={{ objectFit: 'cover' }} unoptimized />
                   </div>
+                )}
+                <div style={{ flex: 1 }}>
+                  <div style={{ color: '#00ffc8', fontSize: '0.75em', fontWeight: '700', marginBottom: '6px' }}>{article.category}</div>
+                  <div style={{ fontWeight: '700', color: '#fff', lineHeight: '1.2' }}>{article.title ? article.title.substring(0, 80) + '...' : ''}</div>
+                  <div style={{ fontSize: '0.75em', color: '#999', marginTop: '8px' }}>{article.created_at && new Date(article.created_at).toLocaleDateString('es-ES')}</div>
                 </div>
-              </Link>
-            ))}
-          </div>
-        </div>
+              </div>
+            </Link>
+          ))}
+        </aside>
       </div>
 
-      {/* Grid de todas las noticias */}
-      <div style={{ maxWidth: '100%', padding: '40px', borderTop: '1px solid rgba(0, 255, 200, 0.1)' }}>
-        <h3 style={{ color: '#00ffc8', fontSize: '1.3em', marginTop: 0, marginBottom: '30px' }}>📋 Todas las Noticias</h3>
-        
-        {sortedArticles.length === 0 ? (
-          <p style={{ textAlign: 'center', color: '#aaa' }}>No hay artículos disponibles</p>
-        ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '20px' }}>
-            {sortedArticles.map((article) => (
-              <Link key={article.id} href={`/articles/${article.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-                <article 
-                  style={{
-                    background: 'rgba(26, 31, 66, 0.6)',
-                    border: '1px solid rgba(0, 255, 200, 0.1)',
-                    borderRadius: '8px',
-                    overflow: 'hidden',
-                    cursor: 'pointer',
-                    transition: 'all 0.3s ease',
-                    height: '100%',
-                    display: 'flex',
-                    flexDirection: 'column'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = 'rgba(0, 255, 200, 0.4)';
-                    e.currentTarget.style.transform = 'translateY(-3px)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = 'rgba(0, 255, 200, 0.1)';
-                    e.currentTarget.style.transform = 'translateY(0)';
-                  }}
-                >
-                  {article.image_url && (
-                    <div style={{ height: '120px', overflow: 'hidden', position: 'relative' }}>
-                      <Image src={article.image_url} alt={article.title} fill style={{ objectFit: 'cover' }} />
-                    </div>
-                  )}
-                  <div style={{ padding: '12px', flex: 1, display: 'flex', flexDirection: 'column' }}>
-                    {article.category && (
-                      <span style={{
-                        background: 'rgba(0, 255, 200, 0.15)',
-                        color: '#00ffc8',
-                        padding: '2px 6px',
-                        borderRadius: '3px',
-                        fontSize: '0.7em',
-                        fontWeight: 'bold',
-                        width: 'fit-content',
-                        marginBottom: '6px'
-                      }}>
-                        {article.category}
-                      </span>
-                    )}
-                    {article.title ? (
-                      <h4 style={{ fontSize: '0.9em', margin: '0 0 8px 0', lineHeight: '1.2', fontWeight: 'bold' }}>
-                        {article.title ? article.title.substring(0, 60) + '...' : null}
-                      </h4>
-                    ) : null}
-                    <div style={{ marginTop: 'auto', fontSize: '0.75em', color: '#888' }}>
-                      {article.created_at && new Date(article.created_at).toLocaleDateString('es-ES')}
-                    </div>
-                  </div>
-                </article>
-              </Link>
-            ))}
+      {/* Match ticker similar to reference */}
+      <div className="container-max">
+        <MatchTicker />
+      </div>
+
+      {/* Inline banner between sections */}
+      <div style={{ maxWidth: '100%', padding: '0 40px' }}>
+        <BannerSlots position="between" />
+      </div>
+
+      {/* Grid de todas las noticias con sidebar de banners */}
+      <div className="container-max" style={{ padding: '40px 20px', borderTop: '1px solid rgba(0, 255, 200, 0.1)' }}>
+        <div className="news-layout" style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: '24px', alignItems: 'start' }}>
+          <div>
+            <h3 style={{ color: '#00ffc8', fontSize: '1.3em', marginTop: 0, marginBottom: '20px' }}>📋 Todas las Noticias</h3>
+            {sortedArticles.length === 0 ? (
+              <p style={{ textAlign: 'center', color: '#aaa' }}>No hay artículos disponibles</p>
+            ) : (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '18px' }}>
+                {sortedArticles.map((article) => (
+                  <Link key={article.id} href={`/articles/${article.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                    <article 
+                      style={{
+                        background: 'rgba(26, 31, 66, 0.6)',
+                        border: '1px solid rgba(0, 255, 200, 0.1)',
+                        borderRadius: '8px',
+                        overflow: 'hidden',
+                        cursor: 'pointer',
+                        transition: 'all 0.3s ease',
+                        height: '100%',
+                        display: 'flex',
+                        flexDirection: 'column'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.borderColor = 'rgba(0, 255, 200, 0.4)';
+                        e.currentTarget.style.transform = 'translateY(-3px)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.borderColor = 'rgba(0, 255, 200, 0.1)';
+                        e.currentTarget.style.transform = 'translateY(0)';
+                      }}
+                    >
+                      {article.image_url && (
+                        <div style={{ height: '140px', overflow: 'hidden', position: 'relative' }}>
+                          <Image src={article.image_url} alt={article.title} fill style={{ objectFit: 'cover' }} unoptimized />
+                        </div>
+                      )}
+                      <div style={{ padding: '12px', flex: 1, display: 'flex', flexDirection: 'column' }}>
+                        {article.category && (
+                          <span style={{
+                            background: 'rgba(0, 255, 200, 0.15)',
+                            color: '#00ffc8',
+                            padding: '2px 6px',
+                            borderRadius: '3px',
+                            fontSize: '0.7em',
+                            fontWeight: 'bold',
+                            width: 'fit-content',
+                            marginBottom: '6px'
+                          }}>
+                            {article.category}
+                          </span>
+                        )}
+                        {article.title ? (
+                          <h4 style={{ fontSize: '1rem', margin: '0 0 8px 0', lineHeight: '1.2', fontWeight: 'bold' }}>
+                            {article.title ? article.title.substring(0, 120) + '...' : null}
+                          </h4>
+                        ) : null}
+                        <div style={{ marginTop: 'auto', fontSize: '0.75em', color: '#888' }}>
+                          {article.created_at && new Date(article.created_at).toLocaleDateString('es-ES')}
+                        </div>
+                      </div>
+                    </article>
+                  </Link>
+                ))}
+              </div>
+            )}
           </div>
-        )}
+
+          <aside style={{ width: '320px', display: 'flex', flexDirection: 'column', gap: '18px' }}>
+            <div style={{ position: 'sticky', top: 100 }}>
+              <BannerSlots position="sidebar" />
+            </div>
+            <div>
+              <BannerSlots position="affiliate" />
+            </div>
+          </aside>
+        </div>
       </div>
 
       {/* Footer */}
       <footer style={{ borderTop: '1px solid rgba(0, 255, 200, 0.1)', padding: '30px 40px', textAlign: 'center', color: '#888', fontSize: '0.85em' }}>
-        <p>© 2025 AI Sports Predictor. Todos los derechos reservados.</p>
+        <p>© 2025 asi es el futbol. Todos los derechos reservados.</p>
       </footer>
     </div>
   );
@@ -283,13 +246,17 @@ export const getStaticProps: GetStaticProps = async () => {
     const items = arr.map((item: any) => {
       // Si es formato plano, los campos están en item; si es formato data, están en item.attributes
       const attrs = item.attributes || item;
+      const rawImage = attrs.image?.data?.attributes?.url ?? attrs.image?.url ?? null;
+      const image_url = rawImage
+        ? (rawImage.startsWith('http') ? rawImage : (STRAPI ? `${STRAPI.replace(/\/$/, '')}${rawImage}` : rawImage))
+        : null;
       return {
         id: String(item.id),
         title: attrs.title ?? null,
         created_at: attrs.publishedAt ?? attrs.createdAt ?? attrs.created_at ?? null,
         category: attrs.category ?? null,
         author: attrs.author ?? null,
-        image_url: attrs.image?.data?.attributes?.url ?? attrs.image?.url ?? null,
+        image_url,
         description: attrs.excerpt ?? null
       };
     });

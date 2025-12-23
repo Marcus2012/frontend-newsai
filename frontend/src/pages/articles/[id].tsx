@@ -3,6 +3,8 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import Image from 'next/image';
+import Header from '../../components/Header';
+import BannerSlots from '../../components/BannerSlots';
 
 interface Article {
   id: string;
@@ -50,6 +52,12 @@ export default function ArticlePage() {
         const item = arr[0] || arr;
         if (!item) throw new Error('Noticia no encontrada');
         const attrs = item.attributes || item;
+        // Construir URL completa de la imagen si viene como ruta relativa desde Strapi
+        const rawImage = attrs.image?.data?.attributes?.url ?? attrs.image?.url ?? null;
+        const imageUrl = rawImage
+          ? (rawImage.startsWith('http') ? rawImage : `${strapiUrl?.replace(/\/$/, '')}${rawImage}`)
+          : null;
+
         setArticle({
           id: String(item.id),
           title: attrs.title ?? null,
@@ -58,7 +66,7 @@ export default function ArticlePage() {
           category: attrs.category ?? null,
           author: attrs.author ?? null,
           status: attrs.status ?? null,
-          image_url: attrs.image?.data?.attributes?.url ?? attrs.image?.url ?? null,
+          image_url: imageUrl,
           seo_meta: attrs.seo_meta ?? null,
           keywords: attrs.keywords ?? null,
           meta_description: attrs.meta_description ?? null,
@@ -106,36 +114,19 @@ export default function ArticlePage() {
 
   return (
     <div style={{ fontFamily: '"Poppins", "-apple-system", "BlinkMacSystemFont", "Segoe UI", sans-serif', background: '#0a0e27', color: '#fff', minHeight: '100vh' }}>
-      {/* Header */}
-      <header style={{
-        background: 'rgba(10, 14, 39, 0.95)',
-        backdropFilter: 'blur(10px)',
-        borderBottom: '1px solid rgba(0, 255, 200, 0.1)',
-        padding: '15px 0',
-        position: 'sticky',
-        top: 0,
-        zIndex: 100
-      }}>
-        <div style={{ maxWidth: '100%', padding: '0 40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <div style={{ background: '#00ffc8', width: '35px', height: '35px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', color: '#000' }}>⚽</div>
-            <div style={{ fontSize: '0.9em' }}>
-              <div style={{ color: '#00ffc8', fontWeight: 'bold' }}>AI Sports</div>
-              <div style={{ fontSize: '0.75em', color: '#aaa' }}>Predictor</div>
-            </div>
-          </div>
-          <Link href="/" style={{ color: '#00ffc8', textDecoration: 'none', cursor: 'pointer', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '5px' }}>
-            ← Volver al Inicio
-          </Link>
-        </div>
-      </header>
+      <Header />
 
       {/* Featured Image */}
       {article?.image_url && (
         <div style={{ width: '100%', height: '400px', overflow: 'hidden', position: 'relative' }}>
-          <Image src={article.image_url} alt={article.title} fill style={{ objectFit: 'cover' }} />
+          <Image src={article.image_url} alt={article.title} fill style={{ objectFit: 'cover' }} unoptimized />
         </div>
       )}
+
+      {/* Inline banner */}
+      <div style={{ maxWidth: 1000, margin: '0 auto', padding: '20px' }}>
+        <BannerSlots position="between" />
+      </div>
 
       {/* Content */}
       <div style={{ maxWidth: 1000, margin: '0 auto', padding: '40px 20px' }}>
@@ -267,7 +258,7 @@ export default function ArticlePage() {
 
       {/* Footer */}
       <footer style={{ borderTop: '1px solid rgba(0, 255, 200, 0.1)', padding: '30px 40px', textAlign: 'center', color: '#888', fontSize: '0.85em', marginTop: '40px' }}>
-        <p>© 2025 AI Sports Predictor. Todos los derechos reservados.</p>
+        <p>© 2025 asi es el futbol. Todos los derechos reservados.</p>
       </footer>
     </div>
   );

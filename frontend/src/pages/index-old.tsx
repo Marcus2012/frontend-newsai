@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import Header from '../components/Header';
 
 interface Article {
   id: string;
@@ -83,28 +84,13 @@ export default function HomePage() {
 
   return (
     <div style={{ background: '#0a0e27', color: '#fff', minHeight: '100vh' }}>
-      {/* Header */}
-      <header style={{
-        background: 'rgba(10, 14, 39, 0.95)',
-        backdropFilter: 'blur(10px)',
-        borderBottom: '1px solid rgba(0, 255, 200, 0.1)',
-        padding: '20px 0',
-        position: 'sticky',
-        top: 0,
-        zIndex: 100
-      }}>
-        <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h1 style={{ margin: 0, fontSize: '1.8em', color: '#00ffc8' }}>🏈 AI Sports</h1>
-          <nav style={{ display: 'flex', gap: '30px' }}>
-            {['Inicio', 'Noticias', 'Predicciones', 'Contacto'].map(item => (
-              <a key={item} href="#" style={{ color: '#fff', textDecoration: 'none', fontSize: '0.95em', transition: 'color 0.3s' }}>
-                {item}
-              </a>
-            ))}
-            <Link href="/admin" style={{ color: '#00ffc8', textDecoration: 'none', fontWeight: 'bold' }}>Admin</Link>
-          </nav>
+      <Header />
+      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 20px' }}>
+        {/* Top banner placeholder */}
+        <div style={{ margin: '18px 0' }}>
+          <div style={{ height: 92, background: 'linear-gradient(90deg,#1b223e,#0d1124)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700 }}>Leaderboard (728x90)</div>
         </div>
-      </header>
+      </div>
 
       {/* Hero */}
       <section style={{
@@ -188,7 +174,7 @@ export default function HomePage() {
 
       {/* Footer */}
       <footer style={{ borderTop: '1px solid rgba(0, 255, 200, 0.1)', padding: '30px 20px', textAlign: 'center', color: '#aaa' }}>
-        <p>© 2025 AI Sports Predictor. Todos los derechos reservados.</p>
+        <p>© 2025 asi es el futbol. Todos los derechos reservados.</p>
       </footer>
     </div>
   );
