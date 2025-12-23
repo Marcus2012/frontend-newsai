@@ -27,7 +27,11 @@ export default function BannerSlots({ position = 'top' }: Props) {
     const fetchBanners = async () => {
       if (!STRAPI) return;
       try {
-        const res = await fetch(`${STRAPI.replace(/\/$/, '')}/api/banners?populate=*`);
+        const url = `${STRAPI.replace(/\/$/, '')}/api/banners?populate=*`;
+        const headers: Record<string,string> = {};
+        const token = process.env.NEXT_PUBLIC_STRAPI_TOKEN || process.env.NEXT_PUBLIC_STRAPI_PRD_TOKEN || '';
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+        const res = await fetch(url, { headers });
         if (!res.ok) throw new Error(`fetch banners failed: ${res.status}`);
         const json = await res.json();
         const data = json.data || [];
