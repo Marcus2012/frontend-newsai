@@ -4,6 +4,7 @@ import Header from '../components/Header';
 import BannerSlots from '../components/BannerSlots';
 import MatchTicker from '../components/MatchTicker';
 import { GetStaticProps } from 'next';
+import { getStrapiBase } from '../lib/strapiBase';
 
 interface Props {
   articles: any[];
@@ -19,7 +20,7 @@ interface Article {
   description?: string;
 }
 
-const STRAPI = process.env.NEXT_PUBLIC_STRAPI_URL || process.env.NEXT_PUBLIC_API_ENDPOINT;
+const STRAPI = getStrapiBase() || process.env.NEXT_PUBLIC_API_ENDPOINT || '';
 
 export default function HomePage({ articles }: Props) {
   // Ordenar por fecha descendente

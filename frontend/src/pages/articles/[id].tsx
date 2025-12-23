@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import Header from '../../components/Header';
 import BannerSlots from '../../components/BannerSlots';
+import { getStrapiBase } from '../../lib/strapiBase';
 
 interface Article {
   id: string;
@@ -24,7 +25,7 @@ interface Article {
 export default function ArticlePage() {
   const router = useRouter();
   const { id } = router.query;
-  const strapiUrl = process.env.NEXT_PUBLIC_STRAPI_URL;
+  const strapiUrl = getStrapiBase();
   const strapiToken = process.env.NEXT_PUBLIC_STRAPI_TOKEN;
   
   const [article, setArticle] = useState<Article | null>(null);

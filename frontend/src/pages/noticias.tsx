@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import Header from '../components/Header';
+import { getStrapiBase } from '../lib/strapiBase';
 import { GetStaticProps } from 'next';
 
 interface Article {
@@ -72,7 +73,7 @@ export default function NoticiasPage({ articles }: NoticiasProps) {
 }
 
 export const getStaticProps: GetStaticProps = async () => {
-  const STRAPI = process.env.NEXT_PUBLIC_STRAPI_URL || process.env.NEXT_PUBLIC_API_ENDPOINT;
+  const STRAPI = getStrapiBase() || process.env.NEXT_PUBLIC_API_ENDPOINT || '';
   const STRAPI_TOKEN = process.env.NEXT_PUBLIC_STRAPI_TOKEN;
   //const BASE = STRAPI || 'http://localhost:1337';
   try {
