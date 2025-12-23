@@ -1,18 +1,19 @@
 export function getStrapiBase(): string {
   const prd = (process.env.NEXT_PUBLIC_STRAPI_PRD || '').replace(/\/admin$/, '').replace(/\/$/, '');
   const dev = (process.env.NEXT_PUBLIC_STRAPI_URL || '').replace(/\/$/, '');
+  const internal = (process.env.STRAPI_INTERNAL_URL || '').replace(/\/$/, '');
+  const useProxy = (process.env.NEXT_PUBLIC_USE_STRAPI_PROXY || 'false') === 'true';
   const env = process.env.NEXT_PUBLIC_VERCEL_ENV || process.env.NODE_ENV || '';
 
-  // On the browser prefer PRD if current protocol is https
+  // Browser runtime
   if (typeof window !== 'undefined') {
-    // If using proxy, return relative API path
-    if ((process.env.NEXT_PUBLIC_USE_STRAPI_PROXY || 'false') === 'true') return '/api/strapi';
+    if (useProxy) return '/api/strapi';
     if (window.location.protocol === 'https:' && prd) return prd;
+    return dev || '';
   }
 
-  // On server/runtime prefer PRD when building for production
+  // Server/runtime (getStaticProps, SSR) - prefer internal server URL if provided
+  if (internal) return internal;
   if ((env === 'production' || process.env.NODE_ENV === 'production') && prd) return prd;
-
-  if ((process.env.NEXT_PUBLIC_USE_STRAPI_PROXY || 'false') === 'true') return '/api/strapi';
   return dev || '';
 }
