@@ -2,6 +2,7 @@
   "name": "newsai-wordpress-root",
   "private": true,
   "scripts": {
+    "dev": "npm --prefix frontend run dev",
     "vercel-build": "npm --prefix frontend run build"
   }
 }
