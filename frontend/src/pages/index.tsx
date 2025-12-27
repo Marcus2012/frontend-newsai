@@ -212,8 +212,7 @@ export default function HomePage({ articles }: Props) {
                 ))}
               </div>
             )}
-          </div>
-
+          </div>    
           <aside style={{ width: '320px', display: 'flex', flexDirection: 'column', gap: '18px' }}>
             <div style={{ position: 'sticky', top: 100 }}>
               <BannerSlots position="sidebar" />
@@ -227,7 +226,7 @@ export default function HomePage({ articles }: Props) {
 
       {/* Footer */}
       <footer style={{ borderTop: '1px solid rgba(0, 255, 200, 0.1)', padding: '30px 40px', textAlign: 'center', color: '#888', fontSize: '0.85em' }}>
-        <p>© 2025 asi es el futbol. Todos los derechos reservados.</p>
+        <p>© 2025 Asi es el futbol. Todos los derechos reservados.</p>
       </footer>
     </div>
   );

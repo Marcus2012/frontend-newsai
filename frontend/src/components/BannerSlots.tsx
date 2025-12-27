@@ -159,9 +159,8 @@ export default function BannerSlots({ position = 'top' }: Props) {
         .affiliate-row{display:flex;gap:12px;justify-content:center;margin-top:10px}
         .aff{background:rgba(255,255,255,0.06);padding:8px 14px;border-radius:8px;color:#fff;font-weight:600}
         .medium{height:260px;background:linear-gradient(180deg,#0f1530,#151931);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;border:1px dashed rgba(255,255,255,0.05)}
-        .sidebar{height:600px;background:linear-gradient(180deg,#091124,#0f1630);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;border:1px dashed rgba(255,255,255,0.05)}
-        .footer{height:90px;background:linear-gradient(90deg,#0b122b,#10142b);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;border:1px dashed rgba(255,255,255,0.05)}
-        .banner-single{display:block}
+        .sidebar{display:none !important}
+        .footer{display:none !important}
         .aff-link{display:block}
 
         @media (max-width:900px){
