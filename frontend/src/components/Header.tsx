@@ -249,6 +249,13 @@ export default function Header() {
           <Link href="/">Inicio</Link>
           <Link href="/noticias">Noticias</Link>
 
+          <div className="has-dropdown">
+            <a href="#">Partidos ▾</a>
+            <div className="dropdown">
+              <Link href="/matches/peru/primera">Liga Perú - Primera División</Link>
+            </div>
+          </div>
+
           <div className="has-mega">
             <a href="#">Predicciones ▾</a>
           </div>
@@ -278,6 +285,7 @@ export default function Header() {
           <a href="/">Inicio</a>
           <a href="/noticias">Noticias</a>
           <a href="#">Predicciones</a>
+          <a href="/matches/peru/primera">Partidos - Liga Perú</a>
           <a href="#">Calculadora</a>
           <a href="/nosotros">Nosotros</a>
           <a href="/contacto">Contacto</a>
@@ -302,6 +310,9 @@ export default function Header() {
         .brand-sub{font-size:0.75rem;color:#aaa}
 
         .main-nav{display:flex;gap:18px;align-items:center;justify-content:center;flex:1}
+        .has-dropdown{position:relative}
+        .has-dropdown .dropdown{position:absolute;left:0;top:100%;background:rgba(10,14,39,0.98);padding:8px;border-radius:8px;box-shadow:0 8px 24px rgba(2,6,23,0.6);display:none}
+        .has-dropdown:hover .dropdown{display:block}
         .main-nav a, .main-nav :global(a){color:#fff;text-decoration:none;font-size:0.95rem}
         .main-nav :global(a), .main-nav :global(a:link), .main-nav :global(a:visited), .main-nav :global(a:hover), .main-nav :global(a:active){color:#fff !important}
 
