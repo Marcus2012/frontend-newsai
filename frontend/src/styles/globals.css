@@ -78,3 +78,52 @@ body{
   .hero-image{height:180px !important}
   .logo{width:54px;height:54px}
 }
+
+  /* Logos row centered under header */
+  .logos-row{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin:14px 0}
+  .logo-item{display:inline-flex;align-items:center;justify-content:center}
+  .logo-item img{width:48px;height:48px;object-fit:contain;border-radius:6px;box-shadow:0 2px 8px rgba(0,0,0,0.35)}
+  @media (max-width:420px){
+    .logo-item img{width:36px;height:36px}
+  }
+
+  /* Tabs styling */
+  .tabs-row{display:flex;justify-content:flex-start;gap:12px;margin:10px 0}
+  .tab-btn{background:linear-gradient(180deg,#063349,#08385a);border:1px solid rgba(0,255,200,0.08);color:#fff;padding:8px 12px;border-radius:10px;cursor:pointer;font-weight:700;box-shadow:0 1px 0 rgba(0,0,0,0.3)}
+  .tab-btn:hover{transform:translateY(-1px)}
+  .tab-btn.active{box-shadow:inset 0 -3px 0 rgba(0,255,200,0.06),0 6px 18px rgba(0,0,0,0.25);border:1px solid rgba(0,255,200,0.16)}
+
+  /* Hero tweak */
+  .hero-image{background:linear-gradient(180deg, rgba(5,12,28,0.6), rgba(3,6,15,0.7));border-radius:8px}
+
+  /* Adjust main heading spacing */
+  .main-heading{margin-top:18px;color:var(--accent);font-size:28px}
+
+/* League table styles */
+.league-table{
+  width:100%;
+  border-collapse:collapse;
+  color:var(--c-text, #fff);
+  min-width:780px;
+}
+.league-table thead th{
+  text-align:left;
+  padding:10px 8px;
+  font-weight:700;
+  color:#1f2f2b;
+  background:linear-gradient(180deg,#ecf0f1,#e6e6e6);
+  border-bottom:2px solid rgba(0,0,0,0.06);
+  position:sticky;
+  top:0;
+  z-index:2;
+}
+.league-table tbody td{padding:9px 8px;vertical-align:middle}
+.league-table tbody tr{border-top:1px solid rgba(0,0,0,0.04)}
+.league-table tbody tr:nth-child(even){background:rgba(255,255,255,0.02)}
+.league-team-cell{display:flex;align-items:center;gap:12px}
+.league-team-cell img{width:28px;height:28px;object-fit:contain;border-radius:4px}
+.league-pos{font-weight:800;width:48px}
+.league-dg{font-weight:800}
+.league-pos-top3{box-shadow:inset 0 4px 0 rgba(0,255,200,0.06)}
+.league-note{font-size:0.9rem;color:var(--muted);margin-top:8px}
+

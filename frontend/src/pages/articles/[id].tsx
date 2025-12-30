@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -31,6 +31,35 @@ export default function ArticlePage() {
   const [article, setArticle] = useState<Article | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showShare, setShowShare] = useState(false);
+  const shareRef = useRef<HTMLDivElement | null>(null);
+
+  const iconBtnStyle: React.CSSProperties = {
+    width: 40,
+    height: 40,
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 9999,
+    background: 'linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01))',
+    border: '1px solid rgba(255,255,255,0.04)',
+    boxShadow: '0 8px 20px rgba(2,6,23,0.6)',
+    cursor: 'pointer',
+    padding: 6,
+    transition: 'transform 0.12s ease, box-shadow 0.12s ease'
+  };
+
+  useEffect(() => {
+    if (!showShare) return;
+    const onDoc = (ev: MouseEvent) => {
+      const target = ev.target as Node | null;
+      if (shareRef.current && target && !shareRef.current.contains(target)) {
+        setShowShare(false);
+      }
+    };
+    document.addEventListener('mousedown', onDoc);
+    return () => document.removeEventListener('mousedown', onDoc);
+  }, [showShare]);
 
   useEffect(() => {
     if (!id) return;
@@ -160,26 +189,93 @@ export default function ArticlePage() {
         </div>
 
         {/* Share Button */}
-        <button style={{
-          background: '#00ffc8',
-          color: '#000',
-          border: 'none',
-          padding: '12px 24px',
-          borderRadius: '8px',
-          fontWeight: 'bold',
-          cursor: 'pointer',
-          marginBottom: '40px',
-          fontSize: '0.95em',
-          transition: 'all 0.3s ease'
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.transform = 'scale(1.05)';
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.transform = 'scale(1)';
-        }}>
-          📤 Compartir Artículo
-        </button>
+        <div style={{ position: 'relative', display: 'inline-block', marginBottom: '40px' }}>
+          <button style={{
+            background: '#00ffc8',
+            color: '#000',
+            border: 'none',
+            padding: '12px 24px',
+            borderRadius: '8px',
+            fontWeight: 'bold',
+            cursor: 'pointer',
+            marginBottom: '40px',
+            fontSize: '0.95em',
+            transition: 'all 0.3s ease'
+          }}
+          onClick={() => setShowShare(s => !s)}
+          onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.05)'; }}
+          onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}>
+            📤 Compartir Artículo
+          </button>
+
+          {/* Share icons popover */}
+          {showShare && (
+            <div ref={shareRef} style={{
+              position: 'absolute',
+              top: 'auto',
+              bottom: 'calc(100% + 8px)',
+              left: '0',
+              transform: 'none',
+              background: 'rgba(6,10,30,0.98)',
+              padding: '6px 8px',
+              borderRadius: '10px',
+              border: '1px solid rgba(255,255,255,0.04)',
+              boxShadow: '0 8px 20px rgba(2,6,23,0.6)',
+              display: 'flex',
+              gap: '10px',
+              zIndex: 60,
+              alignItems: 'center'
+            }}>
+              {/** Social buttons **/}
+              <button title="Twitter" onClick={() => {
+                const url = encodeURIComponent(typeof window !== 'undefined' ? window.location.href : '');
+                const text = encodeURIComponent(article?.title || '');
+                window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank', 'noopener');
+              }} style={iconBtnStyle} onMouseEnter={(e)=> (e.currentTarget.style.transform = 'scale(1.08)') } onMouseLeave={(e)=> (e.currentTarget.style.transform = 'scale(1)') }>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="#1DA1F2" xmlns="http://www.w3.org/2000/svg"><path d="M22 5.92c-.64.28-1.32.48-2.04.56.73-.44 1.28-1.12 1.54-1.94-.68.4-1.44.68-2.24.84C18.9 4.6 17.98 4 17 4c-1.78 0-3.22 1.44-3.22 3.22 0 .25.03.5.08.74C10.28 8 7.07 6.48 4.9 4c-.28.48-.44 1.04-.44 1.64 0 1.12.57 2.12 1.44 2.7-.56 0-1.08-.16-1.54-.4v.04c0 1.58 1.12 2.9 2.6 3.2-.28.08-.6.12-.92.12-.22 0-.44 0-.66-.04.46 1.4 1.78 2.42 3.34 2.44-1.24.98-2.8 1.56-4.5 1.56-.3 0-.6 0-.9-.04 1.6 1.04 3.5 1.64 5.56 1.64 6.66 0 10.3-5.5 10.3-10.28v-.46c.72-.5 1.3-1.12 1.78-1.82-.66.3-1.36.5-2.08.6z"/></svg>
+              </button>
+
+              <button title="Facebook" onClick={() => {
+                const url = encodeURIComponent(typeof window !== 'undefined' ? window.location.href : '');
+                window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank', 'noopener');
+              }} style={iconBtnStyle} onMouseEnter={(e)=> (e.currentTarget.style.transform = 'scale(1.08)') } onMouseLeave={(e)=> (e.currentTarget.style.transform = 'scale(1)') }>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="#1877F2" xmlns="http://www.w3.org/2000/svg"><path d="M22 12a10 10 0 10-11.5 9.9v-7h-2.2V12h2.2V9.8c0-2.2 1.3-3.4 3.3-3.4.96 0 1.97.17 1.97.17v2.2h-1.12c-1.1 0-1.44.68-1.44 1.38V12h2.44l-.39 2.9h-2.05v7A10 10 0 0022 12"/></svg>
+              </button>
+
+              <button title="WhatsApp" onClick={() => {
+                const url = encodeURIComponent(typeof window !== 'undefined' ? window.location.href : '');
+                const text = encodeURIComponent(`${article?.title ?? ''} - `);
+                window.open(`https://api.whatsapp.com/send?text=${text}${url}`, '_blank', 'noopener');
+              }} style={iconBtnStyle} onMouseEnter={(e)=> (e.currentTarget.style.transform = 'scale(1.08)') } onMouseLeave={(e)=> (e.currentTarget.style.transform = 'scale(1)') }>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="#25D366" xmlns="http://www.w3.org/2000/svg"><path d="M20.52 3.48A11.86 11.86 0 0012 .75 11.86 11.86 0 003.48 3.48 11.86 11.86 0 00.75 12c0 2.09.54 4.14 1.57 5.94L.03 23.25l5.48-1.41A11.86 11.86 0 0012 23.25c6.4 0 11.62-5.22 11.62-11.62 0-3.11-1.21-6.03-3.1-8.15zM12 21.5c-1.8 0-3.55-.48-5.06-1.38l-.36-.22-3.26.84.86-3.18-.24-.36A8.3 8.3 0 013.5 12c0-4.6 3.73-8.33 8.33-8.33 2.22 0 4.3.86 5.86 2.43a8.23 8.23 0 012.43 5.9c0 4.6-3.73 8.33-8.33 8.33z"/></svg>
+              </button>
+
+              <button title="Telegram" onClick={() => {
+                const url = encodeURIComponent(typeof window !== 'undefined' ? window.location.href : '');
+                const text = encodeURIComponent(article?.title || '');
+                window.open(`https://t.me/share/url?url=${url}&text=${text}`, '_blank', 'noopener');
+              }} style={iconBtnStyle} onMouseEnter={(e)=> (e.currentTarget.style.transform = 'scale(1.08)') } onMouseLeave={(e)=> (e.currentTarget.style.transform = 'scale(1)') }>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="#26A5E4" xmlns="http://www.w3.org/2000/svg"><path d="M12 0C5.37 0 .002 5.37.002 12S5.37 24 12 24s12-5.37 12-12S18.63 0 12 0zm5.2 8.4l-1.9 9.12c-.14.64-.5.8-1.02.5l-2.82-2.08-1.36 1.3c-.15.15-.28.28-.57.28l.2-2.86 5.2-4.7c.22-.2-.05-.32-.34-.12l-6.43 4.05-2.77-.86c-.6-.2-.61-.6.12-.89L16.8 7.2c.52-.18.97.12.6.18z"/></svg>
+              </button>
+
+              <button title="LinkedIn" onClick={() => {
+                const url = encodeURIComponent(typeof window !== 'undefined' ? window.location.href : '');
+                const title = encodeURIComponent(article?.title || '');
+                window.open(`https://www.linkedin.com/shareArticle?mini=true&url=${url}&title=${title}`, '_blank', 'noopener');
+              }} style={iconBtnStyle} onMouseEnter={(e)=> (e.currentTarget.style.transform = 'scale(1.08)') } onMouseLeave={(e)=> (e.currentTarget.style.transform = 'scale(1)') }>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="#0A66C2" xmlns="http://www.w3.org/2000/svg"><path d="M4.98 3.5C4.98 4.88 3.88 6 2.5 6S0 4.88 0 3.5 1.1 1 2.5 1s2.48 1.12 2.48 2.5zM.5 8h4v14h-4zM8.5 8h3.8v2h.06c.53-1 1.84-2 3.79-2 4.06 0 4.81 2.68 4.81 6.16V22h-4v-6.2c0-1.48-.03-3.38-2.06-3.38-2.06 0-2.37 1.6-2.37 3.28V22h-4V8z"/></svg>
+              </button>
+
+              <button title="Copiar" onClick={async () => {
+                const url = typeof window !== 'undefined' ? window.location.href : '';
+                try { await navigator.clipboard.writeText(url); alert('Enlace copiado al portapapeles'); }
+                catch { alert('No se pudo copiar'); }
+              }} style={iconBtnStyle} onMouseEnter={(e)=> (e.currentTarget.style.transform = 'scale(1.08)') } onMouseLeave={(e)=> (e.currentTarget.style.transform = 'scale(1)') }>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="#888" xmlns="http://www.w3.org/2000/svg"><path d="M16 1H4a2 2 0 00-2 2v12h2V3h12V1zM20 5H8a2 2 0 00-2 2v14a2 2 0 002 2h12a2 2 0 002-2V7a2 2 0 00-2-2zm0 16H8V7h12v14z"/></svg>
+              </button>
+            </div>
+          )}
+        </div>
 
         {/* Description */}
         {article?.description && (

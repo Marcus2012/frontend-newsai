@@ -53,7 +53,7 @@ export default function NoticiasPage({ articles }: NoticiasProps) {
                     height: '100%'
                   }}>
                     {article.image_url && (
-                      <div style={{ height: '180px', position: 'relative' }}>
+                      <div style={{ height: '220px', position: 'relative' }}>
                         <Image src={article.image_url} alt={article.title} fill style={{ objectFit: 'cover' }} unoptimized />
                       </div>
                     )}
@@ -117,11 +117,27 @@ export default function NoticiasPage({ articles }: NoticiasProps) {
           align-items: flex-end;
           gap: 24px;
         }
+        /* Mantener el banner visible mientras se hace scroll */
+        .noticias-content-banner > a {
+          position: sticky;
+          top: 96px; /* ajuste para dejar espacio al header fijo */
+          z-index: 30;
+          align-self: flex-end;
+        }
+
         .noticias-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-          gap: 30px;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 36px;
         }
+
+        .noticias-grid article {
+          min-height: 360px;
+          display: flex;
+          flex-direction: column;
+          transition: transform .18s ease, box-shadow .18s ease;
+        }
+        .noticias-grid article:hover { transform: translateY(-6px); box-shadow: 0 18px 50px rgba(2,6,23,0.45); }
         .footer-desktop {
           display: block;
         }

@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from '../../../../src/components/Header';
+import { getStrapiBase } from '../../../lib/strapiBase';
 import Link from 'next/link';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://127.0.0.1:8000';
@@ -10,6 +11,8 @@ export default function PeruPrimera() {
   const [standings, setStandings] = useState<any[] | null>(null);
   const [summary, setSummary] = useState<any | null>(null);
   const [tableMeta, setTableMeta] = useState<any | null>(null);
+  const [activeTab, setActiveTab] = useState<'news'|'table'|'calendar'>('news');
+  const [news, setNews] = useState<any[] | null>(null);
 
   async function fetchTable() {
     setError(null);
@@ -39,66 +42,250 @@ export default function PeruPrimera() {
     } finally { setLoading(false); }
   }
 
+  async function fetchCalendar() {
+    setError(null);
+    setLoading(true);
+    try {
+      const res = await fetch(`${API_BASE}/peru/calendar`);
+      if (!res.ok) {
+        // fallback to summary if calendar endpoint not available
+        await fetchSummary();
+        return;
+      }
+      const json = await res.json();
+      setSummary(json || {});
+    } catch (err: any) {
+      setError(err.message || 'Error');
+    } finally { setLoading(false); }
+  }
+
+  async function fetchNews() {
+    setError(null);
+    setLoading(true);
+    try {
+      const STRAPI = getStrapiBase() || process.env.NEXT_PUBLIC_API_ENDPOINT || '';
+      const res = await fetch(`${STRAPI}/api/articles?publicationState=live&populate=*&sort[0]=publishedAt:desc&pagination[limit]=4`);
+      if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+      const json = await res.json();
+      const arr = Array.isArray(json) ? json : (json.data || []);
+      const items = arr.map((item: any) => {
+        const attrs = item.attributes || item;
+        const rawImage = attrs.image?.data?.attributes?.url ?? attrs.image?.url ?? null;
+        const image_url = rawImage
+          ? (rawImage.startsWith('http') ? rawImage : `${STRAPI?.replace(/\/$/, '')}${rawImage}`)
+          : null;
+        return {
+          id: String(item.id),
+          title: attrs.title ?? null,
+          created_at: attrs.publishedAt ?? attrs.createdAt ?? attrs.created_at ?? null,
+          image_url,
+          description: attrs.excerpt ?? null
+        };
+      });
+      setNews(items);
+    } catch (err: any) {
+      setError(err.message || 'Error');
+    } finally { setLoading(false); }
+  }
+
+  useEffect(() => {
+    // mostrar noticias al entrar y precargar resumen para el sidebar
+    fetchNews();
+    fetchSummary();
+    setActiveTab('news');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // derive season 2025 info from summary for sidebar
+  const leagueObj = summary?.league_info || summary?.league || summary || null;
+  const season2025 = leagueObj && Array.isArray(leagueObj.seasons)
+    ? leagueObj.seasons.find((s:any) => String(s.year) === '2025' || (s.start && s.start.startsWith('2025')))
+    : null;
+
   return (
     <div style={{ minHeight: '100vh', background: '#071026', color: '#fff' }}>
       <Header />
-      <div style={{ maxWidth: 1100, margin: '36px auto', padding: '0 18px' }}>
-        <Link href="/matches">← Volver a Partidos</Link>
-        <h1 style={{ color: '#00ffc8', marginTop: 12 }}>Liga Perú — Primera División</h1>
+      <div className="container-max main-layout">
+        <div>
+          {/* Logos centrados debajo del header */}
+          <div className="logos-row">
+            {standings && standings.slice(0,19).map((s:any, i:number)=>{
+              const logo = s.team?.logo || s.logo || s.crest || '/Logo_aeef.png';
+              return (
+                <div key={i} className="logo-item">
+                  <img src={logo} alt={s.team?.name ?? s.name} onError={(e:any)=>{ if(e.currentTarget.src !== '/Logo_aeef.png') e.currentTarget.src = '/Logo_aeef.png'; }} />
+                </div>
+              );
+            })}
+          </div>
 
-        <div style={{ display: 'flex', gap: 12, marginTop: 18, flexWrap: 'wrap' }}>
-          <button onClick={fetchTable} style={buttonStyle} disabled={loading}>Tabla de posiciones</button>
-          <button onClick={fetchSummary} style={buttonStyle} disabled={loading}>Resultados / Resumen</button>
-          <button onClick={fetchSummary} style={buttonStyle} disabled={loading}>Calendario — Hoy y Próximos</button>
-        </div>
+          <div className="tabs-row">
+            <button
+              className={`tab-btn ${activeTab==='news' ? 'active' : ''}`}
+              onClick={async ()=>{ setActiveTab('news'); if(!news) await fetchNews(); }}
+              disabled={loading}
+            >Noticias</button>
+
+            <button
+              className={`tab-btn ${activeTab==='table' ? 'active' : ''}`}
+              onClick={async ()=>{ setActiveTab('table'); if(!standings) await fetchTable(); }}
+              disabled={loading}
+            >Acumulado</button>
+
+            <button
+              className={`tab-btn ${activeTab==='calendar' ? 'active' : ''}`}
+              onClick={async ()=>{ setActiveTab('calendar'); if(!summary) await fetchCalendar(); }}
+              disabled={loading}
+            >PlayOffs</button>
+          </div>
+               
+          <h1 style={{ color: '#00ffc8', marginTop: 12 }}>Liga Perú — Primera División</h1>
+
+          
 
         {loading && <p style={{ color: '#aaa', marginTop: 18 }}>Cargando...</p>}
         {error && <p style={{ color: '#ff8b8b', marginTop: 18 }}>{error}</p>}
 
-        {standings && (
-          <div style={{ marginTop: 20, background: 'rgba(10,14,39,0.7)', padding: 12, borderRadius: 8 }}>
+        {activeTab === 'table' && standings && (
+          <div style={{ marginTop: 20, background: 'rgba(10,14,39,0.7)', padding: 12, borderRadius: 8, overflowX: 'auto' }}>
             <h3 style={{ color: '#00ffc8' }}>Tabla — {tableMeta?.phase || ''}</h3>
-            <table style={{ width: '100%', borderCollapse: 'collapse', color: '#fff' }}>
+            <table className="league-table" style={{ color: '#fff', minWidth: 800 }}>
               <thead>
-                <tr style={{ textAlign: 'left', color: '#9fb8b0' }}>
-                  <th>#</th><th>Equipo</th><th>J</th><th>G</th><th>E</th><th>P</th><th>Pts</th>
+                <tr style={{ textAlign: 'left', color: '#9fb8b0', borderBottom: '2px solid rgba(255,255,255,0.04)' }}>
+                  <th style={{ width: 40 }}>Pos</th>
+                  <th style={{ width: 360 }}>Equipo</th>
+                  <th style={{ width: 40 }}>PJ</th>
+                  <th style={{ width: 40 }}>PG</th>
+                  <th style={{ width: 40 }}>PE</th>
+                  <th style={{ width: 40 }}>PP</th>
+                  <th style={{ width: 50 }}>GF</th>
+                  <th style={{ width: 50 }}>GC</th>
+                  <th style={{ width: 60 }}>DG</th>
+                  <th style={{ width: 60 }}>PTS</th>
                 </tr>
               </thead>
               <tbody>
-                {standings && standings.length ? standings.map((row: any, idx: number) => (
-                  <tr key={idx} style={{ borderTop: '1px solid rgba(255,255,255,0.03)' }}>
-                    <td style={{ padding: '8px 6px' }}>{idx+1}</td>
-                    <td style={{ padding: '8px 6px' }}>{row.team?.name ?? row.name ?? row.team}</td>
-                    <td style={{ padding: '8px 6px' }}>{row.played ?? row.all?.played ?? row.J}</td>
-                    <td style={{ padding: '8px 6px' }}>{row.win ?? row.all?.win ?? row.G}</td>
-                    <td style={{ padding: '8px 6px' }}>{row.draw ?? row.all?.draw ?? row.E}</td>
-                    <td style={{ padding: '8px 6px' }}>{row.lose ?? row.all?.lose ?? row.P}</td>
-                    <td style={{ padding: '8px 6px' }}>{row.points ?? row.Pts ?? row.points}</td>
-                  </tr>
-                )) : <tr><td colSpan={7} style={{ padding: 12, color: '#aaa' }}>Sin datos</td></tr>}
+                {standings && standings.length ? standings.map((row: any, idx: number) => {
+                  const position = idx + 1;
+                  const name = row.team?.name ?? row.name ?? row.team ?? '—';
+                  const logo = row.team?.logo || row.team?.logo_path || row.logo || row.crest || null;
+                  const played = row.played ?? row.all?.played ?? row.J ?? 0;
+                  const win = row.win ?? row.all?.win ?? row.G ?? 0;
+                  const draw = row.draw ?? row.all?.draw ?? row.E ?? 0;
+                  const lose = row.lose ?? row.all?.lose ?? row.P ?? 0;
+                  const goalsFor = row.goalsFor ?? row.all?.goals?.for ?? row.GF ?? row.gf ?? 0;
+                  const goalsAgainst = row.goalsAgainst ?? row.all?.goals?.against ?? row.GC ?? row.ga ?? 0;
+                  const points = row.points ?? row.Pts ?? row.points ?? 0;
+                  const diff = (typeof row.goalDifference !== 'undefined') ? row.goalDifference : (goalsFor - goalsAgainst);
+                  const dgColor = diff > 0 ? '#7ee787' : diff < 0 ? '#ff8b8b' : '#cfe';
+                  const rowBorder = position <= 3 ? '4px solid rgba(0,255,200,0.12)' : '1px solid rgba(255,255,255,0.03)';
+
+                  return (
+                    <tr key={idx} style={{ borderTop: rowBorder }} className={position <= 3 ? 'league-pos-top3' : ''}>
+                      <td className="league-pos">{position}</td>
+                      <td className="league-team-cell">
+                        <img src={logo || '/Logo_aeef.png'} alt={name} style={{ width: 28, height: 28, objectFit: 'contain', borderRadius: 4 }} onError={(e: any)=>{ if(e.currentTarget.src !== '/Logo_aeef.png') e.currentTarget.src = '/Logo_aeef.png'; }} />
+                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                          <span style={{ fontWeight: 700 }}>{name}</span>
+                          <span style={{ color: '#9aa', fontSize: '0.85em' }}>{row.team?.shortName ?? row.shortName ?? ''}</span>
+                        </div>
+                      </td>
+                      <td>{played}</td>
+                      <td>{win}</td>
+                      <td>{draw}</td>
+                      <td>{lose}</td>
+                      <td>{goalsFor}</td>
+                      <td>{goalsAgainst}</td>
+                      <td className="league-dg" style={{ color: dgColor }}>{diff > 0 ? `+${diff}` : diff}</td>
+                      <td style={{ fontWeight: 900 }}>{points}</td>
+                    </tr>
+                  );
+                }) : <tr><td colSpan={10} style={{ padding: 12, color: '#aaa' }}>Sin datos</td></tr>}
               </tbody>
             </table>
           </div>
         )}
 
-        {summary && (
+        
+
+        {activeTab === 'calendar' && summary && (
           <div style={{ marginTop: 20, background: 'rgba(10,14,39,0.7)', padding: 12, borderRadius: 8 }}>
-            <h3 style={{ color: '#00ffc8' }}>Resumen — Últimos partidos</h3>
-            {(summary.last_fixtures || summary.last_fixtures === 0) && (summary.last_fixtures.length ? (
+            <h3 style={{ color: '#00ffc8' }}>Calendario — Hoy y Próximos</h3>
+            {(summary.next_fixtures && summary.next_fixtures.length) ? (
               <ul>
-                {summary.last_fixtures.map((f: any, i: number) => (
+                {summary.next_fixtures.map((f: any, i: number) => (
                   <li key={i} style={{ padding: '8px 0', borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
                     <strong>{f.teams?.home?.name ?? f.home?.name ?? f.home}</strong> — <strong>{f.teams?.away?.name ?? f.away?.name ?? f.away}</strong>
                     <div style={{ color: '#9aa', fontSize: '0.9em' }}>{new Date(f.fixture?.date || f.date || Date.now()).toLocaleString()}</div>
                   </li>
                 ))}
               </ul>
-            ) : <div style={{ color: '#aaa' }}>No hay partidos recientes</div>)}
-
-            <h4 style={{ color: '#00ffc8', marginTop: 12 }}>Información de liga</h4>
-            <pre style={{ color: '#cfe', fontSize: '0.9em', overflowX: 'auto' }}>{JSON.stringify(summary.league_info || summary.league || summary, null, 2)}</pre>
+            ) : <div style={{ color: '#aaa' }}>No hay partidos en el calendario</div>}
           </div>
         )}
+
+        {activeTab === 'news' && (
+          <div style={{ marginTop: 20, background: 'rgba(10,14,39,0.7)', padding: 12, borderRadius: 8 }}>
+            <h3 style={{ color: '#00ffc8' }}>Noticias recientes</h3>
+            {news && news.length ? (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 16 }}>
+                {news.map((a:any, i:number) => (
+                  <div key={i} style={{ background:'rgba(255,255,255,0.02)', padding:12, borderRadius:8 }}>
+                    {a.image_url && (<img src={a.image_url} alt={a.title} style={{ width:'100%', height:120, objectFit:'cover', borderRadius:6 }} />)}
+                    <h4 style={{ color:'#fff', marginTop:8 }}>{a.title}</h4>
+                    {a.description && <p style={{ color:'#cfe' }}>{a.description.substring(0,160)}...</p>}
+                    <Link href={`/articles/${a.id}`} style={{ color:'#00ffc8' }}>Leer más →</Link>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div style={{ color:'#aaa' }}>
+                No hay noticias cargadas. Ver todas en <Link href="/noticias">Noticias</Link>
+              </div>
+            )}
+          </div>
+        )}
+
+        </div>
+
+        <aside className="sidebar-aside" style={{ width:320 }}>
+          <div style={{ background:'#0b1722', padding:12, borderRadius:8 }}>
+            <h4 style={{ color:'#00ffc8', marginBottom:8 }}>Torneo Clausura</h4>
+            <div style={{ color:'#9aa', fontSize:'0.9em', marginBottom:8 }}>{summary?.date || '—'}</div>
+            {/* resumen / últimos partidos dentro del sidebar */}
+            {summary && (summary.last_fixtures && summary.last_fixtures.length) ? (
+              <div>
+                <ul style={{ listStyle:'none', padding:0, margin:0 }}>
+                  {summary.last_fixtures.slice(0,5).map((f:any,i:number)=> (
+                    <li key={i} style={{ display:'flex', justifyContent:'space-between', padding:'8px 0', borderBottom:'1px solid rgba(255,255,255,0.03)' }}>
+                      <span style={{ color:'#cfe' }}>{f.teams?.home?.name ?? f.home?.name ?? f.home}</span>
+                      <span style={{ color:'#fff', fontWeight:700 }}>{(f.goals?.home ?? f.score?.home ?? f.goals_home) ?? (f.result?.home ?? '')} - {(f.goals?.away ?? f.score?.away ?? f.goals_away) ?? (f.result?.away ?? '')}</span>
+                    </li>
+                  ))}
+                </ul>
+                <div style={{ borderTop:'1px solid rgba(255,255,255,0.03)', marginTop:10, paddingTop:10 }}>
+                  <h5 style={{ color:'#00ffc8', margin:0, fontSize:'0.95em' }}>Resumen de liga</h5>
+                  {season2025 ? (
+                    <div style={{ color:'#9aa', fontSize:'0.9em' }}>
+                      <div><strong>Temporada:</strong> {season2025.year ?? '2025'}</div>
+                      {season2025.start && <div><strong>Inicio:</strong> {new Date(season2025.start).toLocaleDateString()}</div>}
+                      {season2025.end && <div><strong>Fin:</strong> {new Date(season2025.end).toLocaleDateString()}</div>}
+                      <div><strong>En curso:</strong> {season2025.current ? 'Sí' : 'No'}</div>
+                    </div>
+                  ) : (
+                    <pre style={{ color:'#9aa', fontSize:'0.8em', maxHeight:120, overflow:'auto' }}>{JSON.stringify(leagueObj || {}, null, 2)}</pre>
+                  )}
+                  <div style={{ marginTop:8 }}><Link href="/noticias" style={{ color:'#00ffc8' }}>Ver más noticias</Link></div>
+                </div>
+              </div>
+            ) : (
+              <div style={{ color:'#aaa' }}>No hay resumen disponible</div>
+            )}
+            <div style={{ marginTop:12 }}>
+              <button style={{...buttonStyle, width:'100%'}} onClick={()=>{ setActiveTab('table'); window.scrollTo({top:0, behavior:'smooth'}); }}>Ver Tabla</button>
+            </div>
+          </div>
+        </aside>
 
       </div>
     </div>
@@ -113,4 +300,9 @@ const buttonStyle: React.CSSProperties = {
   borderRadius: 8,
   cursor: 'pointer',
   fontWeight: 700
+};
+
+const activeTabStyle: React.CSSProperties = {
+  boxShadow: 'inset 0 -3px 0 rgba(0,255,200,0.06)',
+  border: '1px solid rgba(0,255,200,0.16)'
 };
