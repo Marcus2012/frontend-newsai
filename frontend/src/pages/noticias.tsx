@@ -3,6 +3,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import Header from '../components/Header';
 import BannerSlots from '../components/BannerSlots';
+import BannerEasyPromo from '../components/BannerEasyPromo';
 import { getStrapiBase } from '../lib/strapiBase';
 
 import { GetStaticProps } from 'next';
@@ -73,6 +74,9 @@ export default function NoticiasPage({ articles }: NoticiasProps) {
           )}
         </div>
         <aside className="noticias-content-banner">
+          <div style={{ marginBottom: 18 }}>
+            <BannerEasyPromo />
+          </div>
           <a href="https://www.mundodeportivo.com/us/apuestas-latam/ir-betano-pe" target="_blank" rel="prefetch noreferrer noopener">
             <img
               src="https://www.mundodeportivo.com/us/apuestas-latam/thumbor/IqTBUbo8B6ts0mowThRlyTbj8rY=/394x674/smart/filters:format(webp)/https%3A%2F%2Fwww.mundodeportivo.com%2Fus%2Fapuestas-latam%2Fapp%2Fuploads%2F2025%2F11%2Fgirosgratis-betano-peru-min.webp"
