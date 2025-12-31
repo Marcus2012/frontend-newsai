@@ -6,6 +6,7 @@ async function _postAutologin(url: string, apiToken: string, body: any) {
   }
   if (apiToken) headers['Authorization'] = `Bearer ${apiToken}`
 
+
   const res = await fetch(url, {
     method: 'POST',
     headers,
@@ -32,58 +33,18 @@ export async function POST(req: Request) {
   try {
     const data = await req.json()
 
-    const campaignId = process.env.EASYPROMOS_CAMPAIGN_ID || ''
+    // Configuración fija para EasyPromos
     const apiToken = process.env.EASYPROMOS_API_TOKEN || ''
-    const apiAutologin = process.env.EASYPROMOS_API_AUTLOGIN || ''
-    const promoBase = process.env.EASYPROMOS_PROMO_BASE || ''
-
-    const strapiBase = (process.env.NEXT_PUBLIC_STRAPI_URL || '').replace(/\/$/, '')
-
-    if (!apiAutologin || !promoBase) {
-      return NextResponse.json({ error: 'EASYPROMOS_API_AUTLOGIN or EASYPROMOS_PROMO_BASE not configured' }, { status: 500 })
-    }
-
-    if (!campaignId || !apiToken) {
-      return NextResponse.json({ error: 'EASYPROMOS_CAMPAIGN_ID or EASYPROMOS_API_TOKEN not configured' }, { status: 500 })
-    }
+    const autologinUrl = 'https://api.easypromosapp.com/v2/users/autologin/1005559'
+    const promoBase = 'https://a.cstmapp.com/p/1005559'
 
     // Ensure external_id
     if (!data.external_id) data.external_id = String(Date.now())
 
-    const autologinUrl = apiAutologin.replace('{campaign_id}', encodeURIComponent(campaignId))
+    // No registrar en Strapi, solo EasyPromos
+    let strapiResult: any = { success: false, note: 'NO_STRAPI_USED' }
 
-    // Intentar registrar en Strapi primero (si tenemos URL y email)
-    let strapiResult: any = { success: false }
-    if (strapiBase && data.email) {
-      try {
-        const username = data.nickname || (String(data.email).split('@')[0]) || `user_${Date.now()}`
-        const password = `auto_${Math.random().toString(36).slice(2,10)}_${Date.now()}`
-        const res = await fetch(`${strapiBase}/api/auth/local/register`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username, email: data.email, password })
-        })
-        const body = await res.json().catch(() => null)
-        if (res.ok) {
-          strapiResult = { success: true, data: body }
-        } else {
-          strapiResult = { success: false, status: res.status, error: body }
-        }
-      } catch (err: any) {
-        strapiResult = { success: false, error: err?.message || String(err) }
-      }
-    } else {
-      strapiResult = { success: false, note: 'NO_STRAPI_OR_EMAIL' }
-    }
-
-    // Paso 1: intento de auth/autologin en EasyPromos (no crítico)
-    try {
-      await _postAutologin(autologinUrl, apiToken, { external_id: data.external_id })
-    } catch (err) {
-      // ignore initial autologin failure
-    }
-
-    // Paso 2: register / autologin con datos completos
+    // Siempre enviar el payload completo para registro
     let respJson: any
     try {
       respJson = await _postAutologin(autologinUrl, apiToken, data)
@@ -91,9 +52,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ register: false, lt: null, promo_url: null, raw: { error: err.message || err, status: err?.status, body: err?.body } }, { status: 502 })
     }
 
-    const register = respJson?.register ?? false
+    const register = respJson?.registered ?? false
     const lt = respJson?.lt ?? null
-    const promoUrl = lt ? `${promoBase.replace('{campaign_id}', encodeURIComponent(campaignId))}?lt=${encodeURIComponent(lt)}` : null
+    const promoUrl = lt ? `${promoBase}?lt=${encodeURIComponent(lt)}` : null
 
     return NextResponse.json({ strapi: strapiResult, easypromo: { register, lt, promo_url: promoUrl, raw: respJson } })
   } catch (err: any) {
