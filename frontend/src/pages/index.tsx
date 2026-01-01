@@ -212,7 +212,8 @@ export default function HomePage({ articles }: Props) {
                 ))}
               </div>
             )}
-          </div>    
+          </div>
+          {/*    
           <aside style={{ width: '320px', display: 'flex', flexDirection: 'column', gap: '18px' }}>
             <div style={{ position: 'sticky', top: 100 }}>
               <BannerSlots position="sidebar" />
@@ -221,6 +222,7 @@ export default function HomePage({ articles }: Props) {
               <BannerSlots position="affiliate" />
             </div>
           </aside>
+          */}
         </div>
       </div>
 
