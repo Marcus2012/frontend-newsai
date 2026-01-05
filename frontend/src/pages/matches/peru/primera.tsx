@@ -13,6 +13,7 @@ export default function PeruPrimera() {
   const [tableMeta, setTableMeta] = useState<any | null>(null);
   const [activeTab, setActiveTab] = useState<'news'|'table'|'calendar'>('news');
   const [news, setNews] = useState<any[] | null>(null);
+  const [preds, setPreds] = useState<Record<string, any>>({});
 
   async function fetchTable() {
     setError(null);
@@ -95,6 +96,22 @@ export default function PeruPrimera() {
     setActiveTab('news');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  async function fetchPrediction(f: any, i: number) {
+    const key = f.id ?? f.fixture?.id ?? `${i}-${String(f.home||f.home_name||f.teams?.home?.name||'h')}-${String(f.away||f.away_name||f.teams?.away?.name||'a')}`;
+    setPreds(prev => ({ ...prev, [key]: { loading: true } }));
+    try {
+      const res = await fetch('/api/predict', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(f),
+      });
+      const json = await res.json();
+      setPreds(prev => ({ ...prev, [key]: json }));
+    } catch (err: any) {
+      setPreds(prev => ({ ...prev, [key]: { error: String(err) } }));
+    }
+  }
 
   // derive season 2025 info from summary for sidebar
   const leagueObj = summary?.league_info || summary?.league || summary || null;
@@ -256,12 +273,28 @@ export default function PeruPrimera() {
             {summary && (summary.last_fixtures && summary.last_fixtures.length) ? (
               <div>
                 <ul style={{ listStyle:'none', padding:0, margin:0 }}>
-                  {summary.last_fixtures.slice(0,5).map((f:any,i:number)=> (
-                    <li key={i} style={{ display:'flex', justifyContent:'space-between', padding:'8px 0', borderBottom:'1px solid rgba(255,255,255,0.03)' }}>
-                      <span style={{ color:'#cfe' }}>{f.teams?.home?.name ?? f.home?.name ?? f.home}</span>
-                      <span style={{ color:'#fff', fontWeight:700 }}>{(f.goals?.home ?? f.score?.home ?? f.goals_home) ?? (f.result?.home ?? '')} - {(f.goals?.away ?? f.score?.away ?? f.goals_away) ?? (f.result?.away ?? '')}</span>
-                    </li>
-                  ))}
+                  {summary.last_fixtures.slice(0,5).map((f:any,i:number)=> {
+                      const pk = f.id ?? f.fixture?.id ?? `${i}-${String(f.home||f.home_name||f.teams?.home?.name||'h')}-${String(f.away||f.away_name||f.teams?.away?.name||'a')}`;
+                      const p = preds[pk];
+                      return (
+                        <li key={i} style={{ display:'flex', flexDirection: 'column', padding:'8px 0', borderBottom:'1px solid rgba(255,255,255,0.03)' }}>
+                          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+                            <span style={{ color:'#cfe' }}>{f.teams?.home?.name ?? f.home?.name ?? f.home}</span>
+                            <span style={{ color:'#fff', fontWeight:700 }}>{(f.goals?.home ?? f.score?.home ?? f.goals_home) ?? (f.result?.home ?? '')} - {(f.goals?.away ?? f.score?.away ?? f.goals_away) ?? (f.result?.away ?? '')}</span>
+                          </div>
+                          <div style={{ marginTop:6, display:'flex', gap:8, alignItems:'center' }}>
+                            <button style={{...buttonStyle, padding:'6px 10px', fontSize:'0.9em'}} onClick={()=>fetchPrediction(f,i)}>Predecir</button>
+                            {p && p.loading && <span style={{ color:'#9aa' }}>Generando...</span>}
+                            {p && p.error && <span style={{ color:'#ff8b8b' }}>{p.error}</span>}
+                            {p && p.winner && (
+                              <div style={{ color:'#cfe', fontSize:'0.9em' }}>
+                                Predicción: <strong style={{ color:'#00ffc8' }}>{p.winner}</strong> — {p.scoreline} ({p.confidence}%)
+                              </div>
+                            )}
+                          </div>
+                        </li>
+                      );
+                  })}
                 </ul>
                 <div style={{ borderTop:'1px solid rgba(255,255,255,0.03)', marginTop:10, paddingTop:10 }}>
                   <h5 style={{ color:'#00ffc8', margin:0, fontSize:'0.95em' }}>Resumen de liga</h5>

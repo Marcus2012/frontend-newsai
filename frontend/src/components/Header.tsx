@@ -256,7 +256,7 @@ export default function Header() {
           </div>
 
           <div className="has-mega">
-            <a href="#">Predicciones ▾</a>
+            <Link href="/predicciones">Predicciones ▾</Link>
           </div>
 
           <a href="#">Calculadora</a>
@@ -300,7 +300,7 @@ export default function Header() {
         <div className="mobile-menu" style={{ display: mobileOpen ? 'flex' : 'none' }}>
           <a href="/">Inicio</a>
           <a href="/noticias">Noticias</a>
-          <a href="#">Predicciones</a>
+          <a href="/predicciones">Predicciones</a>
           <a href="/matches/peru/primera">Partidos - Liga Perú</a>
           <a href="#">Calculadora</a>
           <a href="/nosotros">Nosotros</a>
