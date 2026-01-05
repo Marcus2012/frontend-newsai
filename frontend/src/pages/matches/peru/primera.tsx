@@ -276,11 +276,15 @@ export default function PeruPrimera() {
                   {summary.last_fixtures.slice(0,5).map((f:any,i:number)=> {
                       const pk = f.id ?? f.fixture?.id ?? `${i}-${String(f.home||f.home_name||f.teams?.home?.name||'h')}-${String(f.away||f.away_name||f.teams?.away?.name||'a')}`;
                       const p = preds[pk];
+                      const homeName = f.teams?.home?.name ?? f.home?.name ?? f.home ?? 'Home';
+                      const awayName = f.teams?.away?.name ?? f.away?.name ?? f.away ?? 'Away';
+                      const homeScore = (f.goals?.home ?? f.score?.home ?? f.goals_home) ?? (f.result?.home ?? '');
+                      const awayScore = (f.goals?.away ?? f.score?.away ?? f.goals_away) ?? (f.result?.away ?? '');
                       return (
                         <li key={i} style={{ display:'flex', flexDirection: 'column', padding:'8px 0', borderBottom:'1px solid rgba(255,255,255,0.03)' }}>
                           <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-                            <span style={{ color:'#cfe' }}>{f.teams?.home?.name ?? f.home?.name ?? f.home}</span>
-                            <span style={{ color:'#fff', fontWeight:700 }}>{(f.goals?.home ?? f.score?.home ?? f.goals_home) ?? (f.result?.home ?? '')} - {(f.goals?.away ?? f.score?.away ?? f.goals_away) ?? (f.result?.away ?? '')}</span>
+                            <span style={{ color:'#cfe' }}>{homeName} <span style={{ color:'#9aa', margin: '0 6px' }}>-</span> {awayName}</span>
+                            <span style={{ color:'#fff', fontWeight:700 }}>{homeScore} - {awayScore}</span>
                           </div>
                           <div style={{ marginTop:6, display:'flex', gap:8, alignItems:'center' }}>
                             <button style={{...buttonStyle, padding:'6px 10px', fontSize:'0.9em'}} onClick={()=>fetchPrediction(f,i)}>Predecir</button>

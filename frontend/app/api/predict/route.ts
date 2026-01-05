@@ -4,7 +4,12 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const match = body.match || body;
-    const PREDICT_API = process.env.PREDICT_API_BASE || process.env.NEXT_PUBLIC_PREDICT_API;
+
+    // Only proxy to an external prediction service when a dedicated env var
+    // is provided. Avoid falling back to NEXT_PUBLIC_API_BASE because that
+    // value typically points to the main data API which may not expose
+    // a /predict endpoint (this was causing 404s).
+    const PREDICT_API = process.env.PREDICT_API_BASE || process.env.NEXT_PUBLIC_PREDICT_API || undefined;
 
     if (PREDICT_API) {
       // Enviar como { match: ... } por compatibilidad con FastAPI que recibe un dict
