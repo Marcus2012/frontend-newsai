@@ -2,6 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import Header from '../components/Header';
 import BannerSlots from '../components/BannerSlots';
+import SampleAdBanner from '../components/SampleAdBanner';
 import MatchTicker from '../components/MatchTicker';
 import { GetStaticProps } from 'next';
 import { getStrapiBase } from '../lib/strapiBase';
@@ -38,6 +39,7 @@ export default function HomePage({ articles }: Props) {
       <Header />
 
       {/* Top banner */}
+      <SampleAdBanner />
       <BannerSlots position="top" />
 
       {/* Main Content: hero left + two stacked cards right */}
@@ -213,7 +215,7 @@ export default function HomePage({ articles }: Props) {
               </div>
             )}
           </div>
-          {/*    
+          {/*
           <aside style={{ width: '320px', display: 'flex', flexDirection: 'column', gap: '18px' }}>
             <div style={{ position: 'sticky', top: 100 }}>
               <BannerSlots position="sidebar" />

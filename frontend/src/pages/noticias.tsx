@@ -3,6 +3,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import Header from '../components/Header';
 import BannerSlots from '../components/BannerSlots';
+import SampleAdBanner from '../components/SampleAdBanner';
 import BannerEasyPromo from '../components/BannerEasyPromo';
 import { getStrapiBase } from '../lib/strapiBase';
 
@@ -27,13 +28,44 @@ export default function NoticiasPage({ articles }: NoticiasProps) {
     <div className="min-h-screen" style={{ background: '#0a0e27', color: '#fff' }}>
       <Header />
 
-      {/* Banner superior, siempre visible arriba */}
+      {/* Banner superior de ejemplo (placeholder) */}
+      <SampleAdBanner />
       <div className="banner-mobile-wrapper">
         <BannerSlots position="top" />
       </div>
 
+      {/* Mobile banner below content (visible only on small screens) */}
+      <div className="mobile-banner-bottom">
+        <div style={{ maxWidth: 1200, margin: '0 auto', padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: 16, alignItems: 'center' }}>
+          <div style={{ width: '100%', maxWidth: 340 }}>
+            <BannerEasyPromo />
+          </div>
+          <a href="https://www.mundodeportivo.com/us/apuestas-latam/ir-betano-pe" target="_blank" rel="prefetch noreferrer noopener" style={{ width: '100%', maxWidth: 340 }}>
+            <img
+              src="https://www.mundodeportivo.com/us/apuestas-latam/thumbor/IqTBUbo8B6ts0mowThRlyTbj8rY=/394x674/smart/filters:format(webp)/https%3A%2F%2Fwww.mundodeportivo.com%2Fus%2Fapuestas-latam%2Fapp%2Fuploads%2F2025%2F11%2Fgirosgratis-betano-peru-min.webp"
+              alt="bono betano giros gratis"
+              style={{ width: '100%', borderRadius: '12px', boxShadow: '0 4px 24px rgba(0,0,0,0.18)' }}
+            />
+          </a>
+        </div>
+      </div>
+
       {/* Grid de noticias con banner de ejemplo a la derecha en desktop */}
       <div className="noticias-content-layout">
+        <aside className="noticias-content-banner">
+          <div style={{ marginBottom: 18 }}>
+            <BannerEasyPromo />
+          </div>
+          <a href="https://www.mundodeportivo.com/us/apuestas-latam/ir-betano-pe" target="_blank" rel="prefetch noreferrer noopener">
+            <img
+              src="https://www.mundodeportivo.com/us/apuestas-latam/thumbor/IqTBUbo8B6ts0mowThRlyTbj8rY=/394x674/smart/filters:format(webp)/https%3A%2F%2Fwww.mundodeportivo.com%2Fus%2Fapuestas-latam%2Fapp%2Fuploads%2F2025%2F11%2Fgirosgratis-betano-peru-min.webp"
+              alt="bono betano giros gratis"
+              style={{ width: '320px', borderRadius: '12px', boxShadow: '0 4px 24px rgba(0,0,0,0.18)' }}
+              width={320}
+              height={547}
+            />
+          </a>
+        </aside>
         <div className="noticias-content-main">
           <h1 style={{ color: '#00ffc8', fontSize: '2em', fontWeight: 'bold', marginBottom: '30px' }}>📰 Todas las Noticias</h1>
           {articles.length === 0 ? (
@@ -73,20 +105,7 @@ export default function NoticiasPage({ articles }: NoticiasProps) {
             </div>
           )}
         </div>
-        <aside className="noticias-content-banner">
-          <div style={{ marginBottom: 18 }}>
-            <BannerEasyPromo />
-          </div>
-          <a href="https://www.mundodeportivo.com/us/apuestas-latam/ir-betano-pe" target="_blank" rel="prefetch noreferrer noopener">
-            <img
-              src="https://www.mundodeportivo.com/us/apuestas-latam/thumbor/IqTBUbo8B6ts0mowThRlyTbj8rY=/394x674/smart/filters:format(webp)/https%3A%2F%2Fwww.mundodeportivo.com%2Fus%2Fapuestas-latam%2Fapp%2Fuploads%2F2025%2F11%2Fgirosgratis-betano-peru-min.webp"
-              alt="bono betano giros gratis"
-              style={{ width: '320px', borderRadius: '12px', boxShadow: '0 4px 24px rgba(0,0,0,0.18)' }}
-              width={320}
-              height={547}
-            />
-          </a>
-        </aside>
+        
       </div>
 
       {/* Footer */}
@@ -108,10 +127,12 @@ export default function NoticiasPage({ articles }: NoticiasProps) {
           margin: 0 auto;
           padding: 40px 20px 0 20px;
           gap: 32px;
+          position: relative;
         }
         .noticias-content-main {
           flex: 1 1 0%;
           min-width: 0;
+          padding-right: 380px; /* espacio para el banner overlay */
         }
         .noticias-content-banner {
           width: 340px;
@@ -120,13 +141,11 @@ export default function NoticiasPage({ articles }: NoticiasProps) {
           flex-direction: column;
           align-items: flex-end;
           gap: 24px;
-        }
-        /* Mantener el banner visible mientras se hace scroll */
-        .noticias-content-banner > a {
-          position: sticky;
-          top: 96px; /* ajuste para dejar espacio al header fijo */
-          z-index: 30;
-          align-self: flex-end;
+          position: absolute; /* overlay encima del contenido */
+          right: 20px;
+          top: 120px; /* ajustar según header */
+          z-index: 50;
+          pointer-events: auto;
         }
 
         .noticias-grid {
@@ -156,12 +175,18 @@ export default function NoticiasPage({ articles }: NoticiasProps) {
             padding: 0 10px;
           }
           .noticias-content-banner {
-            display: none;
+            position: static;
+            width: 100%;
+            padding: 0;
+          }
+          .mobile-banner-bottom {
+            display: block;
           }
           .footer-desktop {
             display: none;
           }
         }
+        .mobile-banner-bottom { display: none; }
       `}</style>
     </div>
   );

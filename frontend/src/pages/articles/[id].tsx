@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import Header from '../../components/Header';
 import BannerSlots from '../../components/BannerSlots';
+import SampleAdBanner from '../../components/SampleAdBanner';
 import { getStrapiBase } from '../../lib/strapiBase';
 
 interface Article {
@@ -29,6 +30,7 @@ export default function ArticlePage() {
   const strapiToken = process.env.NEXT_PUBLIC_STRAPI_TOKEN;
   
   const [article, setArticle] = useState<Article | null>(null);
+  const [related, setRelated] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showShare, setShowShare] = useState(false);
@@ -114,6 +116,56 @@ export default function ArticlePage() {
     fetchArticle();
   }, [id]);
 
+  // Fetch related articles once the main article is loaded
+  useEffect(() => {
+    if (!article) return;
+
+    const fetchRelated = async () => {
+      try {
+        if (!strapiUrl) return;
+        const params = article.category
+          ? `filters[category][$eq]=${encodeURIComponent(article.category)}&filters[id][$ne]=${encodeURIComponent(article.id)}`
+          : `filters[id][$ne]=${encodeURIComponent(article.id)}`;
+
+        const res = await fetch(`${strapiUrl}/api/articles?${params}&populate=*&pagination[limit]=4&sort=publishedAt:desc`, {
+          headers: strapiToken ? { 'Authorization': `Bearer ${strapiToken}` } : {}
+        });
+        if (!res.ok) return;
+        const json = await res.json();
+        const items = json.data || [];
+        const mapped: Article[] = items.map((item: any) => {
+          const attrs = item.attributes || item;
+          const rawImage = attrs.image?.data?.attributes?.url ?? attrs.image?.url ?? null;
+          const imageUrl = rawImage
+            ? (rawImage.startsWith('http') ? rawImage : `${strapiUrl?.replace(/\/$/, '')}${rawImage}`)
+            : null;
+
+          return {
+            id: String(item.id),
+            title: attrs.title ?? null,
+            description: attrs.excerpt ?? null,
+            created_at: attrs.publishedAt ?? attrs.createdAt ?? attrs.created_at ?? null,
+            category: attrs.category ?? null,
+            author: attrs.author ?? null,
+            status: attrs.status ?? null,
+            image_url: imageUrl,
+            seo_meta: attrs.seo_meta ?? null,
+            keywords: attrs.keywords ?? null,
+            meta_description: attrs.meta_description ?? null,
+            ...attrs
+          };
+        });
+
+        setRelated(mapped.slice(0, 4));
+      } catch (e) {
+        // fail silently
+        console.error('Error fetching related:', e);
+      }
+    };
+
+    fetchRelated();
+  }, [article]);
+
   if (loading) return <p style={{ textAlign: 'center', padding: '40px' }}>Cargando...</p>;
   
   if (error) {
@@ -146,6 +198,8 @@ export default function ArticlePage() {
     <div style={{ fontFamily: '"Poppins", "-apple-system", "BlinkMacSystemFont", "Segoe UI", sans-serif', background: '#0a0e27', color: '#fff', minHeight: '100vh' }}>
       <Header />
 
+      <SampleAdBanner />
+
       {/* Featured Image */}
       {article?.image_url && (
         <div style={{ width: '100%', height: '400px', overflow: 'hidden', position: 'relative' }}>
@@ -157,6 +211,7 @@ export default function ArticlePage() {
       <div style={{ maxWidth: 1000, margin: '0 auto', padding: '20px' }}>
         <BannerSlots position="between" />
       </div>
+
 
       {/* Content */}
       <div style={{ maxWidth: 1000, margin: '0 auto', padding: '40px 20px' }}>
@@ -335,7 +390,37 @@ export default function ArticlePage() {
           </div>
         ) : null}
 
+        {/* Related Articles */}
+        <div style={{ maxWidth: 1000, margin: '40px auto 0', padding: '20px', clear: 'both' }}>
+          <h3 style={{ color: '#00ffc8', marginTop: 0 }}>Noticias relacionadas</h3>
+          {related.length === 0 ? (
+            <p style={{ color: '#aaa' }}>No hay noticias relacionadas</p>
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '20px', marginTop: '16px' }}>
+              {related.map(r => {
+                const d = r.created_at ? new Date(r.created_at) : null;
+                const dateStr = d ? `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}` : '';
+                return (
+                  <Link key={r.id} href={`/articles/${r.id}`} style={{ textDecoration: 'none' }}>
+                    <div style={{ background: '#07102a', border: '1px solid rgba(255,255,255,0.03)', padding: '16px', borderRadius: '12px', height: '100%', display: 'flex', flexDirection: 'column', gap: '10px', cursor: 'pointer' }}>
+                      {r.image_url && (
+                        <div style={{ width: '100%', height: 180, position: 'relative', overflow: 'hidden', borderRadius: '10px' }}>
+                          <Image src={r.image_url} alt={r.title || ''} fill style={{ objectFit: 'cover' }} unoptimized />
+                        </div>
+                      )}
+                      <h4 style={{ fontSize: '1.05em', margin: '8px 0', color: '#fff' }}>{r.title}</h4>
+                      <p style={{ color: '#aaa', fontSize: '0.95em', marginTop: 'auto', lineHeight: '1.4', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{r.description ?? ''}</p>
+                      <div style={{ color: '#00ffc8', marginTop: '8px', fontSize: '0.85em' }}>{dateStr}</div>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
         {/* JSON Data */}
+        {/*
         <div style={{ marginTop: '40px', borderTop: '1px solid rgba(0, 255, 200, 0.1)', paddingTop: '40px' }}>
           <h3 style={{ color: '#00ffc8', marginTop: 0 }}>📊 Datos Completos</h3>
           <pre style={{
@@ -351,6 +436,7 @@ export default function ArticlePage() {
             {JSON.stringify(article, null, 2)}
           </pre>
         </div>
+        */}
       </div>
 
       {/* Footer */}
