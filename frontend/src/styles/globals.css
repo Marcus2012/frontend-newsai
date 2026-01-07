@@ -104,7 +104,7 @@ body{
   width:100%;
   border-collapse:collapse;
   color:var(--c-text, #fff);
-  min-width:780px;
+  min-width:0;
 }
 .league-table thead th{
   text-align:left;

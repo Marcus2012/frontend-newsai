@@ -7,8 +7,10 @@
   import { useRouter } from 'next/router';
 
 export default function Header() {
+  const [megaOpen, setMegaOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const megaRef = React.useRef<HTMLDivElement | null>(null);
   const router = useRouter();
   const [authTab, setAuthTab] = useState<'login'|'register'>('login');
   const [loginEmail, setLoginEmail] = useState('');
@@ -31,10 +33,23 @@ export default function Header() {
         }
       }
     }, []);
-  const DEBUG = true;
   const [debugInfo, setDebugInfo] = useState('');
 
   const [isClient, setIsClient] = useState(false);
+  
+  useEffect(() => {
+    function onDocClick(e: MouseEvent) {
+      if (!megaRef.current) return;
+      const target = e.target as Node;
+      if (megaRef.current && !megaRef.current.contains(target)) {
+        setMegaOpen(false);
+      }
+    }
+    if (typeof document !== 'undefined') {
+      document.addEventListener('click', onDocClick);
+      return () => document.removeEventListener('click', onDocClick);
+    }
+  }, []);
 
   // Mover handleLogout aquí para que esté definida antes del return
   function handleLogout() {
@@ -53,47 +68,16 @@ export default function Header() {
     return () => window.removeEventListener('resize', onResize);
   }, []);
 
-  // Debug: capture pointerdown / click during capture phase to see what's intercepting
-  useEffect(() => {
-    if (!DEBUG) return;
-    const onPointerDown = (ev: PointerEvent) => {
-      try {
-        const el = document.elementFromPoint(ev.clientX, ev.clientY) as HTMLElement | null;
-        console.log('[DEBUG] pointerdown', { x: ev.clientX, y: ev.clientY, target: ev.target, el, className: el?.className });
-        setDebugInfo(`${el?.tagName || 'none'} ${el?.className || ''}`);
-      } catch (err) {
-        console.log('[DEBUG] pointerdown error', err);
-      }
-    };
-    const onClickCapture = (ev: MouseEvent) => {
-      try {
-        const el = document.elementFromPoint(ev.clientX, ev.clientY) as HTMLElement | null;
-        console.log('[DEBUG] click(capture)', { x: ev.clientX, y: ev.clientY, target: ev.target, el, className: el?.className });
-      } catch (err) {
-        console.log('[DEBUG] click error', err);
-      }
-    };
-    document.addEventListener('pointerdown', onPointerDown, true);
-    document.addEventListener('click', onClickCapture, true);
-    return () => {
-      document.removeEventListener('pointerdown', onPointerDown, true);
-      document.removeEventListener('click', onClickCapture, true);
-    };
-  }, [DEBUG]);
+  // debugInfo state kept for possible future use
 
   // mark client after mount so we don't try to portal during SSR
   useEffect(() => {
     setIsClient(true);
   }, []);
 
-  // Debug: log when modal visibility changes
-  useEffect(() => {
-    if (!DEBUG) return;
-    console.log('[DEBUG] showAuthModal =>', showAuthModal);
-  }, [showAuthModal]);
+  // modal visibility tracked; no debug logs
 
-  function handleUserBtnClick(e: React.MouseEvent) {
-    if (DEBUG) console.log('user-btn clicked', { showAuthModal, event: e });
+  function handleUserBtnClick(_: React.MouseEvent) {
     setShowAuthModal(true);
   }
 
@@ -219,11 +203,20 @@ export default function Header() {
               .auth-body .btn.secondary{background:transparent;color:#cfd8df;border:1px solid rgba(255,255,255,0.06)}
               .auth-body .btn[disabled]{opacity:0.6;cursor:not-allowed}
               .actions-row{display:flex;gap:8px;justify-content:flex-end;margin-top:6px}
+
+              /* Mobile improvements: make modal fit the viewport, allow internal scrolling when keyboard opens, and improve input visibility */
               @media (max-width: 640px){
-                .auth-box{width:calc(100% - 24px);}
-                .auth-body{padding:16px}
+                .auth-modal{align-items:flex-start;padding-top:6vh}
+                .auth-box{width:calc(100% - 24px);border-radius:12px;margin:0 12px}
+                .auth-card{max-height:92vh;display:flex;flex-direction:column;overflow:hidden}
                 .auth-header{padding:12px}
-                .auth-box .close{left:8px;top:-16px;width:36px;height:36px}
+                .auth-body{padding:16px;overflow:auto;max-height:calc(92vh - 120px)}
+                .auth-box .close{right:12px;left:auto;top:12px;width:36px;height:36px}
+                .auth-logo-img{max-width:120px}
+                .auth-body input{width:100%;max-width:325px;background:#ffffff;border:1px solid rgba(0,0,0,0.08);color:#07121b}
+                .auth-body input::placeholder{color:#6b7280}
+                .tabs{gap:10px}
+                .auth-body h3{font-size:1rem}
               }
             `}</style>
           </>
@@ -237,8 +230,10 @@ export default function Header() {
         <div className="brand">
           <img src="/Logo_aeef.png" alt="Logo" className="logo" />
           <div className="brand-text">
+            {/*
             <div className="brand-title">asi es el futbol</div>
             <div className="brand-sub">Noticias y Predicciones</div>
+            */}
           </div>
         </div>
 
@@ -255,8 +250,50 @@ export default function Header() {
             </div>
           </div>
 
-          <div className="has-mega">
-            <Link href="/predicciones">Predicciones ▾</Link>
+          <div ref={megaRef} className={"has-mega" + (megaOpen ? ' open' : '')}>
+            <button onClick={(e)=>{ e.preventDefault(); setMegaOpen(v=>!v); }} className="mega-toggle">Predicciones ▾</button>
+            <div className="mega" role="menu">
+              <div className="mega-row">
+                <div className="mega-col">
+                  <strong>Predicciones</strong>
+                  <Link href="/predicciones">Todas las predicciones</Link>
+                </div>
+                {/*
+                <div className="mega-col">
+                  <strong>Filtrar</strong>
+                  <a href="#">Por fecha</a>
+                  <a href="#">Por liga</a>
+                </div>
+                */}
+              </div>
+              {/*
+              <div className="mega-row">
+                <div className="mega-col">
+                  <strong>Estadísticas</strong>
+                  <a href="#">Ranking</a>
+                  <a href="#">Formas</a>
+                </div>
+                <div className="mega-col">
+                  <strong>Herramientas</strong>
+                  <a href="#">Probabilidades</a>
+                  <a href="#">Comparar equipos</a>
+                </div>
+              </div>
+
+              <div className="mega-row">
+                <div className="mega-col">
+                  <strong>Extras</strong>
+                  <a href="#">Calculadora</a>
+                  <Link href="/nosotros">Nosotros</Link>
+                </div>
+                <div className="mega-col">
+                  <strong>Contacto</strong>
+                  <Link href="/contacto">Escríbenos</Link>
+                  <a href="#">Soporte</a>
+                </div>
+              </div>
+              */}
+            </div>
           </div>
 
           <a href="#">Calculadora</a>
@@ -288,7 +325,7 @@ export default function Header() {
               <button onClick={handleLogout} style={{marginLeft:8,background:'transparent',border:'none',color:'#fff',cursor:'pointer',fontSize:'1em',padding:'2px 8px',borderRadius:'6px',transition:'background 0.2s'}} title="Cerrar sesión">Salir</button>
             </div>
           ) : (
-            <button onClick={handleUserBtnClick} onMouseDown={(e)=> DEBUG && console.log('user-btn mousedown', e)} className="user-btn" aria-label="Abrir opciones de usuario" type="button">
+            <button onClick={handleUserBtnClick} className="user-btn" aria-label="Abrir opciones de usuario" type="button">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
                 <path d="M12 12c2.761 0 5-2.239 5-5s-2.239-5-5-5-5 2.239-5 5 2.239 5 5 5z" fill="#fff" opacity="0.95"/>
                 <path d="M3 21c0-3.866 3.582-7 9-7s9 3.134 9 7v1H3v-1z" fill="#00ffc8" opacity="0.15"/>
@@ -305,20 +342,17 @@ export default function Header() {
           <a href="#">Calculadora</a>
           <a href="/nosotros">Nosotros</a>
           <a href="/contacto">Contacto</a>
-          <button onClick={() => { DEBUG && console.log('mobile-user click'); setShowAuthModal(true); }} className="mobile-user">Cuenta</button>
+          <button onClick={() => setShowAuthModal(true)} className="mobile-user">Cuenta</button>
         </div>
       </div>
 
       {modal}
 
-      {DEBUG && (
-        <div className="debug-bubble" aria-hidden>
-          Debug: {debugInfo}
-        </div>
-      )}
+      {/* debug removed */}
 
       <style jsx>{`
-        .site-header{background:rgba(10,14,39,0.95);backdrop-filter:blur(8px);border-bottom:1px solid rgba(0,255,200,0.06);padding:12px 0;position:sticky;top:0;z-index:120;font-family:"Poppins","-apple-system","BlinkMacSystemFont","Segoe UI",sans-serif}
+        .site-header{background:rgba(10,14,39,0.95);backdrop-filter:blur(8px);border-bottom:1px solid rgba(0,255,200,0.06);padding:12px 0;position:sticky;top:0;z-index:1500;font-family:"Poppins","-apple-system","BlinkMacSystemFont","Segoe UI",sans-serif}
+        :global(.promo-open) .site-header{z-index:0 !important}
         .inner{max-width:100%;padding:0 16px;display:flex;align-items:center;gap:12px;justify-content:space-between;position:relative}
         .brand{display:flex;align-items:center;gap:10px}
         .logo{width:64px;height:64px;border-radius:8px;object-fit:contain;padding:8px;box-shadow:0 8px 20px rgba(2,6,23,0.45)}
@@ -326,17 +360,32 @@ export default function Header() {
         .brand-title{color:#00ffc8;font-weight:700}
         .brand-sub{font-size:0.75rem;color:#aaa}
 
-        .main-nav{display:flex;gap:18px;align-items:center;justify-content:center;flex:1}
+        .main-nav{display:flex;gap:18px;align-items:center;justify-content:center;flex:1;position:relative;z-index:1500}
         .social-icons{display:flex;gap:10px;margin-left:12px}
         .social-icons a{width:36px;height:36px;display:inline-flex;align-items:center;justify-content:center;border-radius:9999px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04);transition:transform .12s ease,box-shadow .12s ease}
         .social-icons a:hover{transform:translateY(-3px);box-shadow:0 10px 30px rgba(2,6,23,0.6)}
         .has-dropdown{position:relative}
-        .has-dropdown .dropdown{position:absolute;left:0;top:100%;background:rgba(10,14,39,0.98);padding:8px;border-radius:8px;box-shadow:0 8px 24px rgba(2,6,23,0.6);display:none}
+        .has-mega{position:relative}
+        .has-mega .mega{position:absolute;left:0;top:100%;z-index:1600;display:none;background:rgba(10,14,39,0.98);padding:16px;border-radius:12px;box-shadow:0 20px 60px rgba(2,6,23,0.6);min-width:420px;color:#fff}
+        .has-mega:hover .mega{display:block}
+        .has-mega.open .mega{display:block}
+        .mega{display:flex;flex-direction:column;gap:12px}
+        .mega-row{display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap}
+        .mega-col{display:flex;flex-direction:column;gap:8px;min-width:160px}
+        .mega a{color:#fff;text-decoration:none}
+        .mega-toggle{background:transparent;border:none;color:#fff;cursor:pointer;font-weight:600;padding:6px}
+        @media (max-width:900px){
+          .has-mega .mega{position:static;display:none;box-shadow:none;padding:12px;min-width:0}
+          .has-mega.open .mega{display:flex;flex-direction:column}
+          .mega{width:100%}
+          .mega-row{flex-direction:row}
+        }
+        .has-dropdown .dropdown{position:absolute;left:0;top:100%;background:rgba(10,14,39,0.98);padding:8px;border-radius:8px;box-shadow:0 8px 24px rgba(2,6,23,0.6);display:none;z-index:1600}
         .has-dropdown:hover .dropdown{display:block}
         .main-nav a, .main-nav :global(a){color:#fff;text-decoration:none;font-size:0.95rem}
         .main-nav :global(a), .main-nav :global(a:link), .main-nav :global(a:visited), .main-nav :global(a:hover), .main-nav :global(a:active){color:#fff !important}
 
-        .actions{display:flex;gap:12px;align-items:center;pointer-events:auto}
+        .actions{display:flex;gap:12px;align-items:center;pointer-events:auto;z-index:1500}
         .admin-link{display:none}
 
         .user-btn{background:linear-gradient(135deg, rgba(0,255,200,0.03), rgba(255,255,255,0.02));border:1px solid rgba(0,255,200,0.14);padding:8px;border-radius:10px;display:inline-flex;align-items:center;cursor:pointer;z-index:200;position:relative;pointer-events:auto;box-shadow:0 6px 18px rgba(0,255,200,0.06);transition:transform .12s ease,box-shadow .12s ease}
@@ -365,7 +414,7 @@ export default function Header() {
 
         .auth-msg{color:#ffb4b4;margin-bottom:10px}
         .auth-body label{display:block;font-size:0.85rem;color:#bfc8cf;margin-bottom:6px}
-        .auth-body input{width:100%;padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);margin-bottom:12px;background:rgba(255,255,255,0.02);color:#fff}
+        .auth-body input{width:100%;max-width:325px;padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);margin-bottom:12px;background:rgba(255,255,255,0.02);color:#fff}
         .auth-body input::placeholder{color:rgba(255,255,255,0.45)}
 
         .auth-body .btn{padding:10px 16px;border-radius:8px;border:none;cursor:pointer;font-weight:700}
@@ -376,33 +425,59 @@ export default function Header() {
         .actions-row{display:flex;gap:8px;justify-content:flex-end;margin-top:6px}
 
         @media (max-width: 640px){
-          .auth-box{width:calc(100% - 24px);}
-          .auth-body{padding:16px}
+          .auth-modal{align-items:flex-start;padding-top:6vh}
+          .auth-box{width:calc(100% - 24px);max-width:720px;border-radius:12px;margin:0 12px}
+          .auth-card{max-height:92vh;display:flex;flex-direction:column;overflow:hidden}
           .auth-header{padding:12px}
-          .auth-box .close{left:8px;top:-16px;width:36px;height:36px}
+          .auth-body{padding:16px;overflow:auto;max-height:calc(92vh - 120px)}
+          .auth-box .close{right:12px;left:auto;top:12px;width:36px;height:36px}
+          .auth-logo-img{max-width:120px}
+          .auth-body input{background:#ffffff;border:1px solid rgba(0,0,0,0.08);color:#07121b}
+          .auth-body input::placeholder{color:#6b7280}
+          .tabs{gap:10px}
+          .auth-body h3{font-size:1rem}
         }
 
-        .mobile-toggle{display:none;background:transparent;border:1px solid rgba(255,255,255,0.05);color:#00ffc8;padding:8px;border-radius:6px;font-size:18px}
+        .mobile-toggle{display:none;background:transparent;border:1px solid rgba(255,255,255,0.05);color:#00ffc8;padding:8px;border-radius:6px;font-size:18px;z-index:1600}
 
-        .mobile-menu{display:none;flex-direction:column;gap:10px;padding:12px 16px;position:absolute;left:0;right:0;top:100%;background:rgba(10,14,39,0.98);border-top:1px solid rgba(0,255,200,0.04)}
+        .mobile-menu{display:none;flex-direction:column;gap:10px;padding:12px 16px;position:absolute;left:0;right:0;top:100%;background:rgba(10,14,39,0.98);border-top:1px solid rgba(0,255,200,0.04);z-index:1300;max-height:calc(var(--vh,1vh) * 100 - 64px);overflow:auto}
         .mobile-menu a{color:#fff;text-decoration:none;padding:8px 0}
         .mobile-menu a:link, .mobile-menu a:visited, .mobile-menu a:hover, .mobile-menu a:active{color:#fff !important}
 
-        @media (max-width: 900px){
+        @media (max-width: 640px){
+          .auth-modal{align-items:flex-start;padding-top:6vh}
+          .auth-box{width:calc(100% - 24px);max-width:720px;border-radius:12px;margin:0 12px}
+          .auth-card{max-height:calc(var(--vh,1vh) * 100 * 0.92);display:flex;flex-direction:column;overflow:hidden}
+          .auth-header{padding:12px}
+          .auth-body{padding:16px;overflow:auto;max-height:calc(var(--vh,1vh) * 100 - 120px)}
+          .auth-box .close{right:12px;left:auto;top:12px;width:36px;height:36px}
+          .auth-logo-img{max-width:120px}
+          .auth-body input{background:#ffffff;border:1px solid rgba(0,0,0,0.08);color:#07121b}
+          .auth-body input::placeholder{color:#6b7280}
+          .tabs{gap:10px}
+          .auth-body h3{font-size:1rem}
+        }
+        /* Show mobile toggle and hide desktop nav on smaller screens */
+        @media (max-width: 900px) {
+          .mobile-toggle{display:block;z-index:1700}
           .main-nav{display:none}
-          .mobile-toggle{display:block}
-          .brand-title{font-size:0.95rem}
-          .brand-sub{display:none}
-          .inner{flex-direction:row;align-items:center}
+          .actions{display:flex;align-items:center;gap:8px}
+          .social-icons{display:none}
+          .actions .user-info{display:flex}
+          .actions .user-btn{display:inline-flex}
+          .inner{position:relative}
+          .actions{position:absolute;right:65px;top:50%;transform:translateY(-50%);z-index:1700}
+          .mobile-toggle{margin-left:8px}
+        }
           .mobile-menu{position:absolute;left:0;right:0;top:100%;display:flex}
         }
 
         @media (max-width:420px){
-          .logo{width:56px;height:56px}
+          .logo{width:48px;height:48px}
           .inner{padding:0 10px}
           .brand{gap:8px}
         }
-        .debug-bubble{position:fixed;left:12px;bottom:12px;background:rgba(0,0,0,0.6);color:#fff;padding:8px 10px;border-radius:8px;font-size:12px;z-index:9999;pointer-events:none}
+        /* debug styles removed */
       `}</style>
     </header>
   );

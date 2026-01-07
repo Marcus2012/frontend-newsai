@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Header from '../../../../src/components/Header';
 import { getStrapiBase } from '../../../lib/strapiBase';
+import { formatTeamName, formatTeamLogo } from '../../../lib/teamUtils';
 import Link from 'next/link';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://127.0.0.1:8000';
@@ -97,6 +98,8 @@ export default function PeruPrimera() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  
+
   async function fetchPrediction(f: any, i: number) {
     const key = f.id ?? f.fixture?.id ?? `${i}-${String(f.home||f.home_name||f.teams?.home?.name||'h')}-${String(f.away||f.away_name||f.teams?.away?.name||'a')}`;
     setPreds(prev => ({ ...prev, [key]: { loading: true } }));
@@ -127,10 +130,11 @@ export default function PeruPrimera() {
           {/* Logos centrados debajo del header */}
           <div className="logos-row">
             {standings && standings.slice(0,19).map((s:any, i:number)=>{
-              const logo = s.team?.logo || s.logo || s.crest || '/Logo_aeef.png';
+              const teamName = formatTeamName(s.team?.name ?? s.name ?? '');
+              const logo = formatTeamLogo(s.team?.name ?? s.name ?? '', s.team?.logo || s.logo || s.crest || '/Logo_aeef.png');
               return (
                 <div key={i} className="logo-item">
-                  <img src={logo} alt={s.team?.name ?? s.name} onError={(e:any)=>{ if(e.currentTarget.src !== '/Logo_aeef.png') e.currentTarget.src = '/Logo_aeef.png'; }} />
+                  <img src={logo} alt={teamName} onError={(e:any)=>{ if(e.currentTarget.src !== '/Logo_aeef.png') e.currentTarget.src = '/Logo_aeef.png'; }} />
                 </div>
               );
             })}
@@ -164,9 +168,9 @@ export default function PeruPrimera() {
         {error && <p style={{ color: '#ff8b8b', marginTop: 18 }}>{error}</p>}
 
         {activeTab === 'table' && standings && (
-          <div style={{ marginTop: 20, background: 'rgba(10,14,39,0.7)', padding: 12, borderRadius: 8, overflowX: 'auto' }}>
+          <div className="table-wrap" style={{ marginTop: 20 }}>
             <h3 style={{ color: '#00ffc8' }}>Tabla — {tableMeta?.phase || ''}</h3>
-            <table className="league-table" style={{ color: '#fff', minWidth: 800 }}>
+            <table className="league-table">
               <thead>
                 <tr style={{ textAlign: 'left', color: '#9fb8b0', borderBottom: '2px solid rgba(255,255,255,0.04)' }}>
                   <th style={{ width: 40 }}>Pos</th>
@@ -184,8 +188,9 @@ export default function PeruPrimera() {
               <tbody>
                 {standings && standings.length ? standings.map((row: any, idx: number) => {
                   const position = idx + 1;
-                  const name = row.team?.name ?? row.name ?? row.team ?? '—';
-                  const logo = row.team?.logo || row.team?.logo_path || row.logo || row.crest || null;
+                  const nameRaw = row.team?.name ?? row.name ?? row.team ?? '—';
+                  const name = formatTeamName(nameRaw);
+                  const logo = formatTeamLogo(row.team?.name ?? row.name ?? '', row.team?.logo || row.team?.logo_path || row.logo || row.crest || null);
                   const played = row.played ?? row.all?.played ?? row.J ?? 0;
                   const win = row.win ?? row.all?.win ?? row.G ?? 0;
                   const draw = row.draw ?? row.all?.draw ?? row.E ?? 0;
@@ -232,7 +237,7 @@ export default function PeruPrimera() {
               <ul>
                 {summary.next_fixtures.map((f: any, i: number) => (
                   <li key={i} style={{ padding: '8px 0', borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
-                    <strong>{f.teams?.home?.name ?? f.home?.name ?? f.home}</strong> — <strong>{f.teams?.away?.name ?? f.away?.name ?? f.away}</strong>
+                    <strong>{formatTeamName(f.teams?.home?.name ?? f.home?.name ?? f.home)}</strong> — <strong>{formatTeamName(f.teams?.away?.name ?? f.away?.name ?? f.away)}</strong>
                     <div style={{ color: '#9aa', fontSize: '0.9em' }}>{new Date(f.fixture?.date || f.date || Date.now()).toLocaleString()}</div>
                   </li>
                 ))}
@@ -245,7 +250,7 @@ export default function PeruPrimera() {
           <div style={{ marginTop: 20, background: 'rgba(10,14,39,0.7)', padding: 12, borderRadius: 8 }}>
             <h3 style={{ color: '#00ffc8' }}>Noticias recientes</h3>
             {news && news.length ? (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 16 }}>
+              <div className="news-grid">
                 {news.map((a:any, i:number) => (
                   <div key={i} style={{ background:'rgba(255,255,255,0.02)', padding:12, borderRadius:8 }}>
                     {a.image_url && (<img src={a.image_url} alt={a.title} style={{ width:'100%', height:120, objectFit:'cover', borderRadius:6 }} />)}
@@ -265,7 +270,7 @@ export default function PeruPrimera() {
 
         </div>
 
-        <aside className="sidebar-aside" style={{ width:320 }}>
+        <aside className="sidebar-aside">
           <div style={{ background:'#0b1722', padding:12, borderRadius:8 }}>
             <h4 style={{ color:'#00ffc8', marginBottom:8 }}>Torneo Clausura</h4>
             <div style={{ color:'#9aa', fontSize:'0.9em', marginBottom:8 }}>{summary?.date || '—'}</div>
@@ -273,11 +278,11 @@ export default function PeruPrimera() {
             {summary && (summary.last_fixtures && summary.last_fixtures.length) ? (
               <div>
                 <ul style={{ listStyle:'none', padding:0, margin:0 }}>
-                  {summary.last_fixtures.slice(0,5).map((f:any,i:number)=> {
+                      {summary.last_fixtures.slice(0,5).map((f:any,i:number)=> {
                       const pk = f.id ?? f.fixture?.id ?? `${i}-${String(f.home||f.home_name||f.teams?.home?.name||'h')}-${String(f.away||f.away_name||f.teams?.away?.name||'a')}`;
                       const p = preds[pk];
-                      const homeName = f.teams?.home?.name ?? f.home?.name ?? f.home ?? 'Home';
-                      const awayName = f.teams?.away?.name ?? f.away?.name ?? f.away ?? 'Away';
+                      const homeName = formatTeamName(f.teams?.home?.name ?? f.home?.name ?? f.home ?? 'Home');
+                      const awayName = formatTeamName(f.teams?.away?.name ?? f.away?.name ?? f.away ?? 'Away');
                       const homeScore = (f.goals?.home ?? f.score?.home ?? f.goals_home) ?? (f.result?.home ?? '');
                       const awayScore = (f.goals?.away ?? f.score?.away ?? f.goals_away) ?? (f.result?.away ?? '');
                       return (
@@ -325,6 +330,35 @@ export default function PeruPrimera() {
         </aside>
 
       </div>
+
+      <style jsx global>{`
+        .main-layout{ display:flex; gap:20px; align-items:flex-start; }
+        .table-wrap{ background: rgba(10,14,39,0.7); padding:12px; border-radius:8px; overflow-x:auto }
+        .league-table{ width:100%; color:#fff; border-collapse:collapse; min-width:0 }
+        .league-table th, .league-table td{ padding:10px 8px; white-space:nowrap }
+        .logos-row{ display:flex; gap:10px; align-items:center; justify-content:center; padding:8px 0; overflow-x:auto }
+        .logo-item img{ width:44px; height:44px; object-fit:contain; display:block }
+        .news-grid{ display:grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap:16px }
+        .sidebar-aside{ width:320px }
+
+        @media (max-width: 900px){
+          .main-layout{ flex-direction:column; }
+          .logos-row{ justify-content:flex-start; padding-left:8px }
+          .logo-item img{ width:40px; height:40px }
+          .sidebar-aside{ width:100% }
+          .news-grid{ grid-template-columns: 1fr }
+        }
+
+        @media (max-width: 520px){
+          h1{ font-size:1.4rem }
+          .league-table th:nth-child(4), .league-table th:nth-child(5), .league-table th:nth-child(6), .league-table th:nth-child(7), .league-table th:nth-child(8){ display:none }
+          .league-table td:nth-child(4), .league-table td:nth-child(5), .league-table td:nth-child(6), .league-table td:nth-child(7), .league-table td:nth-child(8){ display:none }
+          .league-table thead{ display:table-header-group }
+          .league-team-cell img{ width:26px; height:26px }
+          .logo-item img{ width:36px; height:36px }
+        }
+      `}</style>
+
     </div>
   );
 }

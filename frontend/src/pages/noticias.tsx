@@ -178,6 +178,7 @@ export default function NoticiasPage({ articles }: NoticiasProps) {
             position: static;
             width: 100%;
             padding: 0;
+            margin-left: -48px;
           }
           .mobile-banner-bottom {
             display: block;

@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 
 
 export default function BannerEasyPromo() {
@@ -74,24 +74,23 @@ export default function BannerEasyPromo() {
     }
   }
 
+  // Toggle body class when modal is open so header can react (z-index changes)
+  useEffect(() => {
+    if (typeof document === 'undefined') return
+    if (modalOpen) {
+      document.body.classList.add('promo-open')
+    } else {
+      document.body.classList.remove('promo-open')
+    }
+    return () => { document.body.classList.remove('promo-open') }
+  }, [modalOpen])
+
   return (
-    <div style={{ width: '320px', textAlign: 'center' }}>
-      <button
-        onClick={handleClick}
-        disabled={loading}
-        style={{
-          width: '100%',
-          background: 'linear-gradient(90deg,#ff7a00,#ffcf00)',
-          color: '#000',
-          padding: '12px 16px',
-          borderRadius: 12,
-          fontWeight: '700',
-          boxShadow: '0 8px 30px rgba(255,124,0,0.18)'
-        }}
-      >
+    <div className="easy-promo">
+      <button onClick={handleClick} disabled={loading} className="play-btn">
         {loading ? 'Registrando...' : 'Juega ahora — Gana premios'}
       </button>
-      {error && <div style={{ marginTop: 8, color: '#ffb3b3', fontSize: 13 }}>{error}</div>}
+      {error && <div className="error-txt">{error}</div>}
 
       {/* Modal con iframe del juego */}
       {modalOpen && promoUrl && (
@@ -100,30 +99,14 @@ export default function BannerEasyPromo() {
           top: 0,
           left: 0,
           width: '100vw',
-          height: '100vh',
+          height: 'calc(var(--vh,1vh) * 100)',
           background: 'rgba(0,0,0,0.5)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           zIndex: 9999
         }}>
-          <div style={{
-            background: '#fff',
-            borderRadius: 12,
-            padding: 0,
-            minWidth: 350,
-            maxWidth: '90vw',
-            minHeight: 500,
-            maxHeight: '90vh',
-            textAlign: 'center',
-            boxShadow: '0 8px 30px rgba(0,0,0,0.18)',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            overflow: 'hidden',
-            position: 'relative'
-          }}>
+          <div className="promo-modal-inner">
             <button
               onClick={() => setModalOpen(false)}
               style={{
@@ -145,20 +128,34 @@ export default function BannerEasyPromo() {
             <iframe
               src={promoUrl}
               title="Juego Easypromos"
-              style={{
-                width: '80vw',
-                height: '80vh',
-                minWidth: 350,
-                minHeight: 500,
-                border: 'none',
-                borderRadius: 12,
-                marginTop: 0
-              }}
+              className="promo-iframe"
               allowFullScreen
+              sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
             />
           </div>
         </div>
       )}
+      <style jsx>{`
+        .easy-promo{width:100%;max-width:420px;margin:0 auto;text-align:center;padding:0 8px;display:flex;justify-content:center;align-items:center}
+        .play-btn{width:100%;background:linear-gradient(90deg,#ff7a00,#ffcf00);color:#000;padding:12px 16px;border-radius:12px;font-weight:700;box-shadow:0 8px 30px rgba(255,124,0,0.18);font-size:1rem;border:none;cursor:pointer}
+        .play-btn[disabled]{opacity:0.7;cursor:not-allowed}
+        .error-txt{margin-top:8px;color:#ffb3b3;font-size:13px}
+
+        .promo-modal-inner{background:#fff;border-radius:12px;padding:0;width:100%;max-width:92vw;min-width:280px;min-height:320px;max-height:90vh;text-align:center;box-shadow:0 8px 30px rgba(0,0,0,0.18);display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;position:relative;margin:0 auto}
+        .promo-modal-inner button{position:absolute;top:12px;right:12px}
+        .promo-iframe{width:100%;height:60vh;min-height:260px;border:none;border-radius:12px;margin-top:0}
+
+        @media (max-width:640px){
+          .easy-promo{max-width:325px;padding:0 8px;display:flex;justify-content:center;align-items:center;margin:0 auto}
+          .play-btn{padding:10px 14px;border-radius:10px;font-size:0.95rem}
+          .promo-modal-inner{min-width:260px;min-height:220px;border-radius:10px;max-height:calc(var(--vh,1vh) * 100 - 16px);height:auto}
+          .promo-iframe{height:calc(var(--vh,1vh) * 100 - 140px);min-height:300px}
+        }
+
+        @media (min-width:641px){
+          .easy-promo{max-width:420px}
+        }
+      `}</style>
     </div>
   )
 }

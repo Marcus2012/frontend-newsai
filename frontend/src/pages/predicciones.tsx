@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import Link from 'next/link';
+import { formatTeamName, formatTeamLogo } from '../lib/teamUtils';
 
 type Match = {
   id?: string | number;
@@ -14,6 +15,8 @@ type Match = {
 
 // Matches will be loaded from the API `/peru/summary` (fallback to empty array)
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://127.0.0.1:8000';
+
+
 
 function formatDateTime(d?: string) {
   if (!d) return '';
@@ -122,8 +125,15 @@ export default function PrediccionesPage() {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(160px,1fr))', gap: 12 }}>
               {teams.map((t:any, i:number) => {
                 const team = t.team || t;
-                const name = team?.name || team?.club_name || team?.title || team;
-                const logo = team?.logo || team?.crest || team?.logo_path || null;
+                const rawName = team?.name || team?.club_name || team?.title || team;
+                const name = formatTeamName(typeof rawName === 'string' ? rawName : (rawName?.name || String(rawName)));
+                const rawLogo = team?.logo || team?.crest || team?.logo_path || null;
+                const isLosChankas = String(name).toLowerCase().includes('los chankas');
+                const logo = isLosChankas
+                  ? formatTeamLogo(name, '/Logo_aeef.png')
+                  : (rawLogo
+                      ? (typeof rawLogo === 'string' && (rawLogo.startsWith('http') || rawLogo.startsWith('//')) ? rawLogo : `${API_BASE.replace(/\/$/, '')}${rawLogo}`)
+                      : formatTeamLogo(name, '/Logo_aeef.png'));
                 return (
                   <div key={i} style={{ background:'#071826', padding:10, borderRadius:8, display:'flex', alignItems:'center', gap:10, border:'1px solid rgba(255,255,255,0.03)'}}>
                     <img src={logo || '/Logo_aeef.png'} alt={name} style={{ width:40, height:40, objectFit:'contain', borderRadius:6 }} onError={(e:any)=>{ if(e.currentTarget.src !== '/Logo_aeef.png') e.currentTarget.src = '/Logo_aeef.png'; }} />
@@ -142,14 +152,14 @@ export default function PrediccionesPage() {
           {upcomingTeams.length ? (
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 10 }}>
               {upcomingTeams.slice(0, 24).map((t, i) => (
-                <div key={i} style={{ background: '#071826', padding: '6px 10px', borderRadius: 8, color: '#fff', fontWeight: 700 }}>{t}</div>
+                <div key={i} style={{ background: '#071826', padding: '6px 10px', borderRadius: 8, color: '#fff', fontWeight: 700 }}>{formatTeamName(t)}</div>
               ))}
             </div>
           ) : (
             <div style={{ color: '#9aa', marginBottom: 10 }}>No hay equipos próximos</div>
           )}
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(320px,1fr))', gap: 16, marginTop: 6 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(240px,1fr))', gap: 16, marginTop: 6 }}>
             {matches.map((m) => {
               const key = String(m.id ?? `${m.home}-${m.away}`);
               const p = preds[key];
@@ -163,8 +173,8 @@ export default function PrediccionesPage() {
 
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontWeight: 800, fontSize: '1rem' }}>{m.home} <span style={{ color: '#9aa', fontWeight: 600 }}> - </span> {m.away}</div>
-                      <div style={{ color: '#cfe', marginTop: 8 }}>{p?.scoreline ? `${p.winner === 'home' ? m.home : p.winner === 'away' ? m.away : 'Empate'} — ${p.scoreline} (${p.confidence}%)` : 'Sin predicción'}</div>
+                      <div style={{ fontWeight: 800, fontSize: '1rem' }}>{formatTeamName(m.home)} <span style={{ color: '#9aa', fontWeight: 600 }}> - </span> {formatTeamName(m.away)}</div>
+                      <div style={{ color: '#cfe', marginTop: 8 }}>{p?.scoreline ? `${p.winner === 'home' ? formatTeamName(m.home) : p.winner === 'away' ? formatTeamName(m.away) : 'Empate'} — ${p.scoreline} (${p.confidence}%)` : 'Sin predicción'}</div>
                     </div>
                   </div>
 
