@@ -159,39 +159,82 @@ export default function PrediccionesPage() {
             <div style={{ color: '#9aa', marginBottom: 10 }}>No hay equipos próximos</div>
           )}
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(240px,1fr))', gap: 16, marginTop: 6 }}>
-            {matches.map((m) => {
-              const key = String(m.id ?? `${m.home}-${m.away}`);
-              const p = preds[key];
-              const loading = !!loadingIds[key];
-              return (
-                <div key={key} style={{ background: '#0b1722', borderRadius: 10, padding: 14, border: '1px solid rgba(255,255,255,0.03)' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                    <div style={{ fontSize: '0.9em', color: '#9aa' }}>{formatDateTime(m.date)}</div>
-                    <div style={{ fontSize: '0.85em', color: '#9aa' }}>{m.league}</div>
-                  </div>
+          <div style={{ marginTop: 6 }}>
+            {matches.length > 0 ? (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(300px,1fr))', gap: 18 }}>
+                {matches.map((m) => {
+                  const key = String(m.id ?? `${m.home}-${m.away}`);
+                  const p = preds[key] || {} as any;
+                  const loading = !!loadingIds[key];
+                  const home = p?.prob_home ?? 25;
+                  const away = p?.prob_away ?? 52;
+                  const draw = p?.prob_draw ?? Math.max(0, 100 - home - away);
+                  return (
+                    <div key={key} style={{ background: 'linear-gradient(180deg,#24111a,#0b1722)', borderRadius: 10, padding: 18, border: '1px solid rgba(255,60,100,0.12)', boxShadow: '0 2px 0 rgba(0,0,0,0.3)', color: '#e6f7f3' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                        {/* Logo local */}
+                        <div style={{ width: 44, height: 44, borderRadius: 8, overflow: 'hidden', background: '#071826', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <img src={m.logoHome || '/Logo_aeef.png'} alt={m.home} style={{ width: 36, height: 36, objectFit: 'contain' }} onError={(e:any)=>{ if(e.currentTarget.src !== '/Logo_aeef.png') e.currentTarget.src = '/Logo_aeef.png'; }} />
+                        </div>
+                        {/* Centro: liga, fecha y nombres */}
+                        <div style={{ flex: 1, textAlign: 'center' }}>
+                          <div style={{ color: '#9aa', fontSize: '0.82em', marginBottom: 2 }}>{m.league} • {formatDateTime(m.date)}</div>
+                          <div style={{ fontWeight: 900, fontSize: '1.08rem', marginTop: 6, lineHeight: '1.05', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                            <span style={{ display: 'inline-block', maxWidth: 90, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{formatTeamName(m.home)}</span>
+                            <span style={{ color: '#9aa', fontWeight: 600 }}>vs</span>
+                            <span style={{ display: 'inline-block', maxWidth: 90, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{formatTeamName(m.away)}</span>
+                          </div>
+                        </div>
+                        {/* Logo visitante */}
+                        <div style={{ width: 44, height: 44, borderRadius: 8, overflow: 'hidden', background: '#071826', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <img src={m.logoAway || '/Logo_aeef.png'} alt={m.away} style={{ width: 36, height: 36, objectFit: 'contain' }} onError={(e:any)=>{ if(e.currentTarget.src !== '/Logo_aeef.png') e.currentTarget.src = '/Logo_aeef.png'; }} />
+                        </div>
+                      </div>
 
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontWeight: 800, fontSize: '1rem' }}>{formatTeamName(m.home)} <span style={{ color: '#9aa', fontWeight: 600 }}> - </span> {formatTeamName(m.away)}</div>
-                      <div style={{ color: '#cfe', marginTop: 8 }}>{p?.scoreline ? `${p.winner === 'home' ? formatTeamName(m.home) : p.winner === 'away' ? formatTeamName(m.away) : 'Empate'} — ${p.scoreline} (${p.confidence}%)` : 'Sin predicción'}</div>
+                      {/* Prediction headline */}
+                      <div style={{ color: '#1ee0c4', fontWeight: 800, marginBottom: 8 }}>{p?.headline ?? 'Gana Local (L) (2-0)'}</div>
+
+                      <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, color: '#9aa', fontSize: '0.85em' }}>
+                            <div>L: {home}%</div>
+                            <div>E: {draw}%</div>
+                            <div>V: {away}%</div>
+                          </div>
+
+                          <div style={{ height: 14, background: 'rgba(255,255,255,0.03)', borderRadius: 8, overflow: 'hidden', display: 'flex' }}>
+                            <div style={{ width: `${home}%`, background: '#2bb673' }} />
+                            <div style={{ width: `${draw}%`, background: '#9a5f2b' }} />
+                            <div style={{ width: `${away}%`, background: '#17e0c4' }} />
+                          </div>
+
+                          <div style={{ background: '#0d5136', color: '#e6f7f3', padding: '12px 14px', borderRadius: 8, marginTop: 12, fontWeight: 800 }}>
+                            <div>Resultado Final: {p?.scoreline ?? '—'}</div>
+                            <div style={{ color: '#ffd96b', fontWeight: 800, marginTop: 8 }}>🏆 {p?.fans ?? 54} fans ganaron</div>
+                          </div>
+                        </div>
+
+                        <div style={{ width: 120, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8 }}>
+                          <button onClick={() => generatePrediction(m)} style={{ background: 'linear-gradient(90deg,#06424a,#0b3650)', border: '1px solid rgba(0,255,200,0.06)', color: '#fff', padding: '10px 12px', borderRadius: 8, cursor: 'pointer', fontWeight: 800 }} disabled={loading}>{loading ? 'Generando...' : 'Generar predicción'}</button>
+                          <Link href="/noticias" style={{ color: '#00ffc8', fontSize: '0.95em' }}>En detalles ›</Link>
+                        </div>
+                      </div>
+                      {/*
+                      <div style={{ marginTop: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                          <div style={{ background: '#073c1f', color: '#bff0c9', padding: '6px 10px', borderRadius: 8, fontWeight: 800 }}>🏆 {p?.fans ?? 54} fans</div>
+                          <div style={{ background: '#3b1d22', color: '#ffd2d2', padding: '6px 8px', borderRadius: 6, fontWeight: 800 }}>PERÚ</div>
+                        </div>
+                        <div style={{ color: '#ff6b6b', fontWeight: 800 }}>🔥 {p?.precision ?? (p?.confidence ?? '—')}%</div>
+                      </div>
+                      */}
                     </div>
-                  </div>
-
-                  <div style={{ display: 'flex', gap: 8, marginTop: 6, alignItems: 'center' }}>
-                    <button onClick={() => generatePrediction(m)} style={{ background: 'linear-gradient(90deg,#063349,#08385a)', border: '1px solid rgba(0,255,200,0.08)', color: '#fff', padding: '10px 14px', borderRadius: 8, cursor: 'pointer', fontWeight: 700 }} disabled={loading}>{loading ? 'Generando...' : 'Generar predicción'}</button>
-                    <Link href="/noticias" style={{ color: '#00ffc8', marginLeft: 8, fontSize: '0.9em' }}>En detalles ›</Link>
-                  </div>
-
-                  {p && p.error && <div style={{ marginTop: 10, color: '#ff8b8b' }}>{String(p.error)}</div>}
-                  {p && p.reasons && (
-                    <ul style={{ marginTop: 10, color: '#cfe' }}>
-                      {p.reasons.slice(0,3).map((r: string, i: number) => <li key={i} style={{ fontSize: '0.9em' }}>{r}</li>)}
-                    </ul>
-                  )}
-                </div>
-              );
-            })}
+                  );
+                })}
+              </div>
+            ) : (
+              <div style={{ color: '#9aa' }}>No hay próximos partidos.</div>
+            )}
           </div>
         </div>
       </div>

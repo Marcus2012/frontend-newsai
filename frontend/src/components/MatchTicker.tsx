@@ -3,9 +3,9 @@ import React from 'react';
 type Match = { league: string; home: string; away: string; score?: string; time?: string };
 
 const demo: Match[] = [
-  { league: 'A-League', home: 'MELB CITY', away: 'MAC', score: '0 - 1', time: '03:15 A.M.' },
-  { league: 'Copa Africana', home: 'NGA', away: 'TAN', score: '1 - 0', time: '12:30 P.M.' },
-  { league: 'AFC', home: 'ITTHJED', away: 'QAR', score: '1 - 1', time: '01:15 P.M.' },
+  { league: 'Liga Peruana', home: 'Alianza Lima', away: 'Universitario', score: '1 - 0', time: '03:15 P.M.' },
+  { league: 'Liga Peruana', home: 'Sporting Cristal', away: 'Melgar', score: '2 - 1', time: '12:30 P.M.' },
+  { league: 'Liga Peruana', home: 'César Vallejo', away: 'Cusco FC', score: '0 - 0', time: '01:15 P.M.' },
 ];
 
 export default function MatchTicker({ matches = demo }: { matches?: Match[] }) {

@@ -141,9 +141,9 @@ export default function BannerEasyPromo() {
         .play-btn[disabled]{opacity:0.7;cursor:not-allowed}
         .error-txt{margin-top:8px;color:#ffb3b3;font-size:13px}
 
-        .promo-modal-inner{background:#fff;border-radius:12px;padding:0;width:100%;max-width:92vw;min-width:280px;min-height:320px;max-height:90vh;text-align:center;box-shadow:0 8px 30px rgba(0,0,0,0.18);display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;position:relative;margin:0 auto}
-        .promo-modal-inner button{position:absolute;top:12px;right:12px}
-        .promo-iframe{width:100%;height:60vh;min-height:260px;border:none;border-radius:12px;margin-top:0}
+        .promo-modal-inner{background:#fff;border-radius:12px;padding:0;width:100%;max-width:98vw;min-width:320px;min-height:600px;height:95vh;text-align:center;box-shadow:0 8px 30px rgba(0,0,0,0.18);display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;position:relative;margin:0 auto}
+        .promo-modal-inner button{position:absolute;top:12px;right:12px;z-index:2}
+        .promo-iframe{width:100%;height:calc(95vh - 48px);min-height:540px;border:none;border-radius:12px;margin-top:0}
 
         @media (max-width:640px){
           .easy-promo{max-width:325px;padding:0 8px;display:flex;justify-content:center;align-items:center;margin:0 auto}

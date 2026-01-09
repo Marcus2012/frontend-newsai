@@ -197,13 +197,47 @@ export default function ArticlePage() {
   return (
     <div style={{ fontFamily: '"Poppins", "-apple-system", "BlinkMacSystemFont", "Segoe UI", sans-serif', background: '#0a0e27', color: '#fff', minHeight: '100vh' }}>
       <Header />
-
+      {/*
       <SampleAdBanner />
-
+      */}  
       {/* Featured Image */}
       {article?.image_url && (
-        <div style={{ width: '100%', height: '400px', overflow: 'hidden', position: 'relative' }}>
-          <Image src={article.image_url} alt={article.title} fill style={{ objectFit: 'cover' }} unoptimized />
+        <div
+          style={{
+            width: '100%',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            margin: '32px 0 24px 0',
+          }}
+        >
+          <div
+            style={{
+              width: '100%',
+              maxWidth: 1200,
+              background: 'linear-gradient(90deg,#2b3346,#0f1724)',
+              borderRadius: 12,
+              boxShadow: '0 6px 24px rgba(0,0,0,0.18)',
+              overflow: 'hidden',
+              position: 'relative',
+              display: 'flex',
+              alignItems: 'center',
+              minHeight: 340,
+              height: 'clamp(320px, 38vw, 420px)',
+              minWidth: 320,
+              aspectRatio: '16/6',
+            }}
+          >
+            <Image
+              src={article.image_url}
+              alt={article.title}
+              fill
+              style={{ objectFit: 'cover' }}
+              unoptimized
+              sizes="(max-width: 900px) 100vw, 1200px"
+              priority
+            />
+          </div>
         </div>
       )}
 
@@ -282,12 +316,13 @@ export default function ArticlePage() {
               alignItems: 'center'
             }}>
               {/** Social buttons **/}
-              <button title="Twitter" onClick={() => {
+              <button title="X" onClick={() => {
                 const url = encodeURIComponent(typeof window !== 'undefined' ? window.location.href : '');
                 const text = encodeURIComponent(article?.title || '');
                 window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank', 'noopener');
               }} style={iconBtnStyle} onMouseEnter={(e)=> (e.currentTarget.style.transform = 'scale(1.08)') } onMouseLeave={(e)=> (e.currentTarget.style.transform = 'scale(1)') }>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="#1DA1F2" xmlns="http://www.w3.org/2000/svg"><path d="M22 5.92c-.64.28-1.32.48-2.04.56.73-.44 1.28-1.12 1.54-1.94-.68.4-1.44.68-2.24.84C18.9 4.6 17.98 4 17 4c-1.78 0-3.22 1.44-3.22 3.22 0 .25.03.5.08.74C10.28 8 7.07 6.48 4.9 4c-.28.48-.44 1.04-.44 1.64 0 1.12.57 2.12 1.44 2.7-.56 0-1.08-.16-1.54-.4v.04c0 1.58 1.12 2.9 2.6 3.2-.28.08-.6.12-.92.12-.22 0-.44 0-.66-.04.46 1.4 1.78 2.42 3.34 2.44-1.24.98-2.8 1.56-4.5 1.56-.3 0-.6 0-.9-.04 1.6 1.04 3.5 1.64 5.56 1.64 6.66 0 10.3-5.5 10.3-10.28v-.46c.72-.5 1.3-1.12 1.78-1.82-.66.3-1.36.5-2.08.6z"/></svg>
+                {/* Icono X (Twitter nuevo) */}
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff" xmlns="http://www.w3.org/2000/svg"><rect width="24" height="24" rx="6" fill="#181818"/><path d="M7.5 7.5L16.5 16.5M16.5 7.5L7.5 16.5" stroke="#fff" strokeWidth="2" strokeLinecap="round"/></svg>
               </button>
 
               <button title="Facebook" onClick={() => {
@@ -307,11 +342,11 @@ export default function ArticlePage() {
                   <path fill="#fff" d="M17.1 14.5c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.66.15-.18.3-.69.97-.85 1.17-.16.2-.33.22-.62.08-.29-.15-1.23-.45-2.34-1.45-.86-.76-1.44-1.7-1.61-2-.17-.3-.02-.46.13-.61.13-.14.29-.33.43-.5.14-.17.18-.29.29-.48.1-.19.05-.36-.02-.51-.07-.15-.66-1.59-.9-2.18-.24-.58-.49-.5-.66-.51-.17-.01-.36-.01-.55-.01-.18 0-.47.07-.72.34-.25.27-.95.93-.95 2.27s.97 2.63 1.1 2.82c.13.19 1.9 2.98 4.62 4.2 3.22 1.45 3.22 0 3.8-.99.59-.98.59-1.82.41-1.99-.18-.18-.33-.3-.62-.45z"/>
                 </svg>
               </button>
-
+              {/*
               <button title="Telegram" onClick={() => {
                 const url = encodeURIComponent(typeof window !== 'undefined' ? window.location.href : '');
                 const text = encodeURIComponent(article?.title || '');
-                window.open(`https://t.me/share/url?url=${url}&text=${text}`, '_blank', 'noopener');
+                window.open(`https://t.me/share/url?url=${url}&text=${text}`, ' _blank', 'noopener');
               }} style={iconBtnStyle} onMouseEnter={(e)=> (e.currentTarget.style.transform = 'scale(1.08)') } onMouseLeave={(e)=> (e.currentTarget.style.transform = 'scale(1)') }>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="#26A5E4" xmlns="http://www.w3.org/2000/svg"><path d="M12 0C5.37 0 .002 5.37.002 12S5.37 24 12 24s12-5.37 12-12S18.63 0 12 0zm5.2 8.4l-1.9 9.12c-.14.64-.5.8-1.02.5l-2.82-2.08-1.36 1.3c-.15.15-.28.28-.57.28l.2-2.86 5.2-4.7c.22-.2-.05-.32-.34-.12l-6.43 4.05-2.77-.86c-.6-.2-.61-.6.12-.89L16.8 7.2c.52-.18.97.12.6.18z"/></svg>
               </button>
@@ -323,7 +358,7 @@ export default function ArticlePage() {
               }} style={iconBtnStyle} onMouseEnter={(e)=> (e.currentTarget.style.transform = 'scale(1.08)') } onMouseLeave={(e)=> (e.currentTarget.style.transform = 'scale(1)') }>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="#0A66C2" xmlns="http://www.w3.org/2000/svg"><path d="M4.98 3.5C4.98 4.88 3.88 6 2.5 6S0 4.88 0 3.5 1.1 1 2.5 1s2.48 1.12 2.48 2.5zM.5 8h4v14h-4zM8.5 8h3.8v2h.06c.53-1 1.84-2 3.79-2 4.06 0 4.81 2.68 4.81 6.16V22h-4v-6.2c0-1.48-.03-3.38-2.06-3.38-2.06 0-2.37 1.6-2.37 3.28V22h-4V8z"/></svg>
               </button>
-
+              */}
               <button title="Copiar" onClick={async () => {
                 const url = typeof window !== 'undefined' ? window.location.href : '';
                 try { await navigator.clipboard.writeText(url); alert('Enlace copiado al portapapeles'); }

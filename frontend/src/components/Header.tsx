@@ -196,7 +196,7 @@ export default function Header() {
               .tab.active{border-bottom-color:#00ffc8;color:#00ffc8}
               .auth-msg{color:#ffb4b4;margin-bottom:10px}
               .auth-body label{display:block;font-size:0.85rem;color:#bfc8cf;margin-bottom:6px}
-              .auth-body input{width:100%;padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);margin-bottom:12px;background:rgba(255,255,255,0.02);color:#fff}
+              .auth-body input{width:100%;padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);margin-bottom:12px;background:rgba(255,255,255,0.02);color:#fff; max-width:700px}
               .auth-body input::placeholder{color:rgba(255,255,255,0.45)}
               .auth-body .btn{padding:10px 16px;border-radius:8px;border:none;cursor:pointer;font-weight:700}
               .auth-body .btn.primary{background:#00ffc8;color:#07121b}
@@ -250,69 +250,31 @@ export default function Header() {
             </div>
           </div>
 
-          <div ref={megaRef} className={"has-mega" + (megaOpen ? ' open' : '')}>
-            <button onClick={(e)=>{ e.preventDefault(); setMegaOpen(v=>!v); }} className="mega-toggle">Predicciones ▾</button>
-            <div className="mega" role="menu">
-              <div className="mega-row">
-                <div className="mega-col">
-                  <strong>Predicciones</strong>
-                  <Link href="/predicciones">Todas las predicciones</Link>
-                </div>
-                {/*
-                <div className="mega-col">
-                  <strong>Filtrar</strong>
-                  <a href="#">Por fecha</a>
-                  <a href="#">Por liga</a>
-                </div>
-                */}
-              </div>
-              {/*
-              <div className="mega-row">
-                <div className="mega-col">
-                  <strong>Estadísticas</strong>
-                  <a href="#">Ranking</a>
-                  <a href="#">Formas</a>
-                </div>
-                <div className="mega-col">
-                  <strong>Herramientas</strong>
-                  <a href="#">Probabilidades</a>
-                  <a href="#">Comparar equipos</a>
-                </div>
-              </div>
+          <Link href="/predicciones">Predicciones</Link>
 
-              <div className="mega-row">
-                <div className="mega-col">
-                  <strong>Extras</strong>
-                  <a href="#">Calculadora</a>
-                  <Link href="/nosotros">Nosotros</Link>
-                </div>
-                <div className="mega-col">
-                  <strong>Contacto</strong>
-                  <Link href="/contacto">Escríbenos</Link>
-                  <a href="#">Soporte</a>
-                </div>
-              </div>
-              */}
-            </div>
-          </div>
-
-          <a href="#">Calculadora</a>
-          <a href="/nosotros">Nosotros</a>
-          <a href="/contacto">Contacto</a>
+          <Link href="/calculadora">Calculadora</Link>
+          <Link href="/nosotros">Nosotros</Link>
+          <Link href="/contacto">Contacto</Link>
           <div className="social-icons">
-            <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" aria-label="Twitter">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M22 5.92c-.64.28-1.32.48-2.04.56.73-.44 1.28-1.12 1.54-1.94-.68.4-1.44.68-2.24.84C18.9 4.6 17.98 4 17 4c-1.78 0-3.22 1.44-3.22 3.22 0 .25.03.5.08.74C10.28 8 7.07 6.48 4.9 4c-.28.48-.44 1.04-.44 1.64 0 1.12.57 2.12 1.44 2.7-.56 0-1.08-.16-1.54-.4v.04c0 1.58 1.12 2.9 2.6 3.2-.28.08-.6.12-.92.12-.22 0-.44 0-.66-.04.46 1.4 1.78 2.42 3.34 2.44-1.24.98-2.8 1.56-4.5 1.56-.3 0-.6 0-.9-.04 1.6 1.04 3.5 1.64 5.56 1.64 6.66 0 10.3-5.5 10.3-10.28v-.46c.72-.5 1.3-1.12 1.78-1.82-.66.3-1.36.5-2.08.6z" fill="#1DA1F2"/></svg>
+            <a href="https://x.com/asieselfutbol" target="_blank" rel="noopener noreferrer" aria-label="X">
+              <svg width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+                <rect x="3" y="3" width="18" height="18" rx="5" fill="#000" />
+                <path d="M8.5 8.5 L15.5 15.5 M15.5 8.5 L8.5 15.5" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
             </a>
 
-            <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+            <a href="https://www.facebook.com/asieselfutbol.pe" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M22 12a10 10 0 10-11.5 9.9v-7h-2.2V12h2.2V9.8c0-2.2 1.3-3.4 3.3-3.4.96 0 1.97.17 1.97.17v2.2h-1.12c-1.1 0-1.44.68-1.44 1.38V12h2.44l-.39 2.9h-2.05v7A10 10 0 0022 12" fill="#1877F2"/></svg>
             </a>
 
-            <a href="https://t.me" target="_blank" rel="noopener noreferrer" aria-label="Telegram">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 0C5.37 0 .002 5.37.002 12S5.37 24 12 24s12-5.37 12-12S18.63 0 12 0zm5.2 8.4l-1.9 9.12c-.14.64-.5.8-1.02.5l-2.82-2.08-1.36 1.3c-.15.15-.28.28-.57.28l.2-2.86 5.2-4.7c.22-.2-.05-.32-.34-.12l-6.43 4.05-2.77-.86c-.6-.2-.61-.6.12-.89L16.8 7.2c.52-.18.97.12.6.18z" fill="#26A5E4"/></svg>
+            <a href="https://www.youtube.com/@asieselfutbol_tv" target="_blank" rel="noopener noreferrer" aria-label="YouTube">
+              <svg width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+                <path d="M23.5 6.2s-.24-1.7-.98-2.45C21.76 3 20.88 3 20.4 2.92 17.72 2.6 12 2.6 12 2.6s-5.72 0-8.4.32c-.48.08-1.36.08-2.12 0C.74 4.5.5 6.2.5 6.2S.28 8 .28 9.8v2.4c0 1.8.22 3.6.22 3.6s.24 1.7.98 2.45c.74.76 1.72.72 2.18.8 1.58.2 8.02.32 8.02.32s5.72 0 8.4-.32c.48-.08 1.36-.08 2.12 0 .74.08 1.12-.04 1.86-.8.74-.74.98-2.45.98-2.45s.22-1.8.22-3.6v-2.4c0-1.8-.22-3.6-.22-3.6z" fill="#FF0000"/>
+                <path d="M9.75 15.02V8.98l5.5 3.02-5.5 3.02z" fill="#fff"/>
+              </svg>
             </a>
 
-            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+            <a href="https://www.instagram.com/asieselfutbol/#" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
               <svg width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><linearGradient id="g1" x1="0" x2="1"><stop offset="0" stopColor="#f58529"/><stop offset="0.5" stopColor="#dd2a7b"/><stop offset="1" stopColor="#8134af"/></linearGradient><path d="M12 2.2c3.2 0 3.584.012 4.85.07 1.17.055 1.97.24 2.42.403a4.9 4.9 0 011.77 1.02 4.9 4.9 0 011.02 1.77c.164.45.348 1.25.403 2.42.058 1.27.07 1.65.07 4.85s-.012 3.584-.07 4.85c-.055 1.17-.24 1.97-.403 2.42a4.9 4.9 0 01-1.02 1.77 4.9 4.9 0 01-1.77 1.02c-.45.164-1.25.348-2.42.403-1.27.058-1.65.07-4.85.07s-3.584-.012-4.85-.07c-1.17-.055-1.97-.24-2.42-.403a4.9 4.9 0 01-1.77-1.02 4.9 4.9 0 01-1.02-1.77c-.164-.45-.348-1.25-.403-2.42C2.212 15.584 2.2 15.2 2.2 12s.012-3.584.07-4.85c.055-1.17.24-1.97.403-2.42a4.9 4.9 0 011.02-1.77 4.9 4.9 0 011.77-1.02c.45-.164 1.25-.348 2.42-.403C8.416 2.212 8.8 2.2 12 2.2zm0 1.8c-3.12 0-3.492.01-4.72.068-1.03.05-1.58.22-1.95.366a3.1 3.1 0 00-1.12.73 3.1 3.1 0 00-.73 1.12c-.146.37-.316.92-.366 1.95C2.01 8.508 2 8.88 2 12s.01 3.492.068 4.72c.05 1.03.22 1.58.366 1.95.17.44.39.8.73 1.12.32.33.68.56 1.12.73.37.146.92.316 1.95.366C8.508 21.99 8.88 22 12 22s3.492-.01 4.72-.068c1.03-.05 1.58-.22 1.95-.366.44-.17.8-.39 1.12-.73.33-.32.56-.68.73-1.12.146-.37.316-.92.366-1.95.058-1.228.068-1.6.068-4.72s-.01-3.492-.068-4.72c-.05-1.03-.22-1.58-.366-1.95a3.1 3.1 0 00-.73-1.12 3.1 3.1 0 00-1.12-.73c-.37-.146-.92-.316-1.95-.366C15.492 3.01 15.12 3 12 3zm0 4.8a4.2 4.2 0 110 8.4 4.2 4.2 0 010-8.4zm0 1.8a2.4 2.4 0 100 4.8 2.4 2.4 0 000-4.8zM18.4 6.2a1 1 0 110 2 1 1 0 010-2z" fill="url(#g1)"/></svg>
             </a>
           </div>
@@ -414,7 +376,7 @@ export default function Header() {
 
         .auth-msg{color:#ffb4b4;margin-bottom:10px}
         .auth-body label{display:block;font-size:0.85rem;color:#bfc8cf;margin-bottom:6px}
-        .auth-body input{width:100%;max-width:325px;padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);margin-bottom:12px;background:rgba(255,255,255,0.02);color:#fff}
+        .auth-body input{width:100%;max-width:325px;padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);margin-bottom:12px;background:rgba(255,255,255,0.02);color:#fff;max-width:700px}
         .auth-body input::placeholder{color:rgba(255,255,255,0.45)}
 
         .auth-body .btn{padding:10px 16px;border-radius:8px;border:none;cursor:pointer;font-weight:700}
