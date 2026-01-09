@@ -57,7 +57,7 @@ export default function BannerEasyPromo() {
       const json = await res.json()
       // El endpoint devuelve { easypromo: { lt }, ... }
       const lt = json?.easypromo?.lt || json?.lt
-      const urlPromoBase = 'https://a.cstmapp.com/p/1005559'
+      const urlPromoBase = 'https://promociones.asieselfutbol.com/p/1005559'
       const promo = lt ? `${urlPromoBase}?lt=${encodeURIComponent(lt)}` : null
       if (!res.ok) throw new Error(json?.error || json?.easypromo?.raw?.error || 'register failed')
 

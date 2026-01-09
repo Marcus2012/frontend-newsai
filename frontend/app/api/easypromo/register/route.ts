@@ -36,7 +36,7 @@ export async function POST(req: Request) {
     // Configuración fija para EasyPromos
     const apiToken = process.env.EASYPROMOS_API_TOKEN || ''
     const autologinUrl = 'https://api.easypromosapp.com/v2/users/autologin/1005559'
-    const promoBase = 'https://a.cstmapp.com/p/1005559'
+    const promoBase = 'https://promociones.asieselfutbol.com/p/1005559'
 
     // Ensure external_id
     if (!data.external_id) data.external_id = String(Date.now())
