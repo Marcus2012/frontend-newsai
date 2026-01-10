@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import Header from '../components/Header';
+import Footer from '../components/Footer';
 import BannerSlots from '../components/BannerSlots';
 import SampleAdBanner from '../components/SampleAdBanner';
 import MatchTicker from '../components/MatchTicker';
@@ -78,160 +79,22 @@ export default function HomePage({ articles }: Props) {
                     background: 'rgba(0, 255, 200, 0.2)',
                     color: '#00ffc8',
                     padding: '6px 12px',
-                    borderRadius: '20px',
-                    fontSize: '0.8em',
-                    fontWeight: 'bold',
-                    marginBottom: '15px',
-                    display: 'inline-block'
                   }}>
-                    {featured.category.toUpperCase()}
+                    {featured.category}
                   </span>
                 )}
-                
-                <h1 style={{ fontSize: '2em', margin: '15px 0', lineHeight: '1.3', fontWeight: 'bold' }}>
-                  {featured.title}
-                </h1>
-                
+                <h2 style={{ color: '#fff', fontWeight: 'bold', fontSize: '2.1em', margin: '18px 0 10px 0', letterSpacing: '-1px' }}>{featured.title}</h2>
                 {featured.description && (
-                  <p style={{ color: '#aaa', fontSize: '0.95em', lineHeight: '1.6', marginBottom: '20px' }}>
-                    {featured.description ? featured.description.substring(0, 200) + '...' : null}
-                  </p>
+                  <p style={{ color: '#cfe', fontSize: '1.13em', marginBottom: '10px', lineHeight: 1.5 }}>{featured.description.substring(0, 180)}...</p>
                 )}
-                
-                <div style={{ display: 'flex', gap: '20px', fontSize: '0.85em', color: '#aaa', borderTop: '1px solid rgba(0, 255, 200, 0.1)', paddingTop: '15px' }}>
-                  {featured.author && <span>👤 {featured.author}</span>}
-                  {featured.created_at && <span>📅 {new Date(featured.created_at).toLocaleDateString('es-ES')}</span>}
-                </div>
+                <div style={{ color: '#00ffc8', fontSize: '0.95em', marginTop: 10 }}>{featured.created_at && new Date(featured.created_at).toLocaleDateString('es-ES')}</div>
               </div>
             </div>
           </Link>
         )}
-
-        {/* Right column: two stacked highlighted cards */}
-        <aside className="sidebar-aside" style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
-          {highlighted.slice(0,2).map((article, idx) => (
-            <Link key={article.id} href={`/articles/${article.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-              <div style={{
-                background: 'linear-gradient(180deg, rgba(20,26,46,0.6), rgba(12,15,30,0.6))',
-                border: '1px solid rgba(0,255,200,0.06)',
-                borderRadius: '12px',
-                overflow: 'hidden',
-                cursor: 'pointer',
-                display: 'flex',
-                gap: '12px',
-                alignItems: 'center',
-                padding: '12px'
-              }}>
-                {article.image_url && (
-                  <div style={{ width: '110px', height: '80px', overflow: 'hidden', borderRadius: '8px', position: 'relative' }}>
-                    <Image src={article.image_url} alt={article.title} fill style={{ objectFit: 'cover' }} unoptimized />
-                  </div>
-                )}
-                <div style={{ flex: 1 }}>
-                  <div style={{ color: '#00ffc8', fontSize: '0.75em', fontWeight: '700', marginBottom: '6px' }}>{article.category}</div>
-                  <div style={{ fontWeight: '700', color: '#fff', lineHeight: '1.2' }}>{article.title ? article.title.substring(0, 80) + '...' : ''}</div>
-                  <div style={{ fontSize: '0.75em', color: '#999', marginTop: '8px' }}>{article.created_at && new Date(article.created_at).toLocaleDateString('es-ES')}</div>
-                </div>
-              </div>
-            </Link>
-          ))}
-        </aside>
+        {/* ...existing code... */}
       </div>
-
-      {/* Match ticker similar to reference */}
-      <div className="container-max">
-        <MatchTicker />
-      </div>
-
-      {/* Inline banner between sections */}
-      <div style={{ maxWidth: '100%', padding: '0 40px' }}>
-        <BannerSlots position="between" />
-      </div>
-
-      {/* Grid de todas las noticias con sidebar de banners */}
-      <div className="container-max" style={{ padding: '40px 20px', borderTop: '1px solid rgba(0, 255, 200, 0.1)' }}>
-        <div className="news-layout" style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: '24px', alignItems: 'start' }}>
-          <div>
-            <h3 style={{ color: '#00ffc8', fontSize: '1.3em', marginTop: 0, marginBottom: '20px' }}>📋 Todas las Noticias</h3>
-            {sortedArticles.length === 0 ? (
-              <p style={{ textAlign: 'center', color: '#aaa' }}>No hay artículos disponibles</p>
-            ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '18px' }}>
-                {sortedArticles.map((article) => (
-                  <Link key={article.id} href={`/articles/${article.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-                    <article 
-                      style={{
-                        background: 'rgba(26, 31, 66, 0.6)',
-                        border: '1px solid rgba(0, 255, 200, 0.1)',
-                        borderRadius: '8px',
-                        overflow: 'hidden',
-                        cursor: 'pointer',
-                        transition: 'all 0.3s ease',
-                        height: '100%',
-                        display: 'flex',
-                        flexDirection: 'column'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.borderColor = 'rgba(0, 255, 200, 0.4)';
-                        e.currentTarget.style.transform = 'translateY(-3px)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.borderColor = 'rgba(0, 255, 200, 0.1)';
-                        e.currentTarget.style.transform = 'translateY(0)';
-                      }}
-                    >
-                      {article.image_url && (
-                        <div style={{ height: '140px', overflow: 'hidden', position: 'relative' }}>
-                          <Image src={article.image_url} alt={article.title} fill style={{ objectFit: 'cover' }} unoptimized />
-                        </div>
-                      )}
-                      <div style={{ padding: '12px', flex: 1, display: 'flex', flexDirection: 'column' }}>
-                        {article.category && (
-                          <span style={{
-                            background: 'rgba(0, 255, 200, 0.15)',
-                            color: '#00ffc8',
-                            padding: '2px 6px',
-                            borderRadius: '3px',
-                            fontSize: '0.7em',
-                            fontWeight: 'bold',
-                            width: 'fit-content',
-                            marginBottom: '6px'
-                          }}>
-                            {article.category}
-                          </span>
-                        )}
-                        {article.title ? (
-                          <h4 style={{ fontSize: '1rem', margin: '0 0 8px 0', lineHeight: '1.2', fontWeight: 'bold' }}>
-                            {article.title ? article.title.substring(0, 120) + '...' : null}
-                          </h4>
-                        ) : null}
-                        <div style={{ marginTop: 'auto', fontSize: '0.75em', color: '#888' }}>
-                          {article.created_at && new Date(article.created_at).toLocaleDateString('es-ES')}
-                        </div>
-                      </div>
-                    </article>
-                  </Link>
-                ))}
-              </div>
-            )}
-          </div>
-          {/*
-          <aside style={{ width: '320px', display: 'flex', flexDirection: 'column', gap: '18px' }}>
-            <div style={{ position: 'sticky', top: 100 }}>
-              <BannerSlots position="sidebar" />
-            </div>
-            <div>
-              <BannerSlots position="affiliate" />
-            </div>
-          </aside>
-          */}
-        </div>
-      </div>
-
-      {/* Footer */}
-      <footer style={{ borderTop: '1px solid rgba(0, 255, 200, 0.1)', padding: '30px 40px', textAlign: 'center', color: '#888', fontSize: '0.85em' }}>
-        <p>© 2025 Asi es el futbol. Todos los derechos reservados.</p>
-      </footer>
+      <Footer />
     </div>
   );
 }

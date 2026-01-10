@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import Header from '../components/Header';
+import Footer from '../components/Footer';
 import BannerSlots from '../components/BannerSlots';
 import SampleAdBanner from '../components/SampleAdBanner';
 import BannerEasyPromo from '../components/BannerEasyPromo';
@@ -40,10 +41,10 @@ export default function NoticiasPage({ articles }: NoticiasProps) {
           <div style={{ width: '100%', maxWidth: 340 }}>
             <BannerEasyPromo />
           </div>
-          <a href="https://www.mundodeportivo.com/us/apuestas-latam/ir-betano-pe" target="_blank" rel="prefetch noreferrer noopener" style={{ width: '100%', maxWidth: 340 }}>
+          <a href="#" target="_blank" rel="prefetch noreferrer noopener" style={{ width: '100%', maxWidth: 340 }}>
             <img
-              src="https://www.mundodeportivo.com/us/apuestas-latam/thumbor/IqTBUbo8B6ts0mowThRlyTbj8rY=/394x674/smart/filters:format(webp)/https%3A%2F%2Fwww.mundodeportivo.com%2Fus%2Fapuestas-latam%2Fapp%2Fuploads%2F2025%2F11%2Fgirosgratis-betano-peru-min.webp"
-              alt="bono betano giros gratis"
+              src="https://storage.googleapis.com/asieselfutbol/production-statics/TA-CA_META_FTD-GENERICO_1080X1080.jpg"
+              alt="Te apuesto"
               style={{ width: '100%', borderRadius: '12px', boxShadow: '0 4px 24px rgba(0,0,0,0.18)' }}
             />
           </a>
@@ -56,14 +57,32 @@ export default function NoticiasPage({ articles }: NoticiasProps) {
           <div style={{ marginBottom: 18 }}>
             <BannerEasyPromo />
           </div>
-          <a href="https://www.mundodeportivo.com/us/apuestas-latam/ir-betano-pe" target="_blank" rel="prefetch noreferrer noopener">
-            <img
-              src="https://www.mundodeportivo.com/us/apuestas-latam/thumbor/IqTBUbo8B6ts0mowThRlyTbj8rY=/394x674/smart/filters:format(webp)/https%3A%2F%2Fwww.mundodeportivo.com%2Fus%2Fapuestas-latam%2Fapp%2Fuploads%2F2025%2F11%2Fgirosgratis-betano-peru-min.webp"
-              alt="bono betano giros gratis"
-              style={{ width: '320px', borderRadius: '12px', boxShadow: '0 4px 24px rgba(0,0,0,0.18)' }}
-              width={320}
-              height={547}
-            />
+          <a href="#" target="_blank" rel="prefetch noreferrer noopener" className="teapuesto-banner-link">
+            <div className="teapuesto-banner-bg">
+              <img
+                src="https://storage.googleapis.com/asieselfutbol/production-statics/TA-CA_META_FTD-GENERICO_1080X1080.jpg"
+                alt="Te apuesto"
+                className="teapuesto-banner-img"
+                width={320}
+                height={547}
+              />
+            </div>
+          </a>
+          <a
+            href="https://www.youtube.com/@asieselfutbol_tv"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="teapuesto-banner-link"
+            style={{marginTop: '18px'}}>
+            <div className="teapuesto-banner-bg">
+              <img
+                src="https://storage.googleapis.com/asieselfutbol/production-statics/Banner-AEEF%20(1).png"
+                alt="Banner AEEF"
+                className="teapuesto-banner-img"
+                width={320}
+                height={320}
+              />
+            </div>
           </a>
         </aside>
         <div className="noticias-content-main">
@@ -109,9 +128,7 @@ export default function NoticiasPage({ articles }: NoticiasProps) {
       </div>
 
       {/* Footer */}
-      <footer className="footer-desktop" style={{ borderTop: '1px solid rgba(0, 255, 200, 0.1)', padding: '30px 40px', textAlign: 'center', color: '#888', fontSize: '0.85em', marginTop: '40px' }}>
-        <p>© 2025 asi es el futbol. Todos los derechos reservados.</p>
-      </footer>
+      <Footer />
 
       {/* CSS para grid y banner a la derecha */}
       <style jsx>{`
@@ -178,7 +195,10 @@ export default function NoticiasPage({ articles }: NoticiasProps) {
             position: static;
             width: 100%;
             padding: 0;
-            margin-left: -48px;
+            margin-left: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
           }
           .mobile-banner-bottom {
             display: block;
@@ -188,6 +208,47 @@ export default function NoticiasPage({ articles }: NoticiasProps) {
           }
         }
         .mobile-banner-bottom { display: none; }
+        .teapuesto-banner-link {
+          display: block;
+          width: 100%;
+          max-width: 340px;
+          border-radius: 22px;
+          box-shadow: 0 8px 32px rgba(0,0,0,0.32);
+          background: linear-gradient(135deg, #181f34 60%, #232b47 100%);
+          padding: 10px 8px 8px 8px;
+          margin: 0 auto;
+          transition: box-shadow 0.2s, transform 0.2s;
+        }
+        .teapuesto-banner-link:hover {
+          box-shadow: 0 16px 48px rgba(0,0,0,0.45);
+          transform: translateY(-4px) scale(1.03);
+        }
+        .teapuesto-banner-bg {
+          width: 100%;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          border-radius: 18px;
+          background: #181f34;
+        }
+        .teapuesto-banner-img {
+          display: block;
+          width: 100%;
+          max-width: 320px;
+          height: auto;
+          border-radius: 16px;
+          box-shadow: 0 4px 24px rgba(0,0,0,0.22);
+          background: #181f34;
+        }
+        @media (max-width: 900px) {
+          .teapuesto-banner-link {
+            max-width: 98vw;
+            padding: 6px 2vw 6px 2vw;
+          }
+          .teapuesto-banner-img {
+            max-width: 98vw;
+          }
+        }
       `}</style>
     </div>
   );

@@ -244,9 +244,9 @@ export default function Header() {
           <Link href="/noticias">Noticias</Link>
 
           <div className="has-dropdown">
-            <a href="#">Liga Perú ▾</a>
+            <a href="#">Ligas & Copas ▾</a>
             <div className="dropdown">
-              <Link href="/matches/peru/primera">Primera División</Link>
+              <Link href="/matches/peru/primera">Liga 1</Link>
             </div>
           </div>
 

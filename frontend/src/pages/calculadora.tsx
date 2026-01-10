@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Header from '../components/Header';
+import Footer from '../components/Footer';
 
 export default function CalculadoraIA() {
   const [form, setForm] = React.useState({
@@ -82,11 +83,11 @@ export default function CalculadoraIA() {
                   </div>
                   <div style={{ flex: 1, minWidth: 120 }}>
                     <label style={{ color: '#b8d0e6', fontSize: 13 }}>Goles a Favor</label>
-                    <input name="golesFavorLocal" type="number" min={0} value={form.golesFavorLocal} onChange={handleNumberChange} style={{ width: '100%', padding: 10, borderRadius: 8, border: 'none', background: '#222', color: '#fff', marginBottom: 10 }} />
+                    <input name="golesFavorLocal" type="number" min={0} max={99} value={form.golesFavorLocal} onChange={handleNumberChange} style={{ width: '100%', padding: 10, borderRadius: 8, border: 'none', background: '#222', color: '#fff', marginBottom: 10 }} />
                   </div>
                   <div style={{ flex: 1, minWidth: 120 }}>
                     <label style={{ color: '#b8d0e6', fontSize: 13 }}>Goles en Contra</label>
-                    <input name="golesContraLocal" type="number" min={0} value={form.golesContraLocal} onChange={handleNumberChange} style={{ width: '100%', padding: 10, borderRadius: 8, border: 'none', background: '#222', color: '#fff', marginBottom: 10 }} />
+                    <input name="golesContraLocal" type="number" min={0} max={99} value={form.golesContraLocal} onChange={handleNumberChange} style={{ width: '100%', padding: 10, borderRadius: 8, border: 'none', background: '#222', color: '#fff', marginBottom: 10 }} />
                   </div>
                 </div>
               </div>
@@ -98,38 +99,30 @@ export default function CalculadoraIA() {
                     <input name="victoriasVisitante" type="number" min={0} max={10} value={form.victoriasVisitante} onChange={handleNumberChange} style={{ width: '100%', padding: 10, borderRadius: 8, border: 'none', background: '#222', color: '#fff', marginBottom: 10 }} />
                   </div>
                   <div style={{ flex: 1, minWidth: 120 }}>
-                    <label style={{ color: '#b8d0e6', fontSize: 13 }}>Draws</label>
+                    <label style={{ color: '#b8d0e6', fontSize: 13 }}>Empates</label>
                     <input name="empatesVisitante" type="number" min={0} max={10} value={form.empatesVisitante} onChange={handleNumberChange} style={{ width: '100%', padding: 10, borderRadius: 8, border: 'none', background: '#222', color: '#fff', marginBottom: 10 }} />
                   </div>
                   <div style={{ flex: 1, minWidth: 120 }}>
-                    <label style={{ color: '#b8d0e6', fontSize: 13 }}>Losses</label>
+                    <label style={{ color: '#b8d0e6', fontSize: 13 }}>Derrotas</label>
                     <input name="derrotasVisitante" type="number" min={0} max={10} value={form.derrotasVisitante} onChange={handleNumberChange} style={{ width: '100%', padding: 10, borderRadius: 8, border: 'none', background: '#222', color: '#fff', marginBottom: 10 }} />
                   </div>
                   <div style={{ flex: 1, minWidth: 120 }}>
-                    <label style={{ color: '#b8d0e6', fontSize: 13 }}>Goals Scored</label>
-                    <input name="golesFavorVisitante" type="number" min={0} value={form.golesFavorVisitante} onChange={handleNumberChange} style={{ width: '100%', padding: 10, borderRadius: 8, border: 'none', background: '#222', color: '#fff', marginBottom: 10 }} />
+                    <label style={{ color: '#b8d0e6', fontSize: 13 }}>Goles a Favor</label>
+                    <input name="golesFavorVisitante" type="number" min={0} max={99} value={form.golesFavorVisitante} onChange={handleNumberChange} style={{ width: '100%', padding: 10, borderRadius: 8, border: 'none', background: '#222', color: '#fff', marginBottom: 10 }} />
                   </div>
                   <div style={{ flex: 1, minWidth: 120 }}>
-                    <label style={{ color: '#b8d0e6', fontSize: 13 }}>Goals Conceded</label>
-                    <input name="golesContraVisitante" type="number" min={0} value={form.golesContraVisitante} onChange={handleNumberChange} style={{ width: '100%', padding: 10, borderRadius: 8, border: 'none', background: '#222', color: '#fff', marginBottom: 10 }} />
+                    <label style={{ color: '#b8d0e6', fontSize: 13 }}>Goles en Contra</label>
+                    <input name="golesContraVisitante" type="number" min={0} max={99} value={form.golesContraVisitante} onChange={handleNumberChange} style={{ width: '100%', padding: 10, borderRadius: 8, border: 'none', background: '#222', color: '#fff', marginBottom: 10 }} />
                   </div>
                 </div>
               </div>
-              <button type="submit" style={{ width: '100%', background: 'linear-gradient(90deg,#00ffc8,#00bfff)', color: '#000', fontWeight: 700, border: 'none', borderRadius: 8, padding: '16px 0', fontSize: '1.1em', marginTop: 12, boxShadow: '0 2px 12px rgba(0,255,200,0.07)', transition: 'background 0.2s' }}>
-                🧮 Calcular AI Prediction
-              </button>
+              <button type="submit" style={{ background: '#00ffc8', color: '#000', fontWeight: 'bold', border: 'none', borderRadius: '8px', padding: '12px 0', cursor: 'pointer', marginTop: '10px', width: '100%', fontSize: '1.1em' }}>Calcular</button>
+              {resultado && <div style={{ color: '#00ffc8', marginTop: 18, textAlign: 'center', fontWeight: 700 }}>{resultado}</div>}
             </form>
-            <div style={{ background: 'rgba(0,255,200,0.10)', borderRadius: '16px', padding: '32px 24px', minWidth: 260, maxWidth: 340, flex: 1, boxShadow: '0 4px 24px 0 rgba(0,255,200,0.07)', alignSelf: 'flex-start', textAlign: 'center', color: '#bff0e6', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-              <div style={{ fontSize: '2.2em', color: '#00ffc8', marginBottom: '12px' }}>⚠️</div>
-              <div style={{ fontWeight: 'bold', marginBottom: '10px', color: '#fff', fontSize: '1.1em' }}>{resultado || 'No Prediction Yet'}</div>
-              <div style={{ fontSize: '1em', color: '#bff0e6' }}>Llena las estadísticas y haz clic en 'Calcular AI Prediction' para ver resultados.</div>
-            </div>
           </div>
         </div>
       </div>
-      <footer style={{ borderTop: '1px solid rgba(0, 255, 200, 0.1)', padding: '30px 40px', textAlign: 'center', color: '#888', fontSize: '0.85em' }}>
-        <p>© 2025 asi es el futbol. Todos los derechos reservados.</p>
-      </footer>
+      <Footer />
     </div>
   );
 }

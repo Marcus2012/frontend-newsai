@@ -1,6 +1,7 @@
 
 import Link from 'next/link';
 import Header from '../components/Header';
+import Footer from '../components/Footer';
 import BannerSlots from '../components/BannerSlots';
 import SampleAdBanner from '../components/SampleAdBanner';
 import BannerEasyPromo from '../components/BannerEasyPromo';
@@ -104,9 +105,7 @@ export default function Contacto() {
           */}
         </div>
       </div>
-      <footer style={{ borderTop: '1px solid rgba(0, 255, 200, 0.1)', padding: '30px 40px', textAlign: 'center', color: '#888', fontSize: '0.85em' }}>
-        <p>© 2025 asi es el futbol. Todos los derechos reservados.</p>
-      </footer>
+      <Footer />
     </div>
   );
 }

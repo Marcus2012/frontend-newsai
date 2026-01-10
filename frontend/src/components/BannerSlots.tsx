@@ -137,17 +137,31 @@ export default function BannerSlots({ position = 'top' }: Props) {
         // no banners loaded yet: show placeholders
         position === 'top' ? (
           <>
-            <div className="leaderboard">Leaderboard (728x90) - Espacio publicitario</div>
-            <div className="affiliate-row">
+            {/*<div className="leaderboard">Leaderboard (728x90) - Espacio publicitario</div>*/}
+            {/*<div className="affiliate-row">
               <div className="aff">BetOne</div>
               <div className="aff">Betano</div>
               <div className="aff">Partner</div>
-            </div>
+            </div>*/}
           </>
         ) : position === 'sidebar' ? (
           <div className="sidebar">Sidebar Banner (300x600) - Afiliado</div>
         ) : position === 'between' ? (
-          <div className="medium">Banner Mediano (300x250) - Venta / Afiliado</div>
+          <div className="medium" style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',height:260}}>
+            <img
+              src="https://storage.googleapis.com/asieselfutbol/production-statics/TA_BANNER_REGISTRO-GENERICO_1913X419-1024x224.jpg?v=1768022149361"
+              alt="Banner Mediano"
+              style={{
+                width: '100%',
+                height: 'auto',
+                borderRadius: 10,
+                boxShadow: '0 4px 24px rgba(0,0,0,0.18)',
+                background: '#181f34',
+                marginBottom: 8
+              }}
+            />
+            <span style={{color:'#fff',fontWeight:700,fontSize:'1em'}}></span>
+          </div>
         ) : (
           <div className="footer">Footer Banner (970x90) - Espacio publicitario</div>
         )
