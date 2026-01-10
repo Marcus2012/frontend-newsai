@@ -256,26 +256,37 @@ export default function Header() {
           <Link href="/nosotros">Nosotros</Link>
           <Link href="/contacto">Contacto</Link>
           <div className="social-icons">
-            <a href="https://x.com/asieselfutbol" target="_blank" rel="noopener noreferrer" aria-label="X">
-              <svg width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden>
-                <rect x="3" y="3" width="18" height="18" rx="5" fill="#000" />
-                <path d="M8.5 8.5 L15.5 15.5 M15.5 8.5 L8.5 15.5" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+            <a href="https://x.com/asieselfutbol" className="x" target="_blank" rel="noopener noreferrer" aria-label="X">
+              <svg viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+                <circle cx="22" cy="22" r="22" fill="#000" />
+                <path d="M15 15 L29 29 M29 15 L15 29" stroke="#fff" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </a>
-
-            <a href="https://www.facebook.com/asieselfutbol.pe" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M22 12a10 10 0 10-11.5 9.9v-7h-2.2V12h2.2V9.8c0-2.2 1.3-3.4 3.3-3.4.96 0 1.97.17 1.97.17v2.2h-1.12c-1.1 0-1.44.68-1.44 1.38V12h2.44l-.39 2.9h-2.05v7A10 10 0 0022 12" fill="#1877F2"/></svg>
+            <a href="https://www.facebook.com/asieselfutbol.pe" className="facebook" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M22 12a10 10 0 10-11.5 9.9v-7h-2.2V12h2.2V9.8c0-2.2 1.3-3.4 3.3-3.4.96 0 1.97.17 1.97.17v2.2h-1.12c-1.1 0-1.44.68-1.44 1.38V12h2.44l-.39 2.9h-2.05v7A10 10 0 0022 12" fill="#fff"/></svg>
             </a>
-
-            <a href="https://www.youtube.com/@asieselfutbol_tv" target="_blank" rel="noopener noreferrer" aria-label="YouTube">
-              <svg width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden>
-                <path d="M23.5 6.2s-.24-1.7-.98-2.45C21.76 3 20.88 3 20.4 2.92 17.72 2.6 12 2.6 12 2.6s-5.72 0-8.4.32c-.48.08-1.36.08-2.12 0C.74 4.5.5 6.2.5 6.2S.28 8 .28 9.8v2.4c0 1.8.22 3.6.22 3.6s.24 1.7.98 2.45c.74.76 1.72.72 2.18.8 1.58.2 8.02.32 8.02.32s5.72 0 8.4-.32c.48-.08 1.36-.08 2.12 0 .74.08 1.12-.04 1.86-.8.74-.74.98-2.45.98-2.45s.22-1.8.22-3.6v-2.4c0-1.8-.22-3.6-.22-3.6z" fill="#FF0000"/>
-                <path d="M9.75 15.02V8.98l5.5 3.02-5.5 3.02z" fill="#fff"/>
+            <a href="https://www.youtube.com/@asieselfutbol_tv" className="youtube" target="_blank" rel="noopener noreferrer" aria-label="YouTube">
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+                <path d="M23.5 6.2s-.24-1.7-.98-2.45C21.76 3 20.88 3 20.4 2.92 17.72 2.6 12 2.6 12 2.6s-5.72 0-8.4.32c-.48.08-1.36.08-2.12 0C.74 4.5.5 6.2.5 6.2S.28 8 .28 9.8v2.4c0 1.8.22 3.6.22 3.6s.24 1.7.98 2.45c.74.76 1.72.72 2.18.8 1.58.2 8.02.32 8.02.32s5.72 0 8.4-.32c.48-.08 1.36-.08 2.12 0 .74.08 1.12-.04 1.86-.8.74-.74.98-2.45.98-2.45s.22-1.8.22-3.6v-2.4c0-1.8-.22-3.6-.22-3.6z" fill="#fff"/>
+                <path d="M9.75 15.02V8.98l5.5 3.02-5.5 3.02z" fill="#FF0000"/>
               </svg>
             </a>
-
-            <a href="https://www.instagram.com/asieselfutbol/#" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
-              <svg width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><linearGradient id="g1" x1="0" x2="1"><stop offset="0" stopColor="#f58529"/><stop offset="0.5" stopColor="#dd2a7b"/><stop offset="1" stopColor="#8134af"/></linearGradient><path d="M12 2.2c3.2 0 3.584.012 4.85.07 1.17.055 1.97.24 2.42.403a4.9 4.9 0 011.77 1.02 4.9 4.9 0 011.02 1.77c.164.45.348 1.25.403 2.42.058 1.27.07 1.65.07 4.85s-.012 3.584-.07 4.85c-.055 1.17-.24 1.97-.403 2.42a4.9 4.9 0 01-1.02 1.77 4.9 4.9 0 01-1.77 1.02c-.45.164-1.25.348-2.42.403-1.27.058-1.65.07-4.85.07s-3.584-.012-4.85-.07c-1.17-.055-1.97-.24-2.42-.403a4.9 4.9 0 01-1.77-1.02 4.9 4.9 0 01-1.02-1.77c-.164-.45-.348-1.25-.403-2.42C2.212 15.584 2.2 15.2 2.2 12s.012-3.584.07-4.85c.055-1.17.24-1.97.403-2.42a4.9 4.9 0 011.02-1.77 4.9 4.9 0 011.77-1.02c.45-.164 1.25-.348 2.42-.403C8.416 2.212 8.8 2.2 12 2.2zm0 1.8c-3.12 0-3.492.01-4.72.068-1.03.05-1.58.22-1.95.366a3.1 3.1 0 00-1.12.73 3.1 3.1 0 00-.73 1.12c-.146.37-.316.92-.366 1.95C2.01 8.508 2 8.88 2 12s.01 3.492.068 4.72c.05 1.03.22 1.58.366 1.95.17.44.39.8.73 1.12.32.33.68.56 1.12.73.37.146.92.316 1.95.366C8.508 21.99 8.88 22 12 22s3.492-.01 4.72-.068c1.03-.05 1.58-.22 1.95-.366.44-.17.8-.39 1.12-.73.33-.32.56-.68.73-1.12.146-.37.316-.92.366-1.95.058-1.228.068-1.6.068-4.72s-.01-3.492-.068-4.72c-.05-1.03-.22-1.58-.366-1.95a3.1 3.1 0 00-.73-1.12 3.1 3.1 0 00-1.12-.73c-.37-.146-.92-.316-1.95-.366C15.492 3.01 15.12 3 12 3zm0 4.8a4.2 4.2 0 110 8.4 4.2 4.2 0 010-8.4zm0 1.8a2.4 2.4 0 100 4.8 2.4 2.4 0 000-4.8zM18.4 6.2a1 1 0 110 2 1 1 0 010-2z" fill="url(#g1)"/></svg>
+            <a href="https://www.instagram.com/asieselfutbol/#" className="instagram" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+              <svg viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <radialGradient id="ig" cx="30%" cy="107%" r="150%">
+                    <stop offset="0%" stopColor="#fdf497"/>
+                    <stop offset="5%" stopColor="#fdf497"/>
+                    <stop offset="45%" stopColor="#fd5949"/>
+                    <stop offset="60%" stopColor="#d6249f"/>
+                    <stop offset="90%" stopColor="#285AEB"/>
+                  </radialGradient>
+                </defs>
+                <circle cx="22" cy="22" r="22" fill="url(#ig)"/>
+                <rect x="11" y="11" width="22" height="22" rx="7" fill="none" stroke="#fff" strokeWidth="2.5"/>
+                <circle cx="22" cy="22" r="7" fill="none" stroke="#fff" strokeWidth="2.5"/>
+                <circle cx="30.5" cy="15.5" r="2.2" fill="#fff"/>
+              </svg>
             </a>
           </div>
         </nav>
@@ -323,9 +334,30 @@ export default function Header() {
         .brand-sub{font-size:0.75rem;color:#aaa}
 
         .main-nav{display:flex;gap:18px;align-items:center;justify-content:center;flex:1;position:relative;z-index:1500}
-        .social-icons{display:flex;gap:10px;margin-left:12px}
-        .social-icons a{width:36px;height:36px;display:inline-flex;align-items:center;justify-content:center;border-radius:9999px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04);transition:transform .12s ease,box-shadow .12s ease}
-        .social-icons a:hover{transform:translateY(-3px);box-shadow:0 10px 30px rgba(2,6,23,0.6)}
+        .social-icons{display:flex;gap:14px;margin-left:12px}
+        .social-icons a{
+          width:36px;
+          height:36px;
+          display:inline-flex;
+          align-items:center;
+          justify-content:center;
+          border-radius:50%;
+          background:#fff;
+          border:none;
+          box-shadow:0 2px 8px rgba(0,0,0,0.07);
+          transition:transform .12s, box-shadow .12s;
+        }
+        .social-icons a:hover{
+          transform:translateY(-3px) scale(1.08);
+          box-shadow:0 8px 24px rgba(0,0,0,0.18);
+        }
+        .social-icons a.x{background:#000;}
+        .social-icons a.facebook{background:#1877F2;}
+        .social-icons a.youtube{background:#FF0000;}
+        .social-icons a.instagram{background:radial-gradient(circle at 30% 110%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%);}
+        .social-icons a.threads{background:#fff;}
+        .social-icons a.tiktok{background:#000;}
+        .social-icons a svg{width:24px;height:24px;}
         .has-dropdown{position:relative}
         .has-mega{position:relative}
         .has-mega .mega{position:absolute;left:0;top:100%;z-index:1600;display:none;background:rgba(10,14,39,0.98);padding:16px;border-radius:12px;box-shadow:0 20px 60px rgba(2,6,23,0.6);min-width:420px;color:#fff}
