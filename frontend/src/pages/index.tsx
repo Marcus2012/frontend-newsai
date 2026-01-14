@@ -32,7 +32,7 @@ export default function HomePage({ articles }: Props) {
     return dateB - dateA;
   });
   const featured = sortedArticles[0];
-  const highlighted = sortedArticles.slice(1, 4);
+  const highlighted = sortedArticles.slice(1, 5);
 
   return (
     <div className="min-h-screen" style={{ background: '#0a0e27', color: '#fff' }}>
@@ -108,9 +108,9 @@ export default function HomePage({ articles }: Props) {
           </Link>
         )}
 
-        {/* Right column: two stacked highlighted cards */}
+        {/* Right column: highlighted cards (mostrar hasta 4) */}
         <aside className="sidebar-aside" style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
-          {highlighted.slice(0,2).map((article, idx) => (
+          {highlighted.slice(0,4).map((article, idx) => (
             <Link key={article.id} href={`/articles/${article.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
               <div style={{
                 background: 'linear-gradient(180deg, rgba(20,26,46,0.6), rgba(12,15,30,0.6))',

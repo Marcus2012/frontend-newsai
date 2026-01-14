@@ -386,6 +386,40 @@ export default function ArticlePage() {
           </div>
         )}
 
+        {/* Content (body) - styled card */}
+        {article && (article as any).content && (
+          <div style={{ marginBottom: '40px' }}>
+            <div style={{
+              background: '#ffffff',
+              color: '#071022',
+              borderRadius: 12,
+              padding: '28px',
+              boxShadow: '0 8px 30px rgba(2,6,23,0.45)',
+              lineHeight: 1.9
+            }} className="article-body">
+              <div dangerouslySetInnerHTML={{ __html: (article as any).content }} />
+            </div>
+
+            <style jsx global>{`
+              .article-body p { margin: 1em 0; color: #1f2a39; font-size: 1.03rem; }
+              .article-body a { color: #0077a6; text-decoration: underline; }
+              .article-body h1, .article-body h2, .article-body h3, .article-body h4 { color: #071022; margin-top: 1.4em; margin-bottom: 0.6em; font-weight: 700; }
+              .article-body img { max-width: 100%; height: auto; display: block; margin: 18px auto; border-radius: 8px; }
+              .article-body figure { margin: 0; }
+              .article-body blockquote { border-left: 4px solid #00ffc8; background: rgba(0,255,200,0.03); padding: 12px 16px; margin: 18px 0; color: #143033; }
+              .article-body ul, .article-body ol { margin: 12px 0 20px 1.2rem; color: #1f2a39; }
+              .article-body pre, .article-body code { background: #07102a; color: #00ffc8; padding: 8px 10px; border-radius: 6px; overflow: auto; }
+              .article-body iframe { width: 100%; max-width: 900px; margin: 18px auto; display: block; border: 1px solid rgba(0,0,0,0.06); border-radius: 8px; }
+              .article-body .twitter-tweet { margin: 18px auto !important; }
+              .article-body .pull-quote { border-left: 4px solid #ffd166; background: #fff7e6; padding: 12px 16px; margin: 18px 0; color: #6b4a00; border-radius: 6px; }
+              @media (max-width: 720px) {
+                .article-body { padding: 18px; }
+                .article-body p { font-size: 1rem; }
+              }
+            `}</style>
+          </div>
+        )}
+
         {/* IA Analysis Section */}
         {article?.seo_meta || article?.keywords ? (
           <div style={{
