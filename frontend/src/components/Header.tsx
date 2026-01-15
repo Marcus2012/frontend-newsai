@@ -243,11 +243,17 @@ export default function Header() {
           <Link href="/">Inicio</Link>
           <Link href="/noticias">Noticias</Link>
 
-          <div className="has-dropdown">
-            <a href="#">Ligas & Copas ▾</a>
-            <div className="dropdown">
-              <Link href="/matches/peru/primera">Liga 1</Link>
-            </div>
+          <div ref={megaRef} className={`has-dropdown ${megaOpen ? 'open' : ''}`} role="menu">
+              <button
+                className="dropdown-toggle"
+                aria-haspopup="true"
+                aria-expanded={megaOpen}
+                onClick={() => setMegaOpen(prev => !prev)}
+              >Ligas & Copas ▾</button>
+              <div className="dropdown" role="menu">
+                <Link href="/matches/england/premier">Premier League</Link><br />
+                <Link href="/matches/italy/seriea">Serie A - Italia</Link>
+              </div>
           </div>
 
           <Link href="/predicciones">Predicciones</Link>
@@ -311,7 +317,6 @@ export default function Header() {
           <a href="/">Inicio</a>
           <a href="/noticias">Noticias</a>
           <a href="/predicciones">Predicciones</a>
-          <a href="/matches/peru/primera">Partidos - Liga Perú</a>
           <a href="#">Calculadora</a>
           <a href="/nosotros">Nosotros</a>
           <a href="/contacto">Contacto</a>
@@ -374,8 +379,13 @@ export default function Header() {
           .mega{width:100%}
           .mega-row{flex-direction:row}
         }
-        .has-dropdown .dropdown{position:absolute;left:0;top:100%;background:rgba(10,14,39,0.98);padding:8px;border-radius:8px;box-shadow:0 8px 24px rgba(2,6,23,0.6);display:none;z-index:1600}
+        .has-dropdown .dropdown{position:absolute;left:0;top:100%;background:rgba(10,14,39,0.98);padding:8px;border-radius:8px;box-shadow:0 8px 24px rgba(2,6,23,0.6);display:none;z-index:1600;min-width:200px}
         .has-dropdown:hover .dropdown{display:block}
+        .has-dropdown.open .dropdown{display:block}
+        .dropdown a{display:block;padding:8px 12px;color:#fff;text-decoration:none;border-radius:6px}
+        .dropdown a:hover{background:rgba(255,255,255,0.03);color:#00ffc8}
+        .dropdown-toggle{background:transparent;border:none;color:#fff;font-weight:600;cursor:pointer;padding:6px 8px;border-radius:6px}
+        .dropdown-toggle:focus{outline:2px solid rgba(0,255,200,0.12)}
         .main-nav a, .main-nav :global(a){color:#fff;text-decoration:none;font-size:0.95rem}
         .main-nav :global(a), .main-nav :global(a:link), .main-nav :global(a:visited), .main-nav :global(a:hover), .main-nav :global(a:active){color:#fff !important}
 
