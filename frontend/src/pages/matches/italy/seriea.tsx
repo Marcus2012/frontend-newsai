@@ -402,6 +402,20 @@ export default function SerieA() {
           .league-team-cell img{ width:26px; height:26px }
           .logo-item img{ width:36px; height:36px }
         }
+        @media (max-width: 420px){
+          .tabs-row{display:flex;gap:8px;overflow-x:auto;padding:8px 0}
+          .tab-btn{flex:0 0 auto;padding:8px 10px;font-size:0.95rem}
+          .logos-row{gap:8px;padding-left:6px}
+          .logo-item img{width:32px;height:32px}
+          .match-card{padding:10px;border-radius:10px}
+          .match-main{gap:12px;padding:8px 12px}
+          .team.centered{min-width:0;gap:8px}
+          .team.centered .team-name{max-width:110px;font-size:0.95rem}
+          .center-time{min-width:60px}
+          .match-date-top{position:static;padding:6px 0;color:#9aa;font-size:0.85em}
+          .matches-grid{gap:10px}
+          .sidebar-aside{display:block;width:100%}
+        }
       `}</style>
 
     </div>

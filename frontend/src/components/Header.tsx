@@ -35,6 +35,7 @@ export default function Header() {
     }, []);
   const [debugInfo, setDebugInfo] = useState('');
 
+  const [mobileLeaguesOpen, setMobileLeaguesOpen] = useState(false);
   const [isClient, setIsClient] = useState(false);
   
   useEffect(() => {
@@ -256,7 +257,7 @@ export default function Header() {
               </div>
           </div>
 
-          <Link href="/predicciones">Predicciones</Link>
+          {/*<Link href="/predicciones">Predicciones</Link>*/}
 
           <Link href="/calculadora">Calculadora</Link>
           <Link href="/nosotros">Nosotros</Link>
@@ -316,8 +317,19 @@ export default function Header() {
         <div className="mobile-menu" style={{ display: mobileOpen ? 'flex' : 'none' }}>
           <a href="/">Inicio</a>
           <a href="/noticias">Noticias</a>
-          <a href="/predicciones">Predicciones</a>
-          <a href="#">Calculadora</a>
+          {/*<a href="/predicciones">Predicciones</a>*/}
+
+          <div className="mobile-leagues">
+            <button className="mobile-leagues-toggle" onClick={() => setMobileLeaguesOpen(prev => !prev)} aria-expanded={mobileLeaguesOpen} type="button">Ligas & Copas ▾</button>
+            {mobileLeaguesOpen && (
+              <div className="mobile-submenu">
+                <a href="/matches/england/premier">Premier League</a>
+                <a href="/matches/italy/seriea">Serie A - Italia</a>
+              </div>
+            )}
+          </div>
+
+          <a href="/calculadora">Calculadora</a>
           <a href="/nosotros">Nosotros</a>
           <a href="/contacto">Contacto</a>
           <button onClick={() => setShowAuthModal(true)} className="mobile-user">Cuenta</button>
@@ -447,6 +459,11 @@ export default function Header() {
         .mobile-menu{display:none;flex-direction:column;gap:10px;padding:12px 16px;position:absolute;left:0;right:0;top:100%;background:rgba(10,14,39,0.98);border-top:1px solid rgba(0,255,200,0.04);z-index:1300;max-height:calc(var(--vh,1vh) * 100 - 64px);overflow:auto}
         .mobile-menu a{color:#fff;text-decoration:none;padding:8px 0}
         .mobile-menu a:link, .mobile-menu a:visited, .mobile-menu a:hover, .mobile-menu a:active{color:#fff !important}
+
+        .mobile-leagues {display:flex;flex-direction:column}
+        .mobile-leagues-toggle{background:transparent;border:none;color:#fff;text-align:left;padding:8px 0;cursor:pointer;font-weight:600}
+        .mobile-submenu{display:flex;flex-direction:column;padding-left:12px;margin-bottom:6px}
+        .mobile-submenu a{padding:6px 0;color:#cfe}
 
         @media (max-width: 640px){
           .auth-modal{align-items:flex-start;padding-top:6vh}
