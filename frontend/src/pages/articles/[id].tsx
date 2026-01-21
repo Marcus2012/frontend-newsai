@@ -202,32 +202,8 @@ export default function ArticlePage() {
       */}  
       {/* Featured Image */}
       {article?.image_url && (
-        <div
-          style={{
-            width: '100%',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            margin: '32px 0 24px 0',
-          }}
-        >
-          <div
-            style={{
-              width: '100%',
-              maxWidth: 1200,
-              background: 'linear-gradient(90deg,#2b3346,#0f1724)',
-              borderRadius: 12,
-              boxShadow: '0 6px 24px rgba(0,0,0,0.18)',
-              overflow: 'hidden',
-              position: 'relative',
-              display: 'flex',
-              alignItems: 'center',
-              minHeight: 340,
-              height: 'clamp(320px, 38vw, 420px)',
-              minWidth: 320,
-              aspectRatio: '16/6',
-            }}
-          >
+        <div style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', margin: '32px 0 24px 0' }}>
+          <div className="article-hero">
             <Image
               src={article.image_url}
               alt={article.title}
@@ -237,8 +213,8 @@ export default function ArticlePage() {
               sizes="(max-width: 900px) 100vw, 1200px"
               priority
             />
+            </div>
           </div>
-        </div>
       )}
 
       {/* Inline banner */}
