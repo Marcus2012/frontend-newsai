@@ -263,13 +263,13 @@ export default function Header() {
           <Link href="/nosotros">Nosotros</Link>
           <Link href="/contacto">Contacto</Link>
           <div className="social-icons">
-            <a href="https://x.com/asieselfutbol" className="x" target="_blank" rel="noopener noreferrer" aria-label="X">
+            <a href="https://x.com/asieselfutbol_" className="x" target="_blank" rel="noopener noreferrer" aria-label="X">
               <svg viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg" aria-hidden>
                 <circle cx="22" cy="22" r="22" fill="#000" />
                 <path d="M15 15 L29 29 M29 15 L15 29" stroke="#fff" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </a>
-            <a href="https://www.facebook.com/asieselfutbol.pe" className="facebook" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+            <a href="https://www.facebook.com/asieselfutbol" className="facebook" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
               <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M22 12a10 10 0 10-11.5 9.9v-7h-2.2V12h2.2V9.8c0-2.2 1.3-3.4 3.3-3.4.96 0 1.97.17 1.97.17v2.2h-1.12c-1.1 0-1.44.68-1.44 1.38V12h2.44l-.39 2.9h-2.05v7A10 10 0 0022 12" fill="#fff"/></svg>
             </a>
             <a href="https://www.youtube.com/@asieselfutbol_tv" className="youtube" target="_blank" rel="noopener noreferrer" aria-label="YouTube">
@@ -293,6 +293,17 @@ export default function Header() {
                 <rect x="11" y="11" width="22" height="22" rx="7" fill="none" stroke="#fff" strokeWidth="2.5"/>
                 <circle cx="22" cy="22" r="7" fill="none" stroke="#fff" strokeWidth="2.5"/>
                 <circle cx="30.5" cy="15.5" r="2.2" fill="#fff"/>
+              </svg>
+            </a>
+            <a href="https://www.tiktok.com/@asieselfutbol.com" className="tiktok" target="_blank" rel="noopener noreferrer" aria-label="TikTok">
+              <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+                <circle cx="32" cy="32" r="32" fill="#000" />
+                <g>
+                  <path d="M38.5 18.5c1.7 1.3 3.7 2.1 5.9 2.1v5.1c-2.1-.1-4.1-.8-5.9-2v14.2c0 5.5-4.5 10-10 10s-10-4.5-10-10 4.5-10 10-10c.5 0 1 .1 1.5.2v5.5c-.5-.1-1-.2-1.5-.2-2.5 0-4.5 2-4.5 4.5s2 4.5 4.5 4.5 4.5-2 4.5-4.5V12h6c.2 3 2.7 5.5 5.7 5.7v4.3c-1.9-.2-3.7-.7-5.2-1.5z" fill="#fff"/>
+                  <path d="M38.5 18.5c1.7 1.3 3.7 2.1 5.9 2.1v2.2c-2.1-.1-4.1-.8-5.9-2v-2.3z" fill="#25F4EE"/>
+                  <path d="M38.5 12h-6v23.5c0 2.5-2 4.5-4.5 4.5-.7 0-1.4-.2-2-.4v3.2c.6.1 1.3.2 2 .2 5.5 0 10-4.5 10-10V12z" fill="#FE2C55"/>
+                  <path d="M32.5 12v23.5c0 2.5-2 4.5-4.5 4.5-.7 0-1.4-.2-2-.4v-2.2c.6.1 1.3.2 2 .2 2.5 0 4.5-2 4.5-4.5V12h.5z" fill="#25F4EE"/>
+                </g>
               </svg>
             </a>
           </div>
