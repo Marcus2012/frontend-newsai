@@ -255,14 +255,19 @@ export default function PremierLeague() {
                     const participant = row.participant || {};
                     const name = participant.name || row.name || `ID ${participant.id || row.participant_id}`;
                     const logo = participant.image_path || '/logo_placeholder.png';
-                    const played = row.played ?? row.games_played ?? row.matches_played ?? row.PJ ?? 0;
-                    const win = row.win ?? row.wins ?? row.PG ?? 0;
-                    const draw = row.draw ?? row.draws ?? row.PE ?? 0;
-                    const lose = row.lose ?? row.losses ?? row.PP ?? 0;
-                    const goalsFor = row.goals_for ?? row.goalsfor ?? row.GF ?? 0;
-                    const goalsAgainst = row.goals_against ?? row.goalsagainst ?? row.GC ?? 0;
-                    const points = row.points ?? row.Pts ?? 0;
-                    const diff = (typeof row.goal_difference !== 'undefined') ? row.goal_difference : (goalsFor - goalsAgainst);
+                    const rowSummary = row.summary || row.season?.summary || null;
+                    const played = rowSummary?.played ?? row.played ?? row.games_played ?? row.matches_played ?? row.PJ ?? 0;
+                    const win = rowSummary?.won ?? row.win ?? row.wins ?? row.PG ?? 0;
+                    const draw = rowSummary?.draw ?? row.draw ?? row.draws ?? row.PE ?? 0;
+                    const lose = rowSummary?.lost ?? row.lose ?? row.losses ?? row.PP ?? 0;
+                    const goalsFor = rowSummary?.goals_for ?? row.goals_for ?? row.goalsfor ?? row.GF ?? 0;
+                    const goalsAgainst = rowSummary?.goals_against ?? row.goals_against ?? row.goalsagainst ?? row.GC ?? 0;
+                    const points = rowSummary?.points ?? row.points ?? row.Pts ?? 0;
+                    const diff = (typeof rowSummary?.goal_difference !== 'undefined')
+                      ? rowSummary?.goal_difference
+                      : (typeof row.goal_difference !== 'undefined')
+                        ? row.goal_difference
+                        : (goalsFor - goalsAgainst);
                     const dgColor = diff > 0 ? '#7ee787' : diff < 0 ? '#ff8b8b' : '#cfe';
                     const rowBorder = position <= 4 ? '4px solid rgba(0,255,200,0.12)' : '1px solid rgba(255,255,255,0.03)';
 
