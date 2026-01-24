@@ -24,7 +24,7 @@ export default function PremierLeague() {
     setError(null);
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/public/premier/standings`);
+      const res = await fetch(`${API_BASE}/football/public/premier/standings`);
       if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
       const json = await res.json();
       const s = json?.response?.[0]?.league?.standings?.[0] || json?.standings || json?.response || json?.data || [];
@@ -39,7 +39,7 @@ export default function PremierLeague() {
     setError(null);
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/public/premier/info`);
+      const res = await fetch(`${API_BASE}/football/public/premier/info`);
       if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
       const json = await res.json();
       setSummary(json || {});
@@ -204,12 +204,14 @@ export default function PremierLeague() {
       <div className="container-max main-layout">
         <div>
           <div className="logos-row">
-            {standings && standings.slice(0,20).map((s:any, i:number)=>{
-              const teamName = formatTeamName(s.team?.name ?? s.name ?? '');
-              const logo = formatTeamLogo(s.team?.name ?? s.name ?? '', s.team?.logo || s.logo || s.crest || '/logo_placeholder.png');
+            {standings && standings.slice(0, 20).map((row: any, i: number) => {
+              const participant = row.participant || {};
+              const teamName = participant.name || row.name || `ID ${participant.id || row.participant_id}`;
+              const logo = participant.image_path || '/logo_placeholder.png';
               return (
-                <div key={i} className="logo-item">
-                  <img src={logo} alt={teamName} onError={(e:any)=>{ if(e.currentTarget.src !== '/logo_placeholder.png') e.currentTarget.src = '/logo_placeholder.png'; }} />
+                <div key={i} className="logo-item" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                  <img src={logo} alt={teamName} style={{ width: 44, height: 44, objectFit: 'contain', borderRadius: 8, marginBottom: 4 }} onError={(e: any) => { if (e.currentTarget.src !== '/logo_placeholder.png') e.currentTarget.src = '/logo_placeholder.png'; }} />
+                  <span style={{ color: '#cfe', fontSize: '0.85em', textAlign: 'center', maxWidth: 60, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{teamName}</span>
                 </div>
               );
             })}
@@ -247,18 +249,20 @@ export default function PremierLeague() {
                 </thead>
                 <tbody>
                   {standings && standings.length ? standings.map((row: any, idx: number) => {
-                    const position = idx + 1;
-                    const nameRaw = row.team?.name ?? row.name ?? row.team ?? '—';
-                    const name = formatTeamName(nameRaw);
-                    const logo = formatTeamLogo(row.team?.name ?? row.name ?? '', row.team?.logo || row.team?.logo_path || row.logo || row.crest || null);
-                    const played = row.played ?? row.all?.played ?? row.J ?? 0;
-                    const win = row.win ?? row.all?.win ?? row.G ?? 0;
-                    const draw = row.draw ?? row.all?.draw ?? row.E ?? 0;
-                    const lose = row.lose ?? row.all?.lose ?? row.P ?? 0;
-                    const goalsFor = row.goalsFor ?? row.all?.goals?.for ?? row.GF ?? row.gf ?? 0;
-                    const goalsAgainst = row.goalsAgainst ?? row.all?.goals?.against ?? row.GC ?? row.ga ?? 0;
-                    const points = row.points ?? row.Pts ?? row.points ?? 0;
-                    const diff = (typeof row.goalDifference !== 'undefined') ? row.goalDifference : (goalsFor - goalsAgainst);
+                    // Adaptación para Sportmonks: standings es un array de objetos con participant_id, points, position, etc.
+                    const position = row.position ?? idx + 1;
+                    // Sportmonks standings: row.participant es el objeto del equipo
+                    const participant = row.participant || {};
+                    const name = participant.name || row.name || `ID ${participant.id || row.participant_id}`;
+                    const logo = participant.image_path || '/logo_placeholder.png';
+                    const played = row.played ?? row.games_played ?? row.matches_played ?? row.PJ ?? 0;
+                    const win = row.win ?? row.wins ?? row.PG ?? 0;
+                    const draw = row.draw ?? row.draws ?? row.PE ?? 0;
+                    const lose = row.lose ?? row.losses ?? row.PP ?? 0;
+                    const goalsFor = row.goals_for ?? row.goalsfor ?? row.GF ?? 0;
+                    const goalsAgainst = row.goals_against ?? row.goalsagainst ?? row.GC ?? 0;
+                    const points = row.points ?? row.Pts ?? 0;
+                    const diff = (typeof row.goal_difference !== 'undefined') ? row.goal_difference : (goalsFor - goalsAgainst);
                     const dgColor = diff > 0 ? '#7ee787' : diff < 0 ? '#ff8b8b' : '#cfe';
                     const rowBorder = position <= 4 ? '4px solid rgba(0,255,200,0.12)' : '1px solid rgba(255,255,255,0.03)';
 
@@ -266,10 +270,10 @@ export default function PremierLeague() {
                       <tr key={idx} style={{ borderTop: rowBorder }} className={position <= 4 ? 'league-pos-top3' : ''}>
                         <td className="league-pos">{position}</td>
                         <td className="league-team-cell">
-                          <img src={logo || '/logo_placeholder.png'} alt={name} style={{ width: 28, height: 28, objectFit: 'contain', borderRadius: 4 }} onError={(e: any)=>{ if(e.currentTarget.src !== '/logo_placeholder.png') e.currentTarget.src = '/logo_placeholder.png'; }} />
+                          <img src={logo} alt={name} style={{ width: 28, height: 28, objectFit: 'contain', borderRadius: 4 }} onError={(e: any)=>{ if(e.currentTarget.src !== '/logo_placeholder.png') e.currentTarget.src = '/logo_placeholder.png'; }} />
                           <div style={{ display: 'flex', flexDirection: 'column' }}>
                             <span style={{ fontWeight: 700 }}>{name}</span>
-                            <span style={{ color: '#9aa', fontSize: '0.85em' }}>{row.team?.shortName ?? row.shortName ?? ''}</span>
+                            <span style={{ color: '#9aa', fontSize: '0.85em' }}>{participant.short_code ?? ''}</span>
                           </div>
                         </td>
                         <td>{played}</td>

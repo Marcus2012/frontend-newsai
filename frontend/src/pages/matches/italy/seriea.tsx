@@ -147,12 +147,14 @@ export default function SerieA() {
       <div className="container-max main-layout">
         <div>
           <div className="logos-row">
-            {standings && standings.slice(0,20).map((s:any, i:number)=>{
-              const teamName = formatTeamName(s.team?.name ?? s.name ?? '');
-              const logo = formatTeamLogo(s.team?.name ?? s.name ?? '', s.team?.logo || s.logo || s.crest || '/logo_placeholder.png');
+            {standings && standings.slice(0, 20).map((row: any, i: number) => {
+              const participant = row.participant || {};
+              const teamName = participant.name || row.name || `ID ${participant.id || row.participant_id}`;
+              const logo = participant.image_path || '/logo_placeholder.png';
               return (
-                <div key={i} className="logo-item">
-                  <img src={logo} alt={teamName} onError={(e:any)=>{ if(e.currentTarget.src !== '/logo_placeholder.png') e.currentTarget.src = '/logo_placeholder.png'; }} />
+                <div key={i} className="logo-item" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                  <img src={logo} alt={teamName} style={{ width: 44, height: 44, objectFit: 'contain', borderRadius: 8, marginBottom: 4 }} onError={(e: any) => { if (e.currentTarget.src !== '/logo_placeholder.png') e.currentTarget.src = '/logo_placeholder.png'; }} />
+                  <span style={{ color: '#cfe', fontSize: '0.85em', textAlign: 'center', maxWidth: 60, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{teamName}</span>
                 </div>
               );
             })}
