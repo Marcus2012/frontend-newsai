@@ -52,7 +52,7 @@ export default function PremierLeague() {
     setError(null);
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/public/premier/fixtures?next=20`);
+      const res = await fetch(`${API_BASE}/football/public/premier/fixtures?next=20`);
       if (!res.ok) {
         await fetchSummary();
         return;
@@ -65,7 +65,7 @@ export default function PremierLeague() {
         const sample = arr[0];
         if (typeof sample !== 'object' || sample === null) return false;
         const keys = Object.keys(sample).map(k => k.toLowerCase());
-        const indicators = ['teams','home','away','fixture','match','utcdate','match_date','date','score','status'];
+        const indicators = ['teams','home','away','fixture','match','utcdate','match_date','date','score','status','participants','starting_at'];
         return indicators.some(ind => keys.some(k => k.includes(ind)));
       };
 
@@ -304,11 +304,23 @@ export default function PremierLeague() {
               {!loading && upcomingMatches && upcomingMatches.length ? (
                 <div className="matches-grid">
                   {upcomingMatches.map((f: any, i: number) => {
-                    const home = f.teams?.home?.name ?? f.home?.name ?? f.home ?? f.home_team ?? (f.home_team_name || '');
-                    const away = f.teams?.away?.name ?? f.away?.name ?? f.away ?? f.away_team ?? (f.away_team_name || '');
-                    const homeLogo = f.teams?.home?.logo ?? f.home?.logo ?? f.home_logo ?? null;
-                    const awayLogo = f.teams?.away?.logo ?? f.away?.logo ?? f.away_logo ?? null;
-                    const date = f.fixture?.date ?? f.date ?? f.match_date ?? f.utcDate ?? f.iso_date ?? null;
+                    const participants = f.participants ?? f.fixture?.participants ?? [];
+                    const getByLocation = (loc: string) => {
+                      if (!Array.isArray(participants)) return null;
+                      return participants.find((p: any) => {
+                        const meta = p.meta || p.participant?.meta || {};
+                        const location = meta.location || meta.side || meta.position || meta.place || '';
+                        return String(location).toLowerCase() === loc;
+                      }) || null;
+                    };
+                    const homeP = getByLocation('home');
+                    const awayP = getByLocation('away');
+
+                    const home = homeP?.name ?? homeP?.participant?.name ?? f.teams?.home?.name ?? f.home?.name ?? f.home ?? f.home_team ?? (f.home_team_name || '');
+                    const away = awayP?.name ?? awayP?.participant?.name ?? f.teams?.away?.name ?? f.away?.name ?? f.away ?? f.away_team ?? (f.away_team_name || '');
+                    const homeLogo = homeP?.image_path ?? homeP?.participant?.image_path ?? f.teams?.home?.logo ?? f.home?.logo ?? f.home_logo ?? null;
+                    const awayLogo = awayP?.image_path ?? awayP?.participant?.image_path ?? f.teams?.away?.logo ?? f.away?.logo ?? f.away_logo ?? null;
+                    const date = f.starting_at ?? f.fixture?.date ?? f.date ?? f.match_date ?? f.utcDate ?? f.iso_date ?? null;
                     const dt = date ? new Date(date) : null;
                     const formattedDate = dt ? dt.toLocaleDateString('es-PE', { day: '2-digit', month: 'numeric', year: 'numeric' }) : null;
                     const formattedTime = dt ? dt.toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' }) : null;
@@ -480,15 +492,15 @@ export default function PremierLeague() {
         .match-card{ background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.02)); padding:14px; border-radius:12px; border:1px solid rgba(255,255,255,0.04); transition: transform .12s ease, box-shadow .12s ease }
         .match-card:hover{ transform: translateY(-6px); box-shadow: 0 12px 30px rgba(2,6,23,0.6) }
         .match-card-inner{ position:relative }
-        .match-date-top{ position:absolute; right:14px; top:10px; color:#9aa; font-size:0.85em }
-        .match-main{ display:flex; align-items:center; justify-content:center; gap:28px; padding:8px 20px }
-        .team.centered{ display:flex; align-items:center; gap:10px; flex-direction:row; min-width:140px; justify-content:flex-start }
+        .match-date-top{ position:absolute; right:16px; top:12px; color:#9aa; font-size:0.85em }
+        .match-main{ display:grid; grid-template-columns: 1fr 120px 1fr; align-items:center; gap:24px; padding:10px 22px }
+        .team.centered{ display:flex; align-items:center; gap:12px; flex-direction:row; min-width:0; justify-content:flex-start }
         .team.centered img{ width:36px; height:36px; object-fit:contain; border-radius:6px; flex-shrink:0 }
-        .team.centered .team-name{ font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:160px }
+        .team.centered .team-name{ font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:220px }
         .team-away.centered{ flex-direction:row-reverse; justify-content:flex-end }
         .team-away.centered .team-name{ text-align:right }
-        .center-time{ display:flex; flex-direction:column; align-items:center; justify-content:center; min-width:120px }
-        .match-time{ font-weight:900; color:#00ffc8; font-size:1.05em }
+        .center-time{ display:flex; flex-direction:column; align-items:center; justify-content:center; min-width:0 }
+        .match-time{ font-weight:900; color:#00ffc8; font-size:1.08em; letter-spacing:0.2px }
         .top-scorers-list{ display:flex; flex-direction:column; gap:8px; margin-top:8px }
         .player-row{ display:grid; grid-template-columns: 36px 1fr 1fr 56px; gap:12px; align-items:center; padding:8px 10px; background: rgba(0,0,0,0.15); border-radius:8px }
         .player-pos{ font-weight:800; color:#00ffc8 }
@@ -515,6 +527,9 @@ export default function PremierLeague() {
           .league-table thead{ display:table-header-group }
           .league-team-cell img{ width:26px; height:26px }
           .logo-item img{ width:36px; height:36px }
+          .match-main{ gap:10px; padding:8px 10px; flex-wrap:wrap }
+          .team.centered{ min-width:120px }
+          .team.centered .team-name{ max-width:140px }
         }
         @media (max-width: 420px){
           .tabs-row{display:flex;gap:8px;overflow-x:auto;padding:8px 0}
@@ -522,11 +537,13 @@ export default function PremierLeague() {
           .logos-row{gap:8px;padding-left:6px}
           .logo-item img{width:32px;height:32px}
           .match-card{padding:10px;border-radius:10px}
-          .match-main{gap:12px;padding:8px 12px}
-          .team.centered{min-width:0;gap:8px}
-          .team.centered .team-name{max-width:110px;font-size:0.95rem}
-          .center-time{min-width:60px}
-          .match-date-top{position:static;padding:6px 0;color:#9aa;font-size:0.85em}
+          .match-main{gap:10px;padding:8px 10px;flex-direction:column;align-items:stretch}
+          .team.centered{min-width:0;gap:8px;justify-content:center}
+          .team-away.centered{flex-direction:row;justify-content:center}
+          .team.centered .team-name{max-width:160px;font-size:0.95rem;text-align:center}
+          .center-time{min-width:0}
+          .match-time{font-size:1rem}
+          .match-date-top{position:static;padding:6px 0;color:#9aa;font-size:0.85em;text-align:center}
           .matches-grid{gap:10px}
           .sidebar-aside{display:block;width:100%}
         }
