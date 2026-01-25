@@ -299,7 +299,7 @@ export default function PremierLeague() {
 
           {activeTab === 'calendar' && (
             <div style={{ marginTop: 20, background: 'rgba(10,14,39,0.7)', padding: 12, borderRadius: 8 }}>
-              <h3 style={{ color: '#00ffc8' }}>Calendario — Próximos</h3>
+              <h3 style={{ color: '#00ffc8' }}>Calendario — Partidos HOY</h3>
               {loading && <div style={{ color:'#9aa' }}>Cargando partidos...</div>}
               {!loading && upcomingMatches && upcomingMatches.length ? (
                 <div className="matches-grid">
