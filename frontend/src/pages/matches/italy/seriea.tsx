@@ -141,7 +141,7 @@ export default function SerieA() {
     setLoading(true);
     try {
       const STRAPI = getStrapiBase() || process.env.NEXT_PUBLIC_API_ENDPOINT || '';
-      const res = await fetch(`${STRAPI}/api/articles?publicationState=live&populate=*&sort[0]=publishedAt:desc&pagination[limit]=4`);
+      const res = await fetch(`${STRAPI}/api/articles?publicationState=live&populate=*&sort[0]=publishedAt:desc&pagination[limit]=6&filters[category][$in][0]=Serie%20A%20-%20Italia&filters[category][$in][1]=Todos`);
       if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
       const json = await res.json();
       const arr = Array.isArray(json) ? json : (json.data || []);

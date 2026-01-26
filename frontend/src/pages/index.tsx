@@ -33,6 +33,12 @@ export default function HomePage({ articles }: Props) {
   });
   const featured = sortedArticles[0];
   const highlighted = sortedArticles.slice(1, 5);
+  const articlesByCategory = sortedArticles.reduce<Record<string, typeof sortedArticles>>((acc, article) => {
+    const key = (article.category && String(article.category).trim()) || 'Sin categoría';
+    if (!acc[key]) acc[key] = [];
+    acc[key].push(article);
+    return acc;
+  }, {});
 
   return (
     <div className="min-h-screen" style={{ background: '#0a0e27', color: '#fff' }}>
@@ -153,65 +159,72 @@ export default function HomePage({ articles }: Props) {
       <div className="container-max" style={{ padding: '40px 20px', borderTop: '1px solid rgba(0, 255, 200, 0.1)' }}>
         <div className="news-layout" style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: '24px', alignItems: 'start' }}>
           <div>
-            <h3 style={{ color: '#00ffc8', fontSize: '1.3em', marginTop: 0, marginBottom: '20px' }}>📋 Todas las Noticias</h3>
+            {/*<h3 style={{ color: '#00ffc8', fontSize: '1.3em', marginTop: 0, marginBottom: '20px' }}>📋 Noticias por Categoría</h3>*/}
             {sortedArticles.length === 0 ? (
               <p style={{ textAlign: 'center', color: '#aaa' }}>No hay artículos disponibles</p>
             ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '18px' }}>
-                {sortedArticles.map((article) => (
-                  <Link key={article.id} href={`/articles/${article.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-                    <article 
-                      style={{
-                        background: 'rgba(26, 31, 66, 0.6)',
-                        border: '1px solid rgba(0, 255, 200, 0.1)',
-                        borderRadius: '8px',
-                        overflow: 'hidden',
-                        cursor: 'pointer',
-                        transition: 'all 0.3s ease',
-                        height: '100%',
-                        display: 'flex',
-                        flexDirection: 'column'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.borderColor = 'rgba(0, 255, 200, 0.4)';
-                        e.currentTarget.style.transform = 'translateY(-3px)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.borderColor = 'rgba(0, 255, 200, 0.1)';
-                        e.currentTarget.style.transform = 'translateY(0)';
-                      }}
-                    >
-                      {article.image_url && (
-                        <div style={{ height: '140px', overflow: 'hidden', position: 'relative' }}>
-                          <Image src={article.image_url} alt={article.title} fill style={{ objectFit: 'cover' }} unoptimized />
-                        </div>
-                      )}
-                      <div style={{ padding: '12px', flex: 1, display: 'flex', flexDirection: 'column' }}>
-                        {article.category && (
-                          <span style={{
-                            background: 'rgba(0, 255, 200, 0.15)',
-                            color: '#00ffc8',
-                            padding: '2px 6px',
-                            borderRadius: '3px',
-                            fontSize: '0.7em',
-                            fontWeight: 'bold',
-                            width: 'fit-content',
-                            marginBottom: '6px'
-                          }}>
-                            {article.category}
-                          </span>
-                        )}
-                        {article.title ? (
-                          <h4 style={{ fontSize: '1rem', margin: '0 0 8px 0', lineHeight: '1.2', fontWeight: 'bold' }}>
-                            {article.title ? article.title.substring(0, 120) + '...' : null}
-                          </h4>
-                        ) : null}
-                        <div style={{ marginTop: 'auto', fontSize: '0.75em', color: '#888' }}>
-                          {article.created_at && new Date(article.created_at).toLocaleDateString('es-ES')}
-                        </div>
-                      </div>
-                    </article>
-                  </Link>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
+                {Object.entries(articlesByCategory).map(([category, items]) => (
+                  <section key={category}>
+                    <h3 style={{ color: '#00ffc8', fontSize: '1.3em', margin: '0 0 14px 0' }}>📋 {category}</h3>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '18px' }}>
+                      {items.map((article) => (
+                        <Link key={article.id} href={`/articles/${article.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                          <article 
+                            style={{
+                              background: 'rgba(26, 31, 66, 0.6)',
+                              border: '1px solid rgba(0, 255, 200, 0.1)',
+                              borderRadius: '8px',
+                              overflow: 'hidden',
+                              cursor: 'pointer',
+                              transition: 'all 0.3s ease',
+                              height: '100%',
+                              display: 'flex',
+                              flexDirection: 'column'
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.borderColor = 'rgba(0, 255, 200, 0.4)';
+                              e.currentTarget.style.transform = 'translateY(-3px)';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.borderColor = 'rgba(0, 255, 200, 0.1)';
+                              e.currentTarget.style.transform = 'translateY(0)';
+                            }}
+                          >
+                            {article.image_url && (
+                              <div style={{ height: '140px', overflow: 'hidden', position: 'relative' }}>
+                                <Image src={article.image_url} alt={article.title} fill style={{ objectFit: 'cover' }} unoptimized />
+                              </div>
+                            )}
+                            <div style={{ padding: '12px', flex: 1, display: 'flex', flexDirection: 'column' }}>
+                              {article.category && (
+                                <span style={{
+                                  background: 'rgba(0, 255, 200, 0.15)',
+                                  color: '#00ffc8',
+                                  padding: '2px 6px',
+                                  borderRadius: '3px',
+                                  fontSize: '0.7em',
+                                  fontWeight: 'bold',
+                                  width: 'fit-content',
+                                  marginBottom: '6px'
+                                }}>
+                                  {article.category}
+                                </span>
+                              )}
+                              {article.title ? (
+                                <h4 style={{ fontSize: '1rem', margin: '0 0 8px 0', lineHeight: '1.2', fontWeight: 'bold' }}>
+                                  {article.title ? article.title.substring(0, 120) + '...' : null}
+                                </h4>
+                              ) : null}
+                              <div style={{ marginTop: 'auto', fontSize: '0.75em', color: '#888' }}>
+                                {article.created_at && new Date(article.created_at).toLocaleDateString('es-ES')}
+                              </div>
+                            </div>
+                          </article>
+                        </Link>
+                      ))}
+                    </div>
+                  </section>
                 ))}
               </div>
             )}

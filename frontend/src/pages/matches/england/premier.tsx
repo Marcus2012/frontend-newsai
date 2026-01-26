@@ -149,7 +149,7 @@ export default function PremierLeague() {
     setLoading(true);
     try {
       const STRAPI = getStrapiBase() || process.env.NEXT_PUBLIC_API_ENDPOINT || '';
-      const res = await fetch(`${STRAPI}/api/articles?publicationState=live&populate=*&sort[0]=publishedAt:desc&pagination[limit]=4`);
+      const res = await fetch(`${STRAPI}/api/articles?publicationState=live&populate=*&sort[0]=publishedAt:desc&filters[category][$eq]=Champions%20League`);
       if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
       const json = await res.json();
       const arr = Array.isArray(json) ? json : (json.data || []);
