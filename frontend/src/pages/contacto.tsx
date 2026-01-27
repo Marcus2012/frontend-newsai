@@ -43,7 +43,7 @@ export default function Contacto() {
             <div style={{ borderRadius: '14px', padding: '16px 0px', minWidth: 220, flex: 1, textAlign: 'center', boxShadow: '0 2px 12px rgba(0,255,200,0.07)' }}>
               <div style={{ fontSize: '2em', color: '#00ffc8', marginBottom: '10px' }}>✉️</div>
               <div style={{ fontWeight: 'bold', marginBottom: '8px' }}>Email</div>
-              <div style={{ color: '#00ffc8', fontSize: '1em', marginBottom: '4px' }}>contacto@asieselfutbol.com</div>
+              <div style={{ color: '#00ffc8', fontSize: '1em', marginBottom: '4px' }}>matias@afiliadoslat.com</div>
             </div>
             <div style={{ borderRadius: '14px', padding: '16px 0px', minWidth: 220, flex: 1, textAlign: 'center', boxShadow: '0 2px 12px rgba(0,255,200,0.07)' }}>
               <div style={{ fontSize: '2em', color: '#00ffc8', marginBottom: '10px' }}>📍</div>
