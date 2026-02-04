@@ -1,6 +1,14 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 
 export default function SampleAdBanner() {
+  const [timestamp, setTimestamp] = useState<string | null>(null);
+
+  useEffect(() => {
+    setTimestamp(Date.now().toString());
+  }, []);
+
+  if (!timestamp) return null; // Solo renderiza en el cliente
+
   return (
     <div style={{ width: '100%', display: 'flex', justifyContent: 'center', marginTop: 20 }}>
       <div style={{ width: '100%', maxWidth: 1200, padding: '0 20px' }}>
@@ -8,7 +16,7 @@ export default function SampleAdBanner() {
           {/*<div className="leaderboard">Leaderboard (728x90) — Banner de ejemplo — NO PRODUCCIÓN</div>*/}
           <div className="banner-img">
             <img
-              src={`https://storage.googleapis.com/asieselfutbol/production-statics/TA_BANNER_REGISTRO-GENERICO_1913X419-1024x224.jpg?v=${Date.now()}`}
+              src={`https://storage.googleapis.com/asieselfutbol/production-statics/TA_BANNER_REGISTRO-GENERICO_1913X419-1024x224.jpg?v=${timestamp}`}
               alt="banner"
               style={{
                 display: 'block',

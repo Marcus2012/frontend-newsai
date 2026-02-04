@@ -18,5 +18,23 @@ export default function MyApp({ Component, pageProps }: AppProps) {
     }
   }, [])
 
+    useEffect(() => {
+      function loadScript(callback: () => void) {
+        const head = document.getElementsByTagName("head")[0];
+        const script = document.createElement("script");
+        script.type = "text/javascript";
+        script.src = "https://tracker.metricool.com/resources/be.js";
+        script.onload = callback;
+        head.appendChild(script);
+      }
+      loadScript(function () {
+        // @ts-ignore
+        if (window.beTracker && window.beTracker.t) {
+          // @ts-ignore
+          window.beTracker.t({ hash: "8cc6a4ba2e515faa79e7a2f8032a1d47" });
+        }
+      });
+    }, []);
+
   return <Component {...pageProps} />
 }
