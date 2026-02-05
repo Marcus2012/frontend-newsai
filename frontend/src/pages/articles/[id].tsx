@@ -23,6 +23,82 @@ interface Article {
   [key: string]: any;
 }
 
+const formatArticleContent = (raw: string): string => {
+  if (!raw) return "";
+  const hasHtml = /<\/?[a-z][\s\S]*>/i.test(raw);
+  if (hasHtml) return raw;
+
+  const escapeHtml = (input: string) =>
+    input
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/\"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+
+  const applyInlineFormat = (input: string) => {
+    let output = escapeHtml(input);
+    output = output.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+    output = output.replace(/\*(.+?)\*/g, "<em>$1</em>");
+    output = output.replace(/\[(.+?)\]\((https?:\/\/[^\s)]+)\)/g, "<a href=\"$2\" target=\"_blank\" rel=\"noopener noreferrer\">$1</a>");
+    return output;
+  };
+
+  const lines = raw.replace(/\r\n/g, "\n").split("\n");
+  const blocks: string[] = [];
+  let current: string[] = [];
+
+  for (const line of lines) {
+    if (line.trim() === "") {
+      if (current.length) {
+        blocks.push(current.join("\n"));
+        current = [];
+      }
+      continue;
+    }
+    current.push(line);
+  }
+  if (current.length) blocks.push(current.join("\n"));
+
+  const htmlBlocks = blocks.map((block) => {
+    const trimmed = block.trim();
+    const headingMatch = /^(#{1,3})\s+(.+)$/.exec(trimmed);
+    if (headingMatch) {
+      const level = headingMatch[1].length;
+      const text = applyInlineFormat(headingMatch[2].trim());
+      return `<h${level}>${text}</h${level}>`;
+    }
+
+    const labelHeadingMatch = /^(H1|H2|H3)\s*:\s*(.+)$/i.exec(trimmed);
+    if (labelHeadingMatch) {
+      const level = Number(labelHeadingMatch[1].slice(1));
+      const text = applyInlineFormat(labelHeadingMatch[2].trim());
+      return `<h${level}>${text}</h${level}>`;
+    }
+
+    const blockLines = trimmed.split("\n");
+    const isUnordered = blockLines.every((l) => /^\s*[-*•]\s+/.test(l));
+    const isOrdered = blockLines.every((l) => /^\s*\d+\.\s+/.test(l));
+
+    if (isUnordered || isOrdered) {
+      const items = blockLines
+        .map((l) =>
+          applyInlineFormat(
+            l.replace(/^\s*([-*•]|\d+\.)\s+/, "").trim()
+          )
+        )
+        .map((text) => `<li>${text}</li>`)
+        .join("");
+      return isOrdered ? `<ol>${items}</ol>` : `<ul>${items}</ul>`;
+    }
+
+    const paragraph = applyInlineFormat(trimmed).replace(/\s*\n\s*/g, " ");
+    return `<p>${paragraph}</p>`;
+  });
+
+  return htmlBlocks.join("");
+};
+
 export default function ArticlePage() {
   const router = useRouter();
   const { id } = router.query;
@@ -373,7 +449,11 @@ export default function ArticlePage() {
               boxShadow: '0 8px 30px rgba(2,6,23,0.45)',
               lineHeight: 1.9
             }} className="article-body">
-              <div dangerouslySetInnerHTML={{ __html: (article as any).content }} />
+              <div
+                dangerouslySetInnerHTML={{
+                  __html: formatArticleContent((article as any).content),
+                }}
+              />
             </div>
 
             <style jsx global>{`
