@@ -1,5 +1,5 @@
-"use client";
 import { useEffect, useState, useRef } from 'react';
+import Head from 'next/head';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -20,6 +20,13 @@ interface Article {
   seo_meta?: Record<string, any>;
   keywords?: string[];
   meta_description?: string;
+  canonicalURL?: string;
+  canonical_url?: string;
+  slug?: string;
+  publishedAt?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  updated_at?: string;
   [key: string]: any;
 }
 
@@ -99,6 +106,32 @@ const formatArticleContent = (raw: string): string => {
   return htmlBlocks.join("");
 };
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://asieselfutbol.com';
+
+const toIsoString = (value?: string | null) => {
+  if (!value) return undefined;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return undefined;
+  return date.toISOString();
+};
+
+const buildCanonicalUrl = (article: Article | null, fallbackId?: string | string[]) => {
+  if (!article) return undefined;
+  const canonicalFromMeta =
+    article.canonicalURL ||
+    article.canonical_url ||
+    article.seo_meta?.canonicalURL ||
+    article.seo_meta?.canonical_url ||
+    undefined;
+
+  if (canonicalFromMeta) return canonicalFromMeta;
+
+  const slug = (article as any).slug || null;
+  const id = slug || article.id || fallbackId;
+  if (!id) return undefined;
+  return `${SITE_URL}/articles/${id}`;
+};
+
 export default function ArticlePage() {
   const router = useRouter();
   const { id } = router.query;
@@ -142,13 +175,11 @@ export default function ArticlePage() {
   useEffect(() => {
     if (!id) return;
 
-
     const fetchArticle = async () => {
       try {
         if (!strapiUrl) {
           throw new Error('Falta NEXT_PUBLIC_STRAPI_URL');
         }
-        // Usar el endpoint con filtro por ID
         const res = await fetch(`${strapiUrl}/api/articles?filters[id][$eq]=${id}&populate=*`, {
           headers: strapiToken ? { 'Authorization': `Bearer ${strapiToken}` } : {}
         });
@@ -160,7 +191,6 @@ export default function ArticlePage() {
         const item = arr[0] || arr;
         if (!item) throw new Error('Noticia no encontrada');
         const attrs = item.attributes || item;
-        // Construir URL completa de la imagen si viene como ruta relativa desde Strapi
         const rawImage = attrs.image?.data?.attributes?.url ?? attrs.image?.url ?? null;
         const imageUrl = rawImage
           ? (rawImage.startsWith('http') ? rawImage : `${strapiUrl?.replace(/\/$/, '')}${rawImage}`)
@@ -234,7 +264,6 @@ export default function ArticlePage() {
 
         setRelated(mapped.slice(0, 4));
       } catch (e) {
-        // fail silently
         console.error('Error fetching related:', e);
       }
     };
@@ -270,37 +299,83 @@ export default function ArticlePage() {
     );
   }
 
+  const canonicalUrl = buildCanonicalUrl(article, id);
+  const description = article.meta_description || article.description || '';
+  const publishedAt = toIsoString(article.created_at || (article as any).publishedAt || (article as any).createdAt);
+  const modifiedAt = toIsoString((article as any).updatedAt || (article as any).updated_at || article.created_at);
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "NewsArticle",
+    headline: article.title,
+    description: description || undefined,
+    image: article.image_url ? [article.image_url] : undefined,
+    datePublished: publishedAt,
+    dateModified: modifiedAt,
+    mainEntityOfPage: canonicalUrl ? { "@type": "WebPage", "@id": canonicalUrl } : undefined,
+    author: article.author
+      ? { "@type": "Person", name: article.author }
+      : { "@type": "Organization", name: "Asi es el Futbol" },
+    publisher: {
+      "@type": "Organization",
+      name: "Asi es el Futbol",
+      logo: {
+        "@type": "ImageObject",
+        url: `${SITE_URL}/asieselfutbol.svg`,
+      },
+    },
+  };
+
   return (
-    <div style={{ fontFamily: '"Poppins", "-apple-system", "BlinkMacSystemFont", "Segoe UI", sans-serif', background: '#0a0e27', color: '#fff', minHeight: '100vh' }}>
-      <Header />
-      {/*
-      <SampleAdBanner />
-      */}  
-      {/* Featured Image */}
-      {article?.image_url && (
-        <div style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', margin: '32px 0 24px 0' }}>
-          <div className="article-hero">
-            <Image
-              src={article.image_url}
-              alt={article.title}
-              fill
-              style={{ objectFit: 'cover' }}
-              unoptimized
-              sizes="(max-width: 900px) 100vw, 1200px"
-              priority
-            />
+    <>
+      <Head>
+        <title>{article.title}</title>
+        {description && <meta name="description" content={description} />}
+        <meta name="robots" content="index, follow" />
+        {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
+        <meta property="og:type" content="article" />
+        {canonicalUrl && <meta property="og:url" content={canonicalUrl} />}
+        {article.title && <meta property="og:title" content={article.title} />}
+        {description && <meta property="og:description" content={description} />}
+        {article.image_url && <meta property="og:image" content={article.image_url} />}
+        <meta name="twitter:card" content="summary_large_image" />
+        {article.title && <meta name="twitter:title" content={article.title} />}
+        {description && <meta name="twitter:description" content={description} />}
+        {article.image_url && <meta name="twitter:image" content={article.image_url} />}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      </Head>
+      <div style={{ fontFamily: '"Poppins", "-apple-system", "BlinkMacSystemFont", "Segoe UI", sans-serif', background: '#0a0e27', color: '#fff', minHeight: '100vh' }}>
+        <Header />
+        {/*
+        <SampleAdBanner />
+        */}  
+        {/* Featured Image */}
+        {article?.image_url && (
+          <div style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', margin: '32px 0 24px 0' }}>
+            <div className="article-hero">
+              <Image
+                src={article.image_url}
+                alt={article.title}
+                fill
+                style={{ objectFit: 'cover' }}
+                unoptimized
+                sizes="(max-width: 900px) 100vw, 1200px"
+                priority
+              />
+              </div>
             </div>
-          </div>
-      )}
+        )}
 
-      {/* Inline banner */}
-      <div style={{ maxWidth: 1000, margin: '0 auto', padding: '20px' }}>
-        <BannerSlots position="between" />
-      </div>
+        {/* Inline banner */}
+        <div style={{ maxWidth: 1000, margin: '0 auto', padding: '20px' }}>
+          <BannerSlots position="between" />
+        </div>
 
 
-      {/* Content */}
-      <div style={{ maxWidth: 1000, margin: '0 auto', padding: '40px 20px' }}>
+        {/* Content */}
+        <div style={{ maxWidth: 1000, margin: '0 auto', padding: '40px 20px' }}>
         {/* Category Badge */}
         {article?.category && (
           <span style={{
@@ -572,5 +647,7 @@ export default function ArticlePage() {
         <p>© 2025 asi es el futbol. Todos los derechos reservados.</p>
       </footer>
     </div>
+    </>
   );
 }
+

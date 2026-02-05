@@ -5,6 +5,10 @@ class MyDocument extends Document {
     return (
       <Html lang="es">
         <Head>
+          <link rel="icon" type="image/svg+xml" href="/asieselfutbol.svg" />
+          <link rel="icon" href="/asieselfutbol.svg" />
+          <link rel="apple-touch-icon" href="/asieselfutbol.svg" />
+          <link rel="manifest" href="/manifest.webmanifest" />
           <script
             dangerouslySetInnerHTML={{
               __html:
