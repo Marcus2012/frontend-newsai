@@ -12,6 +12,7 @@ import { GetStaticProps } from 'next';
 
 interface Article {
   id: string;
+  slug?: string;
   title: string;
   created_at?: string;
   category?: string;
@@ -25,6 +26,7 @@ interface NoticiasProps {
 }
 
 export default function NoticiasPage({ articles }: NoticiasProps) {
+  const getArticleHref = (article: Article) => `/articles/${article.slug || article.id}`;
   return (
     <div className="min-h-screen" style={{ background: '#0a0e27', color: '#fff' }}>
       <Header />
@@ -92,7 +94,7 @@ export default function NoticiasPage({ articles }: NoticiasProps) {
           ) : (
             <div className="noticias-grid">
               {articles.map((article) => (
-                <Link key={article.id} href={`/articles/${article.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                <Link key={article.id} href={getArticleHref(article)} style={{ textDecoration: 'none', color: 'inherit' }}>
                   <article style={{
                     background: 'rgba(26, 31, 66, 0.7)',
                     border: '1px solid rgba(0, 255, 200, 0.1)',
@@ -273,6 +275,7 @@ export const getStaticProps: GetStaticProps = async () => {
         : null;
       return {
         id: String(item.id),
+        slug: attrs.slug ?? null,
         title: attrs.title ?? null,
         created_at: attrs.publishedAt ?? attrs.createdAt ?? attrs.created_at ?? null,
         category: attrs.category ?? null,

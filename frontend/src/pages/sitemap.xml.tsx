@@ -1,4 +1,4 @@
-import type { NextApiRequest, NextApiResponse } from "next";
+import type { GetServerSideProps } from "next";
 import { getStrapiBase } from "../lib/strapiBase";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://asieselfutbol.com";
@@ -33,10 +33,31 @@ const fetchAllArticles = async () => {
 
 const buildSitemapXml = (articles: any[]) => {
   const urls: string[] = [];
+  const now = new Date().toISOString();
+  const seen = new Set<string>();
 
-  urls.push(
-    `<url><loc>${SITE_URL}</loc><lastmod>${new Date().toISOString()}</lastmod></url>`
-  );
+  const pushUrl = (path: string, lastmod?: string) => {
+    if (!path) return;
+    const loc = `${SITE_URL}${path}`;
+    if (seen.has(loc)) return;
+    seen.add(loc);
+    const lastmodTag = lastmod ? `<lastmod>${lastmod}</lastmod>` : "";
+    urls.push(`<url><loc>${loc}</loc>${lastmodTag}</url>`);
+  };
+
+  const staticPaths = [
+    '/',
+    '/noticias',
+    '/nosotros',
+    '/contacto',
+    '/predicciones',
+    '/calculadora',
+    '/matches/england/premier',
+    '/matches/italy/seriea',
+    '/matches/peru/primera'
+  ];
+
+  staticPaths.forEach((path) => pushUrl(path, now));
 
   for (const item of articles) {
     const attrs = item.attributes || item;
@@ -44,8 +65,8 @@ const buildSitemapXml = (articles: any[]) => {
     const id = item.id || attrs.id;
     const lastmod = attrs.updatedAt || attrs.updated_at || attrs.publishedAt || attrs.createdAt;
     const path = slug ? `/articles/${slug}` : `/articles/${id}`;
-    const lastmodTag = lastmod ? `<lastmod>${new Date(lastmod).toISOString()}</lastmod>` : "";
-    urls.push(`<url><loc>${SITE_URL}${path}</loc>${lastmodTag}</url>`);
+    const lastmodTag = lastmod ? new Date(lastmod).toISOString() : undefined;
+    pushUrl(path, lastmodTag);
   }
 
   return `<?xml version="1.0" encoding="UTF-8"?>\n` +
@@ -54,7 +75,7 @@ const buildSitemapXml = (articles: any[]) => {
     `\n</urlset>`;
 };
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export const getServerSideProps: GetServerSideProps = async ({ res }) => {
   const articles = await fetchAllArticles();
   const xml = buildSitemapXml(articles);
 
@@ -62,4 +83,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   res.setHeader("Content-Type", "application/xml");
   res.setHeader("Cache-Control", "s-maxage=3600, stale-while-revalidate=86400");
   res.end(xml);
+
+  return { props: {} };
+};
+
+export default function SiteMap() {
+  return null;
 }

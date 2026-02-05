@@ -6,6 +6,7 @@ import Header from '../components/Header';
 
 interface Article {
   id: string;
+  slug?: string;
   title: string;
   created_at: string;
   category?: string;
@@ -113,7 +114,7 @@ export default function HomePage() {
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
             {articles.map((article) => (
-              <Link key={article.id} href={`/articles/${article.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+              <Link key={article.id} href={`/articles/${article.slug || article.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                 <article 
                   style={{
                     background: 'linear-gradient(135deg, #1a1f42 0%, #2a2f52 100%)',

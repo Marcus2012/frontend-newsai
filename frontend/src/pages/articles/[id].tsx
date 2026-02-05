@@ -117,6 +117,9 @@ const toIsoString = (value?: string | null) => {
 
 const buildCanonicalUrl = (article: Article | null, fallbackId?: string | string[]) => {
   if (!article) return undefined;
+  const slug = (article as any).slug || null;
+  if (slug) return `${SITE_URL}/articles/${slug}`;
+
   const canonicalFromMeta =
     article.canonicalURL ||
     article.canonical_url ||
@@ -126,8 +129,7 @@ const buildCanonicalUrl = (article: Article | null, fallbackId?: string | string
 
   if (canonicalFromMeta) return canonicalFromMeta;
 
-  const slug = (article as any).slug || null;
-  const id = slug || article.id || fallbackId;
+  const id = article.id || fallbackId;
   if (!id) return undefined;
   return `${SITE_URL}/articles/${id}`;
 };
@@ -172,15 +174,25 @@ export default function ArticlePage() {
     return () => document.removeEventListener('mousedown', onDoc);
   }, [showShare]);
 
+  const getRouteParam = (value: string | string[] | undefined) => {
+    if (!value) return undefined;
+    return Array.isArray(value) ? value[0] : value;
+  };
+
+  const isNumericId = (value: string) => /^\d+$/.test(value);
+
   useEffect(() => {
-    if (!id) return;
+    const routeParam = getRouteParam(id);
+    if (!routeParam) return;
 
     const fetchArticle = async () => {
       try {
         if (!strapiUrl) {
           throw new Error('Falta NEXT_PUBLIC_STRAPI_URL');
         }
-        const res = await fetch(`${strapiUrl}/api/articles?filters[id][$eq]=${id}&populate=*`, {
+        const isNumeric = isNumericId(routeParam);
+        const filterKey = isNumeric ? 'id' : 'slug';
+        const res = await fetch(`${strapiUrl}/api/articles?filters[${filterKey}][$eq]=${encodeURIComponent(routeParam)}&populate=*`, {
           headers: strapiToken ? { 'Authorization': `Bearer ${strapiToken}` } : {}
         });
         if (!res.ok) {
@@ -205,6 +217,7 @@ export default function ArticlePage() {
           author: attrs.author ?? null,
           status: attrs.status ?? null,
           image_url: imageUrl,
+          slug: attrs.slug ?? null,
           seo_meta: attrs.seo_meta ?? null,
           keywords: attrs.keywords ?? null,
           meta_description: attrs.meta_description ?? null,
@@ -221,6 +234,13 @@ export default function ArticlePage() {
 
     fetchArticle();
   }, [id]);
+
+  useEffect(() => {
+    if (!article?.slug) return;
+    const routeParam = getRouteParam(id);
+    if (!routeParam || routeParam === article.slug) return;
+    router.replace(`/articles/${article.slug}`);
+  }, [article?.slug, id, router]);
 
   // Fetch related articles once the main article is loaded
   useEffect(() => {
@@ -255,6 +275,7 @@ export default function ArticlePage() {
             author: attrs.author ?? null,
             status: attrs.status ?? null,
             image_url: imageUrl,
+            slug: attrs.slug ?? null,
             seo_meta: attrs.seo_meta ?? null,
             keywords: attrs.keywords ?? null,
             meta_description: attrs.meta_description ?? null,
@@ -303,6 +324,7 @@ export default function ArticlePage() {
   const description = article.meta_description || article.description || '';
   const publishedAt = toIsoString(article.created_at || (article as any).publishedAt || (article as any).createdAt);
   const modifiedAt = toIsoString((article as any).updatedAt || (article as any).updated_at || article.created_at);
+  const shareUrl = canonicalUrl || (typeof window !== 'undefined' ? window.location.href : '');
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "NewsArticle",
@@ -444,7 +466,7 @@ export default function ArticlePage() {
             }}>
               {/** Social buttons **/}
               <button title="X" onClick={() => {
-                const url = encodeURIComponent(typeof window !== 'undefined' ? window.location.href : '');
+                const url = encodeURIComponent(shareUrl);
                 const text = encodeURIComponent(article?.title || '');
                 window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank', 'noopener');
               }} style={iconBtnStyle} onMouseEnter={(e)=> (e.currentTarget.style.transform = 'scale(1.08)') } onMouseLeave={(e)=> (e.currentTarget.style.transform = 'scale(1)') }>
@@ -453,14 +475,14 @@ export default function ArticlePage() {
               </button>
 
               <button title="Facebook" onClick={() => {
-                const url = encodeURIComponent(typeof window !== 'undefined' ? window.location.href : '');
+                const url = encodeURIComponent(shareUrl);
                 window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank', 'noopener');
               }} style={iconBtnStyle} onMouseEnter={(e)=> (e.currentTarget.style.transform = 'scale(1.08)') } onMouseLeave={(e)=> (e.currentTarget.style.transform = 'scale(1)') }>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="#1877F2" xmlns="http://www.w3.org/2000/svg"><path d="M22 12a10 10 0 10-11.5 9.9v-7h-2.2V12h2.2V9.8c0-2.2 1.3-3.4 3.3-3.4.96 0 1.97.17 1.97.17v2.2h-1.12c-1.1 0-1.44.68-1.44 1.38V12h2.44l-.39 2.9h-2.05v7A10 10 0 0022 12"/></svg>
               </button>
 
               <button title="WhatsApp" onClick={() => {
-                const url = encodeURIComponent(typeof window !== 'undefined' ? window.location.href : '');
+                const url = encodeURIComponent(shareUrl);
                 const text = encodeURIComponent(`${article?.title ?? ''} - `);
                 window.open(`https://api.whatsapp.com/send?text=${text}${url}`, '_blank', 'noopener');
               }} style={iconBtnStyle} onMouseEnter={(e)=> (e.currentTarget.style.transform = 'scale(1.08)') } onMouseLeave={(e)=> (e.currentTarget.style.transform = 'scale(1)') }>
@@ -487,7 +509,7 @@ export default function ArticlePage() {
               </button>
               */}
               <button title="Copiar" onClick={async () => {
-                const url = typeof window !== 'undefined' ? window.location.href : '';
+                const url = shareUrl;
                 try { await navigator.clipboard.writeText(url); alert('Enlace copiado al portapapeles'); }
                 catch { alert('No se pudo copiar'); }
               }} style={iconBtnStyle} onMouseEnter={(e)=> (e.currentTarget.style.transform = 'scale(1.08)') } onMouseLeave={(e)=> (e.currentTarget.style.transform = 'scale(1)') }>
@@ -604,7 +626,7 @@ export default function ArticlePage() {
                 const d = r.created_at ? new Date(r.created_at) : null;
                 const dateStr = d ? `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}` : '';
                 return (
-                  <Link key={r.id} href={`/articles/${r.id}`} style={{ textDecoration: 'none' }}>
+                  <Link key={r.id} href={`/articles/${r.slug || r.id}`} style={{ textDecoration: 'none' }}>
                     <div style={{ background: '#07102a', border: '1px solid rgba(255,255,255,0.03)', padding: '16px', borderRadius: '12px', height: '100%', display: 'flex', flexDirection: 'column', gap: '10px', cursor: 'pointer' }}>
                       {r.image_url && (
                         <div style={{ width: '100%', height: 180, position: 'relative', overflow: 'hidden', borderRadius: '10px' }}>

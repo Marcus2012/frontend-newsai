@@ -14,6 +14,7 @@ interface Props {
 
 interface Article {
   id: string;
+  slug?: string;
   title: string;
   created_at?: string;
   category?: string;
@@ -25,6 +26,7 @@ interface Article {
 const STRAPI = getStrapiBase() || process.env.NEXT_PUBLIC_API_ENDPOINT || '';
 
 export default function HomePage({ articles }: Props) {
+  const getArticleHref = (article: Article) => `/articles/${article.slug || article.id}`;
   // Ordenar por fecha descendente
   const sortedArticles = [...articles].sort((a, b) => {
     const dateA = new Date(a.created_at || a.publishedAt || a.createdAt || 0).getTime();
@@ -53,7 +55,7 @@ export default function HomePage({ articles }: Props) {
       <div className="main-layout container-max">
         {/* Left: Hero */}
         {featured && (
-          <Link href={`/articles/${featured.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+          <Link href={getArticleHref(featured)} style={{ textDecoration: 'none', color: 'inherit' }}>
             <div className="featured-aside" style={{
               background: 'linear-gradient(135deg, rgba(10, 14, 39, 0.9), rgba(20, 26, 56, 0.9))',
               border: '1px solid rgba(0, 255, 200, 0.12)',
@@ -117,7 +119,7 @@ export default function HomePage({ articles }: Props) {
         {/* Right column: highlighted cards (mostrar hasta 4) */}
         <aside className="sidebar-aside" style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
           {highlighted.slice(0,4).map((article, idx) => (
-            <Link key={article.id} href={`/articles/${article.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+            <Link key={article.id} href={getArticleHref(article)} style={{ textDecoration: 'none', color: 'inherit' }}>
               <div style={{
                 background: 'linear-gradient(180deg, rgba(20,26,46,0.6), rgba(12,15,30,0.6))',
                 border: '1px solid rgba(0,255,200,0.06)',
@@ -169,7 +171,7 @@ export default function HomePage({ articles }: Props) {
                     <h3 style={{ color: '#00ffc8', fontSize: '1.3em', margin: '0 0 14px 0' }}>📋 {category}</h3>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '18px' }}>
                       {items.map((article) => (
-                        <Link key={article.id} href={`/articles/${article.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                        <Link key={article.id} href={getArticleHref(article)} style={{ textDecoration: 'none', color: 'inherit' }}>
                           <article 
                             style={{
                               background: 'rgba(26, 31, 66, 0.6)',
@@ -268,6 +270,7 @@ export const getStaticProps: GetStaticProps = async () => {
         : null;
       return {
         id: String(item.id),
+        slug: attrs.slug ?? null,
         title: attrs.title ?? null,
         created_at: attrs.publishedAt ?? attrs.createdAt ?? attrs.created_at ?? null,
         category: attrs.category ?? null,

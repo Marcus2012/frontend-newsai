@@ -161,6 +161,7 @@ export default function PremierLeague() {
           : null;
         return {
           id: String(item.id),
+          slug: attrs.slug ?? null,
           title: attrs.title ?? null,
           created_at: attrs.publishedAt ?? attrs.createdAt ?? attrs.created_at ?? null,
           image_url,
@@ -413,7 +414,7 @@ export default function PremierLeague() {
                       {a.image_url && (<img src={a.image_url} alt={a.title} style={{ width:'100%', height:120, objectFit:'cover', borderRadius:6 }} />)}
                       <h4 style={{ color:'#fff', marginTop:8 }}>{a.title}</h4>
                       {a.description && <p style={{ color:'#cfe' }}>{a.description.substring(0,160)}...</p>}
-                      <Link href={`/articles/${a.id}`} style={{ color:'#00ffc8' }}>Leer más →</Link>
+                      <Link href={`/articles/${a.slug || a.id}`} style={{ color:'#00ffc8' }}>Leer más →</Link>
                     </div>
                   ))}
                 </div>

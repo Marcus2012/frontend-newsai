@@ -5,6 +5,7 @@ import Link from 'next/link';
 
 interface Article {
   id: string;
+  slug?: string;
   title: string;
   created_at: string;
   category?: string;
@@ -157,7 +158,7 @@ export default function AdminPage() {
                         background: idx % 2 === 0 ? 'rgba(0, 0, 0, 0.2)' : 'transparent'
                       }}>
                         <td style={{ padding: '15px' }}>
-                          <Link href={`/articles/${article.id}`} style={{ color: '#00ffc8', textDecoration: 'none' }}>
+                          <Link href={`/articles/${article.slug || article.id}`} style={{ color: '#00ffc8', textDecoration: 'none' }}>
                             {article.title}
                           </Link>
                         </td>
