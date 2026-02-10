@@ -54,6 +54,10 @@ const buildSitemapXml = (articles: any[]) => {
     '/calculadora',
     '/matches/england/premier',
     '/matches/italy/seriea',
+    '/matches/spain/la-liga',
+    '/matches/germany/bundesliga',
+    '/matches/france/ligue-1',
+    '/matches/europe/champions-league',
     '/matches/peru/primera'
   ];
 
