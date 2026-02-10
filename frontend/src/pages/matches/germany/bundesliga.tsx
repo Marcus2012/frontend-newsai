@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Header from '../../../components/Header';
-import { getStrapiBase } from '../../../lib/strapiBase';
 import { formatTeamName, formatTeamLogo } from '../../../lib/teamUtils';
-import Link from 'next/link';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://127.0.0.1:8000';
 
@@ -12,13 +10,9 @@ export default function Bundesliga() {
   const [standings, setStandings] = useState<any[] | null>(null);
   const [summary, setSummary] = useState<any | null>(null);
   const [tableMeta, setTableMeta] = useState<any | null>(null);
-  const [activeTab, setActiveTab] = useState<'news'|'table'|'calendar'|'topscorers'>('news');
-  const [news, setNews] = useState<any[] | null>(null);
+  const [activeTab, setActiveTab] = useState<'table'|'calendar'>('table');
   const [preds, setPreds] = useState<Record<string, any>>({});
   const [upcomingMatches, setUpcomingMatches] = useState<any[] | null>(null);
-  const [topScorers, setTopScorers] = useState<any[] | null>(null);
-  const [topScorersLoading, setTopScorersLoading] = useState(false);
-  const [topScorersError, setTopScorersError] = useState<string | null>(null);
 
   async function fetchTable() {
     setError(null);
@@ -112,64 +106,10 @@ export default function Bundesliga() {
     } finally { setLoading(false); }
   }
 
-  async function fetchTopScorers(season?: number) {
-    setTopScorersError(null);
-    setTopScorersLoading(true);
-    try {
-      const url = `${API_BASE}/public/bundesliga/top-scorers${season ? `?season=${season}` : ''}`;
-      const res = await fetch(url);
-      if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
-      const json = await res.json();
-      const candidates = json?.response || json?.scorers || json?.data || json;
-      let arr: any[] = [];
-      if (Array.isArray(candidates)) arr = candidates;
-      else if (candidates && Array.isArray(candidates.results)) arr = candidates.results;
-      else if (candidates && Array.isArray(candidates.items)) arr = candidates.items;
-      if (!arr.length && json?.response && Array.isArray(json.response) && json.response[0]?.league?.top_scorers) {
-        arr = json.response[0].league.top_scorers;
-      }
-      setTopScorers(arr.slice(0, 40));
-    } catch (err: any) {
-      setTopScorersError(err.message || 'Error');
-    } finally {
-      setTopScorersLoading(false);
-    }
-  }
-
-  async function fetchNews() {
-    setError(null);
-    setLoading(true);
-    try {
-      const STRAPI = getStrapiBase() || process.env.NEXT_PUBLIC_API_ENDPOINT || '';
-      const res = await fetch(`${STRAPI}/api/articles?publicationState=live&populate=*&sort[0]=publishedAt:desc&pagination[limit]=6&filters[category][$in][0]=Bundesliga%20-%20Alemania&filters[category][$in][1]=Todos`);
-      if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
-      const json = await res.json();
-      const arr = Array.isArray(json) ? json : (json.data || []);
-      const items = arr.map((item: any) => {
-        const attrs = item.attributes || item;
-        const rawImage = attrs.image?.data?.attributes?.url ?? attrs.image?.url ?? null;
-        const image_url = rawImage
-          ? (rawImage.startsWith('http') ? rawImage : `${STRAPI?.replace(/\/$/, '')}${rawImage}`)
-          : null;
-        return {
-          id: String(item.id),
-          slug: attrs.slug ?? null,
-          title: attrs.title ?? null,
-          created_at: attrs.publishedAt ?? attrs.createdAt ?? attrs.created_at ?? null,
-          image_url,
-          description: attrs.excerpt ?? null
-        };
-      });
-      setNews(items);
-    } catch (err: any) {
-      setError(err.message || 'Error');
-    } finally { setLoading(false); }
-  }
-
   useEffect(() => {
-    fetchNews();
     fetchSummary();
-    setActiveTab('news');
+    fetchTable();
+    setActiveTab('table');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -211,10 +151,8 @@ export default function Bundesliga() {
           </div>
 
           <div className="tabs-row">
-            <button className={`tab-btn ${activeTab==='news' ? 'active' : ''}`} onClick={async ()=>{ setActiveTab('news'); if(!news) await fetchNews(); }} disabled={loading}>Noticias</button>
             <button className={`tab-btn ${activeTab==='table' ? 'active' : ''}`} onClick={async ()=>{ setActiveTab('table'); if(!standings) await fetchTable(); }} disabled={loading}>Tabla</button>
             <button className={`tab-btn ${activeTab==='calendar' ? 'active' : ''}`} onClick={async ()=>{ setActiveTab('calendar'); if(!upcomingMatches || upcomingMatches.length===0) await fetchCalendar(); }} disabled={loading}>Calendario</button>
-            <button className={`tab-btn ${activeTab==='topscorers' ? 'active' : ''}`} onClick={async ()=>{ setActiveTab('topscorers'); if(!topScorers || topScorers.length===0) await fetchTopScorers(); }} disabled={topScorersLoading}>Goleadores</button>
           </div>
 
           <h1 style={{ color: '#00ffc8', marginTop: 12 }}>Bundesliga — Germany</h1>
@@ -346,74 +284,6 @@ export default function Bundesliga() {
             </div>
           )}
 
-          {activeTab === 'topscorers' && (
-            <div style={{ marginTop: 20, background: 'rgba(10,14,39,0.7)', padding: 12, borderRadius: 8 }}>
-              <h3 style={{ color: '#00ffc8' }}>Goleadores — Bundesliga</h3>
-              {topScorersLoading && <div style={{ color:'#9aa' }}>Cargando goleadores...</div>}
-              {topScorersError && <div style={{ color:'#ff8b8b' }}>{topScorersError}</div>}
-              {!topScorersLoading && topScorers && topScorers.length ? (
-                <div className="top-scorers-wrap">
-                  <table className="top-scorers-table">
-                    <thead>
-                      <tr>
-                        <th style={{ width: 44 }}>POS</th>
-                        <th>NOMBRE</th>
-                        <th style={{ width: 44, textAlign: 'center' }}>G</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {topScorers.map((p:any, idx:number)=>{
-                        const pos = idx + 1;
-                        const rawPlayer = p.player ?? p.player_name ?? p.name ?? p.player?.name ?? p?.player_name ?? null;
-                        const player = (typeof rawPlayer === 'string')
-                          ? rawPlayer
-                          : (rawPlayer?.name ?? rawPlayer?.fullname ?? rawPlayer?.firstname ?? rawPlayer?.firstName ?? '');
-
-                        const rawTeam = p.team ?? p.team_name ?? p.club ?? p.team?.name ?? p?.team_name ?? null;
-                        const team = (typeof rawTeam === 'string')
-                          ? rawTeam
-                          : (rawTeam?.name ?? rawTeam?.title ?? '');
-
-                        const played = p.appearances ?? p.matches ?? p.games ?? p.played ?? p.p ?? p.matches_played ?? p.games_played ?? p.statistics?.[0]?.games?.appearances ?? null;
-                        const goals = (p.goals ?? p.total ?? p.scored ?? p.goals_scored ?? p?.goals ?? p.statistics?.[0]?.goals?.total ?? p.statistics?.goals?.total ?? 0) as number;
-
-                        return (
-                          <tr key={idx}>
-                            <td style={{ textAlign:'center', fontWeight:800, color: '#00ffc8' }}>{pos}</td>
-                            <td style={{ fontWeight:700 }}>{player || '—'}</td>
-                            <td style={{ textAlign:'center', fontWeight:800 }}>{`${goals}`}</td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-              ) : (!topScorersLoading && <div style={{ color:'#aaa' }}>No hay datos de goleadores</div>)}
-            </div>
-          )}
-
-          {activeTab === 'news' && (
-            <div style={{ marginTop: 20, background: 'rgba(10,14,39,0.7)', padding: 12, borderRadius: 8 }}>
-              <h3 style={{ color: '#00ffc8' }}>Noticias recientes</h3>
-              {news && news.length ? (
-                <div className="news-grid">
-                  {news.map((a:any, i:number) => (
-                    <div key={i} style={{ background:'rgba(255,255,255,0.02)', padding:12, borderRadius:8 }}>
-                      {a.image_url && (<img src={a.image_url} alt={a.title} style={{ width:'100%', height:120, objectFit:'cover', borderRadius:6 }} />)}
-                      <h4 style={{ color:'#fff', marginTop:8 }}>{a.title}</h4>
-                      {a.description && <p style={{ color:'#cfe' }}>{a.description.substring(0,160)}...</p>}
-                      <Link href={`/articles/${a.slug || a.id}`} style={{ color:'#00ffc8' }}>Leer mas →</Link>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div style={{ color:'#aaa' }}>
-                  No hay noticias cargadas. Ver todas en <Link href="/noticias">Noticias</Link>
-                </div>
-              )}
-            </div>
-          )}
-
         </div>
 
         <aside className="sidebar-aside">
@@ -452,7 +322,6 @@ export default function Bundesliga() {
                 <div style={{ borderTop:'1px solid rgba(255,255,255,0.03)', marginTop:10, paddingTop:10 }}>
                   <h5 style={{ color:'#00ffc8', margin:0, fontSize:'0.95em' }}>Resumen de liga</h5>
                   <pre style={{ color:'#9aa', fontSize:'0.8em', maxHeight:120, overflow:'auto' }}>{JSON.stringify(leagueObj || {}, null, 2)}</pre>
-                  <div style={{ marginTop:8 }}><Link href="/noticias" style={{ color:'#00ffc8' }}>Ver mas noticias</Link></div>
                 </div>
               </div>
             ) : (
