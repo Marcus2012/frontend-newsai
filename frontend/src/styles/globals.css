@@ -107,11 +107,12 @@ body{
     position:relative;
     display:flex;
     align-items:center;
-    min-height:190px;
+    aspect-ratio:16/9;
+    height:clamp(190px, 30vw, 380px);
   }
 
   @media (min-width: 901px){
-    .article-hero{min-height:320px}
+    .article-hero{height:clamp(320px, 28vw, 420px)}
   }
 
   /* Adjust main heading spacing */

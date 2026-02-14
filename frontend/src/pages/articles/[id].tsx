@@ -185,6 +185,10 @@ export default function ArticlePage() {
     const routeParam = getRouteParam(id);
     if (!routeParam) return;
 
+    setLoading(true);
+    setError(null);
+    setArticle(null);
+
     const fetchArticle = async () => {
       try {
         if (!strapiUrl) {
@@ -239,6 +243,7 @@ export default function ArticlePage() {
     if (!article?.slug) return;
     const routeParam = getRouteParam(id);
     if (!routeParam || routeParam === article.slug) return;
+    if (!isNumericId(routeParam)) return;
     router.replace(`/articles/${article.slug}`);
   }, [article?.slug, id, router]);
 
@@ -381,7 +386,7 @@ export default function ArticlePage() {
                 src={article.image_url}
                 alt={article.title}
                 fill
-                style={{ objectFit: 'cover' }}
+                  style={{ objectFit: 'cover', objectPosition: 'top' }}
                 unoptimized
                 sizes="(max-width: 900px) 100vw, 1200px"
                 priority
@@ -415,7 +420,7 @@ export default function ArticlePage() {
         )}
 
         {/* Title */}
-        <h1 style={{ fontSize: '2.5em', margin: '20px 0', lineHeight: '1.2', fontWeight: 'bold' }}>
+        <h1 style={{ fontSize: 'clamp(1.5em, 3.2vw, 2.5em)', margin: '20px 0', lineHeight: '1.2', fontWeight: 'bold' }}>
           {article?.title}
         </h1>
 

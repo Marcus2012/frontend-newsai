@@ -147,7 +147,7 @@ export default function BannerSlots({ position = 'top' }: Props) {
         ) : position === 'sidebar' ? (
           <div className="sidebar">Sidebar Banner (300x600) - Afiliado</div>
         ) : position === 'between' ? (
-          <div className="medium" style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',height:260}}>
+          <div className="medium" style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center'}}>
             <img
               src="https://storage.googleapis.com/asieselfutbol/production-statics/TA_BANNER_REGISTRO-GENERICO_1913X419-1024x224.jpg?v=1768022149361"
               alt="Banner Mediano"
@@ -179,7 +179,7 @@ export default function BannerSlots({ position = 'top' }: Props) {
 
         @media (max-width:900px){
           .leaderboard{height:80px}
-          .medium{height:140px}
+          .medium{height:150px}
           .sidebar{height:180px}
           .aff{padding:6px 10px;font-size:0.9rem}
         }

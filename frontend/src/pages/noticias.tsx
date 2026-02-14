@@ -27,6 +27,8 @@ interface NoticiasProps {
 
 export default function NoticiasPage({ articles }: NoticiasProps) {
   const getArticleHref = (article: Article) => `/articles/${article.slug || article.id}`;
+  const mainArticles = articles.length > 1 ? articles.slice(0, -1) : articles;
+  const lastArticle = articles.length > 1 ? articles[articles.length - 1] : null;
   return (
     <div className="min-h-screen" style={{ background: '#0a0e27', color: '#fff' }}>
       <Header />
@@ -92,38 +94,72 @@ export default function NoticiasPage({ articles }: NoticiasProps) {
           {articles.length === 0 ? (
             <p style={{ textAlign: 'center', color: '#aaa' }}>No hay artículos disponibles</p>
           ) : (
-            <div className="noticias-grid">
-              {articles.map((article) => (
-                <Link key={article.id} href={getArticleHref(article)} style={{ textDecoration: 'none', color: 'inherit' }}>
-                  <article style={{
-                    background: 'rgba(26, 31, 66, 0.7)',
-                    border: '1px solid rgba(0, 255, 200, 0.1)',
-                    borderRadius: '10px',
-                    overflow: 'hidden',
-                    cursor: 'pointer',
-                    transition: 'all 0.3s',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    height: '100%'
-                  }}>
-                    {article.image_url && (
-                      <div style={{ height: '220px', position: 'relative' }}>
-                        <Image src={article.image_url} alt={article.title} fill style={{ objectFit: 'cover' }} unoptimized />
-                      </div>
-                    )}
-                    <div style={{ padding: '18px', flex: 1, display: 'flex', flexDirection: 'column' }}>
-                      <h2 style={{ fontSize: '1.1em', fontWeight: 'bold', margin: '0 0 10px 0', color: '#fff' }}>{article.title}</h2>
-                      {article.description && (
-                        <p style={{ color: '#aaa', fontSize: '0.95em', marginBottom: '10px' }}>{article.description.substring(0, 120)}...</p>
+            <>
+              <div className="noticias-grid">
+                {mainArticles.map((article) => (
+                  <Link key={article.id} href={getArticleHref(article)} style={{ textDecoration: 'none', color: 'inherit' }}>
+                    <article style={{
+                      background: 'rgba(26, 31, 66, 0.7)',
+                      border: '1px solid rgba(0, 255, 200, 0.1)',
+                      borderRadius: '10px',
+                      overflow: 'hidden',
+                      cursor: 'pointer',
+                      transition: 'all 0.3s',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      height: '100%'
+                    }}>
+                      {article.image_url && (
+                        <div style={{ height: '220px', position: 'relative' }}>
+                          <Image src={article.image_url} alt={article.title} fill style={{ objectFit: 'cover' }} unoptimized />
+                        </div>
                       )}
-                      <div style={{ marginTop: 'auto', fontSize: '0.85em', color: '#00ffc8' }}>
-                        {article.created_at && new Date(article.created_at).toLocaleDateString('es-ES')}
+                      <div style={{ padding: '18px', flex: 1, display: 'flex', flexDirection: 'column' }}>
+                        <h2 style={{ fontSize: '1.1em', fontWeight: 'bold', margin: '0 0 10px 0', color: '#fff' }}>{article.title}</h2>
+                        {article.description && (
+                          <p style={{ color: '#aaa', fontSize: '0.95em', marginBottom: '10px' }}>{article.description.substring(0, 120)}...</p>
+                        )}
+                        <div style={{ marginTop: 'auto', fontSize: '0.85em', color: '#00ffc8' }}>
+                          {article.created_at && new Date(article.created_at).toLocaleDateString('es-ES')}
+                        </div>
                       </div>
-                    </div>
-                  </article>
-                </Link>
-              ))}
-            </div>
+                    </article>
+                  </Link>
+                ))}
+              </div>
+              {lastArticle && (
+                <div className="noticias-last">
+                  <Link href={getArticleHref(lastArticle)} style={{ textDecoration: 'none', color: 'inherit' }}>
+                    <article style={{
+                      background: 'rgba(26, 31, 66, 0.7)',
+                      border: '1px solid rgba(0, 255, 200, 0.1)',
+                      borderRadius: '12px',
+                      overflow: 'hidden',
+                      cursor: 'pointer',
+                      transition: 'all 0.3s',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      height: '100%'
+                    }}>
+                      {lastArticle.image_url && (
+                        <div style={{ height: '220px', position: 'relative' }}>
+                          <Image src={lastArticle.image_url} alt={lastArticle.title} fill style={{ objectFit: 'cover' }} unoptimized />
+                        </div>
+                      )}
+                      <div style={{ padding: '18px', flex: 1, display: 'flex', flexDirection: 'column' }}>
+                        <h2 style={{ fontSize: '1.1em', fontWeight: 'bold', margin: '0 0 10px 0', color: '#fff' }}>{lastArticle.title}</h2>
+                        {lastArticle.description && (
+                          <p style={{ color: '#aaa', fontSize: '0.95em', marginBottom: '10px' }}>{lastArticle.description.substring(0, 120)}...</p>
+                        )}
+                        <div style={{ marginTop: 'auto', fontSize: '0.85em', color: '#00ffc8' }}>
+                          {lastArticle.created_at && new Date(lastArticle.created_at).toLocaleDateString('es-ES')}
+                        </div>
+                      </div>
+                    </article>
+                  </Link>
+                </div>
+              )}
+            </>
           )}
         </div>
         
@@ -173,6 +209,12 @@ export default function NoticiasPage({ articles }: NoticiasProps) {
           gap: 36px;
         }
 
+        .noticias-last {
+          width: 100%;
+          max-width: 560px;
+          margin: 36px auto 0 auto;
+        }
+
         .noticias-grid article {
           min-height: 360px;
           display: flex;
@@ -201,6 +243,10 @@ export default function NoticiasPage({ articles }: NoticiasProps) {
             display: flex;
             flex-direction: column;
             align-items: center;
+          }
+          .noticias-last {
+            max-width: 100%;
+            margin: 24px auto 0 auto;
           }
           .mobile-banner-bottom {
             display: block;
