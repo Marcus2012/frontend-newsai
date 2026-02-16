@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Header from '../../../components/Header';
 import { getStrapiBase } from '../../../lib/strapiBase';
 import { formatTeamName, formatTeamLogo } from '../../../lib/teamUtils';
+import MatchesCalendar from '../../../components/MatchesCalendar';
 import Link from 'next/link';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://127.0.0.1:8000';
@@ -289,61 +290,11 @@ export default function SerieA() {
           )}
 
           {activeTab === 'calendar' && (
-            <div style={{ marginTop: 20, background: 'rgba(10,14,39,0.7)', padding: 12, borderRadius: 8 }}>
-              <h3 style={{ color: '#00ffc8' }}>Calendario — Partidos HOY</h3>
-              {loading && <div style={{ color:'#9aa' }}>Cargando partidos...</div>}
-              {!loading && upcomingMatches && upcomingMatches.length ? (
-                <div className="matches-grid">
-                  {upcomingMatches.map((f: any, i: number) => {
-                    const participants = f.participants ?? f.fixture?.participants ?? [];
-                    const getByLocation = (loc: string) => {
-                      if (!Array.isArray(participants)) return null;
-                      return participants.find((p: any) => {
-                        const meta = p.meta || p.participant?.meta || {};
-                        const location = meta.location || meta.side || meta.position || meta.place || '';
-                        return String(location).toLowerCase() === loc;
-                      }) || null;
-                    };
-                    const homeP = getByLocation('home');
-                    const awayP = getByLocation('away');
-
-                    const home = homeP?.name ?? homeP?.participant?.name ?? f.teams?.home?.name ?? f.home?.name ?? f.home ?? f.home_team ?? (f.home_team_name || '');
-                    const away = awayP?.name ?? awayP?.participant?.name ?? f.teams?.away?.name ?? f.away?.name ?? f.away ?? f.away_team ?? (f.away_team_name || '');
-                    const homeLogo = homeP?.image_path ?? homeP?.participant?.image_path ?? f.teams?.home?.logo ?? f.home?.logo ?? f.home_logo ?? null;
-                    const awayLogo = awayP?.image_path ?? awayP?.participant?.image_path ?? f.teams?.away?.logo ?? f.away?.logo ?? f.away_logo ?? null;
-                    const date = f.starting_at ?? f.fixture?.date ?? f.date ?? f.match_date ?? f.utcDate ?? f.iso_date ?? null;
-                    const dt = date ? new Date(date) : null;
-                    const formattedDate = dt ? dt.toLocaleDateString('es-PE', { day: '2-digit', month: 'numeric', year: 'numeric' }) : null;
-                    const formattedTime = dt ? dt.toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' }) : null;
-
-                    return (
-                      <div key={i} className="match-card">
-                        <div className="match-card-inner">
-                          <div className="match-date-top">{formattedDate || ''}</div>
-                          <div className="match-main">
-                            <div className="team team-home centered">
-                              <img src={formatTeamLogo(home, homeLogo)} alt={home} onError={(e:any)=>{ if(e.currentTarget.src.indexOf('/logo_placeholder')===-1) e.currentTarget.src = '/logo_placeholder.png'; }} />
-                              <div className="team-name">{formatTeamName(home)}</div>
-                            </div>
-
-                            <div className="center-time">
-                              <div className="match-time">{formattedTime || ''}</div>
-                            </div>
-
-                            <div className="team team-away centered">
-                              <div className="team-name">{formatTeamName(away)}</div>
-                              <img src={formatTeamLogo(away, awayLogo)} alt={away} onError={(e:any)=>{ if(e.currentTarget.src.indexOf('/logo_placeholder')===-1) e.currentTarget.src = '/logo_placeholder.png'; }} />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              ) : (
-                <div style={{ color: '#aaa' }}>No hay partidos en el calendario</div>
-              )}
-            </div>
+            <MatchesCalendar
+              title="Calendario — Partidos HOY"
+              matches={upcomingMatches}
+              loading={loading}
+            />
           )}
 
           {activeTab === 'topscorers' && (

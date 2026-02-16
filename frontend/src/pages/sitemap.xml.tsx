@@ -58,7 +58,17 @@ const buildSitemapXml = (articles: any[]) => {
     '/matches/germany/bundesliga',
     '/matches/france/ligue-1',
     '/matches/europe/champions-league',
-    '/matches/peru/primera'
+    '/matches/peru/primera',
+    '/matches/peru/segunda',
+    '/matches/argentina/liga-profesional',
+    '/matches/argentina/copa-argentina',
+    '/matches/brasil/serie-a',
+    '/matches/colombia/liga-betplay',
+    '/matches/ecuador/liga-pro',
+    '/matches/usa/mls',
+    '/matches/mexico/liga-mx',
+    '/matches/conmebol/copa-libertadores',
+    '/matches/conmebol/copa-sudamericana'
   ];
 
   staticPaths.forEach((path) => pushUrl(path, now));

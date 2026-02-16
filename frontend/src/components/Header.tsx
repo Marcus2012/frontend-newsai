@@ -35,7 +35,8 @@ export default function Header() {
     }, []);
   const [debugInfo, setDebugInfo] = useState('');
 
-  const [mobileLeaguesOpen, setMobileLeaguesOpen] = useState(false);
+  const [mobileLeaguesOpenEurope, setMobileLeaguesOpenEurope] = useState(false);
+  const [mobileLeaguesOpenAmerica, setMobileLeaguesOpenAmerica] = useState(false);
   const [isClient, setIsClient] = useState(false);
   
   useEffect(() => {
@@ -252,12 +253,25 @@ export default function Header() {
                 onClick={() => setMegaOpen(prev => !prev)}
               >Ligas & Copas ▾</button>
               <div className="dropdown" role="menu">
-                <Link href="/matches/england/premier">Premier League</Link>
-                <Link href="/matches/italy/seriea">Serie A - Italia</Link>
-                <Link href="/matches/spain/la-liga">La Liga - Spain</Link>
-                <Link href="/matches/germany/bundesliga">Bundesliga - Germany</Link>
-                <Link href="/matches/france/ligue-1">Ligue 1 - France</Link>
-                <Link href="/matches/europe/champions-league">Champions League</Link>
+                <div className="dropdown-section">
+                  <div className="dropdown-title">Ligas Europa</div>
+                  <Link href="/matches/england/premier">Premier League</Link>
+                  <Link href="/matches/italy/seriea">Serie A - Italia</Link>
+                  <Link href="/matches/spain/la-liga">La Liga - Spain</Link>
+                  <Link href="/matches/germany/bundesliga">Bundesliga - Germany</Link>
+                  <Link href="/matches/france/ligue-1">Ligue 1 - France</Link>
+                  <Link href="/matches/europe/champions-league">Champions League</Link>
+                </div>
+                <div className="dropdown-section">
+                  <div className="dropdown-title">Ligas America</div>
+                  <Link href="/matches/peru/primera">Peru Primera</Link>
+                  <Link href="/matches/argentina/liga-profesional">Argentina Liga Profesional</Link>
+                  <Link href="/matches/brasil/serie-a">Brasil Serie A</Link>
+                  <Link href="/matches/colombia/liga-betplay">Colombia Liga BetPlay</Link>
+                  <Link href="/matches/ecuador/liga-pro">Ecuador Liga Pro</Link>
+                  <Link href="/matches/usa/mls">USA MLS</Link>
+                  <Link href="/matches/mexico/liga-mx">Mexico Liga MX</Link>
+                </div>
               </div>
           </div>
 
@@ -335,8 +349,8 @@ export default function Header() {
           {/*<a href="/predicciones">Predicciones</a>*/}
 
           <div className="mobile-leagues">
-            <button className="mobile-leagues-toggle" onClick={() => setMobileLeaguesOpen(prev => !prev)} aria-expanded={mobileLeaguesOpen} type="button">Ligas & Copas ▾</button>
-            {mobileLeaguesOpen && (
+            <button className="mobile-leagues-toggle" onClick={() => setMobileLeaguesOpenEurope(prev => !prev)} aria-expanded={mobileLeaguesOpenEurope} type="button">Ligas Europa ▾</button>
+            {mobileLeaguesOpenEurope && (
               <div className="mobile-submenu">
                 <a href="/matches/england/premier">Premier League</a>
                 <a href="/matches/italy/seriea">Serie A - Italia</a>
@@ -344,6 +358,21 @@ export default function Header() {
                 <a href="/matches/germany/bundesliga">Bundesliga - Germany</a>
                 <a href="/matches/france/ligue-1">Ligue 1 - France</a>
                 <a href="/matches/europe/champions-league">Champions League</a>
+              </div>
+            )}
+          </div>
+
+          <div className="mobile-leagues">
+            <button className="mobile-leagues-toggle" onClick={() => setMobileLeaguesOpenAmerica(prev => !prev)} aria-expanded={mobileLeaguesOpenAmerica} type="button">Ligas América ▾</button>
+            {mobileLeaguesOpenAmerica && (
+              <div className="mobile-submenu">
+                <a href="/matches/peru/primera">Peru Primera</a>
+                <a href="/matches/argentina/liga-profesional">Argentina Liga Profesional</a>
+                <a href="/matches/brasil/serie-a">Brasil Serie A</a>
+                <a href="/matches/colombia/liga-betplay">Colombia Liga BetPlay</a>
+                <a href="/matches/ecuador/liga-pro">Ecuador Liga Pro</a>
+                <a href="/matches/usa/mls">USA MLS</a>
+                <a href="/matches/mexico/liga-mx">Mexico Liga MX</a>
               </div>
             )}
           </div>
@@ -410,9 +439,11 @@ export default function Header() {
           .mega{width:100%}
           .mega-row{flex-direction:row}
         }
-        .has-dropdown .dropdown{position:absolute;left:0;top:100%;background:rgba(10,14,39,0.98);padding:12px;border-radius:10px;box-shadow:0 12px 28px rgba(2,6,23,0.6);display:none;z-index:1600;min-width:240px;flex-direction:column;gap:6px}
+        .has-dropdown .dropdown{position:absolute;left:0;top:100%;background:rgba(10,14,39,0.98);padding:14px;border-radius:10px;box-shadow:0 12px 28px rgba(2,6,23,0.6);display:none;z-index:1600;min-width:420px;flex-direction:row;gap:18px}
         .has-dropdown:hover .dropdown{display:flex}
         .has-dropdown.open .dropdown{display:flex}
+        .dropdown-section{display:flex;flex-direction:column;gap:6px;min-width:200px}
+        .dropdown-title{color:#00ffc8;font-weight:700;font-size:0.9rem;padding:6px 10px}
         .dropdown a{display:block;padding:10px 14px;color:#fff;text-decoration:none;border-radius:8px;line-height:1.2;white-space:nowrap}
         .dropdown a:hover{background:rgba(255,255,255,0.03);color:#00ffc8}
         .dropdown-toggle{background:transparent;border:none;color:#fff;font-weight:600;cursor:pointer;padding:6px 8px;border-radius:6px}

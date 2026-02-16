@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import Header from '../../../../src/components/Header';
+import Header from '../../../components/Header';
 import { getStrapiBase } from '../../../lib/strapiBase';
 import { formatTeamName, formatTeamLogo } from '../../../lib/teamUtils';
+import MatchesCalendar from '../../../components/MatchesCalendar';
 import Link from 'next/link';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://127.0.0.1:8000';
@@ -12,20 +13,32 @@ export default function PeruPrimera() {
   const [standings, setStandings] = useState<any[] | null>(null);
   const [summary, setSummary] = useState<any | null>(null);
   const [tableMeta, setTableMeta] = useState<any | null>(null);
-  const [activeTab, setActiveTab] = useState<'news'|'table'|'calendar'>('news');
+  const [activeTab, setActiveTab] = useState<'news'|'table'|'calendar'|'topscorers'>('news');
   const [news, setNews] = useState<any[] | null>(null);
-  const [preds, setPreds] = useState<Record<string, any>>({});
+  const [topScorers, setTopScorers] = useState<any[] | null>(null);
+  const [topScorersLoading, setTopScorersLoading] = useState(false);
+  const [topScorersError, setTopScorersError] = useState<string | null>(null);
 
   async function fetchTable() {
     setError(null);
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/football/peru/table`);
+      const res = await fetch(`${API_BASE}/football/public/peru-primera/standings`);
       if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
       const json = await res.json();
+      const extractStandings = (payload: any) => {
+        if (!payload) return [];
+        if (Array.isArray(payload)) return payload;
+        if (Array.isArray(payload.standings)) return payload.standings;
+        if (Array.isArray(payload.data)) return payload.data;
+        if (Array.isArray(payload.response)) return payload.response;
+        if (payload.response?.[0]?.league?.standings?.[0]) return payload.response[0].league.standings[0];
+        return [];
+      };
+      const standingsData = extractStandings(json);
       // json shape: { phase, round, standings }
       setTableMeta({ phase: json.phase, round: json.round });
-      setStandings(json.standings || []);
+      setStandings(Array.isArray(standingsData) ? standingsData : []);
     } catch (err: any) {
       setError(err.message || 'Error');
     } finally { setLoading(false); }
@@ -35,7 +48,7 @@ export default function PeruPrimera() {
     setError(null);
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/peru/summary`);
+      const res = await fetch(`${API_BASE}/football/public/peru-primera/info`);
       if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
       const json = await res.json();
       setSummary(json || {});
@@ -48,7 +61,7 @@ export default function PeruPrimera() {
     setError(null);
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/peru/calendar`);
+      const res = await fetch(`${API_BASE}/football/public/peru-primera/fixtures?next=20`);
       if (!res.ok) {
         // fallback to summary if calendar endpoint not available
         await fetchSummary();
@@ -66,57 +79,79 @@ export default function PeruPrimera() {
     setLoading(true);
     try {
       const STRAPI = getStrapiBase() || process.env.NEXT_PUBLIC_API_ENDPOINT || '';
-      const res = await fetch(`${STRAPI}/api/articles?publicationState=live&populate=*&sort[0]=publishedAt:desc&pagination[limit]=4`);
-      if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
-      const json = await res.json();
-      const arr = Array.isArray(json) ? json : (json.data || []);
-      const items = arr.map((item: any) => {
-        const attrs = item.attributes || item;
-        const rawImage = attrs.image?.data?.attributes?.url ?? attrs.image?.url ?? null;
-        const image_url = rawImage
-          ? (rawImage.startsWith('http') ? rawImage : `${STRAPI?.replace(/\/$/, '')}${rawImage}`)
-          : null;
-        return {
-          id: String(item.id),
-          slug: attrs.slug ?? null,
-          title: attrs.title ?? null,
-          created_at: attrs.publishedAt ?? attrs.createdAt ?? attrs.created_at ?? null,
-          image_url,
-          description: attrs.excerpt ?? null
-        };
-      });
+      const baseUrl = `${STRAPI}/api/articles?publicationState=live&populate=*&sort[0]=publishedAt:desc&pagination[limit]=4`;
+      const parseItems = (json: any) => {
+        const arr = Array.isArray(json) ? json : (json.data || []);
+        return arr.map((item: any) => {
+          const attrs = item.attributes || item;
+          const rawImage = attrs.image?.data?.attributes?.url ?? attrs.image?.url ?? null;
+          const image_url = rawImage
+            ? (rawImage.startsWith('http') ? rawImage : `${STRAPI?.replace(/\/$/, '')}${rawImage}`)
+            : null;
+          return {
+            id: String(item.id),
+            slug: attrs.slug ?? null,
+            title: attrs.title ?? null,
+            created_at: attrs.publishedAt ?? attrs.createdAt ?? attrs.created_at ?? null,
+            image_url,
+            description: attrs.excerpt ?? null
+          };
+        });
+      };
+
+      const primaryRes = await fetch(`${baseUrl}&filters[category][$containsi]=Liga%201%20-%20Peru`);
+      if (!primaryRes.ok) throw new Error(`${primaryRes.status} ${primaryRes.statusText}`);
+      const primaryJson = await primaryRes.json();
+      let items = parseItems(primaryJson);
+
+      if (!items.length) {
+        const fallbackRes = await fetch(`${baseUrl}&filters[category][$containsi]=Liga%201`);
+        if (fallbackRes.ok) {
+          const fallbackJson = await fallbackRes.json();
+          items = parseItems(fallbackJson);
+        }
+      }
+
       setNews(items);
     } catch (err: any) {
       setError(err.message || 'Error');
     } finally { setLoading(false); }
   }
 
+  async function fetchTopScorers(season?: number) {
+    setTopScorersError(null);
+    setTopScorersLoading(true);
+    try {
+      const url = `${API_BASE}/public/peru-primera/top-scorers${season ? `?season=${season}` : ''}`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+      const json = await res.json();
+      const candidates = json?.response || json?.scorers || json?.data || json;
+      let arr: any[] = [];
+      if (Array.isArray(candidates)) arr = candidates;
+      else if (candidates && Array.isArray(candidates.results)) arr = candidates.results;
+      else if (candidates && Array.isArray(candidates.items)) arr = candidates.items;
+      if (!arr.length && json?.response && Array.isArray(json.response) && json.response[0]?.league?.top_scorers) {
+        arr = json.response[0].league.top_scorers;
+      }
+      setTopScorers(arr.slice(0, 40));
+    } catch (err: any) {
+      setTopScorersError(err.message || 'Error');
+    } finally {
+      setTopScorersLoading(false);
+    }
+  }
+
   useEffect(() => {
     // mostrar noticias al entrar y precargar resumen para el sidebar
     fetchNews();
     fetchSummary();
+    fetchTable();
     setActiveTab('news');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   
-
-  async function fetchPrediction(f: any, i: number) {
-    const key = f.id ?? f.fixture?.id ?? `${i}-${String(f.home||f.home_name||f.teams?.home?.name||'h')}-${String(f.away||f.away_name||f.teams?.away?.name||'a')}`;
-    setPreds(prev => ({ ...prev, [key]: { loading: true } }));
-    try {
-      const res = await fetch('/api/predict', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(f),
-      });
-      const json = await res.json();
-      setPreds(prev => ({ ...prev, [key]: json }));
-    } catch (err: any) {
-      setPreds(prev => ({ ...prev, [key]: { error: String(err) } }));
-    }
-  }
-
   // derive season 2025 info from summary for sidebar
   const leagueObj = summary?.league_info || summary?.league || summary || null;
   const season2025 = leagueObj && Array.isArray(leagueObj.seasons)
@@ -131,8 +166,10 @@ export default function PeruPrimera() {
           {/* Logos centrados debajo del header */}
           <div className="logos-row">
             {standings && standings.slice(0,19).map((s:any, i:number)=>{
-              const teamName = formatTeamName(s.team?.name ?? s.name ?? '');
-              const logo = formatTeamLogo(s.team?.name ?? s.name ?? '', s.team?.logo || s.logo || s.crest || '/Logo_aeef.png');
+              const participant = s.participant || s.team || {};
+              const rawName = participant.name ?? s.name ?? '';
+              const teamName = formatTeamName(rawName);
+              const logo = formatTeamLogo(rawName, participant.image_path || participant.logo || s.logo || s.crest || '/Logo_aeef.png');
               return (
                 <div key={i} className="logo-item">
                   <img src={logo} alt={teamName} onError={(e:any)=>{ if(e.currentTarget.src !== '/Logo_aeef.png') e.currentTarget.src = '/Logo_aeef.png'; }} />
@@ -152,18 +189,22 @@ export default function PeruPrimera() {
               className={`tab-btn ${activeTab==='table' ? 'active' : ''}`}
               onClick={async ()=>{ setActiveTab('table'); if(!standings) await fetchTable(); }}
               disabled={loading}
-            >Acumulado</button>
+            >Tabla</button>
 
             <button
               className={`tab-btn ${activeTab==='calendar' ? 'active' : ''}`}
               onClick={async ()=>{ setActiveTab('calendar'); if(!summary) await fetchCalendar(); }}
               disabled={loading}
-            >PlayOffs</button>
-          </div>
-               
-          <h1 style={{ color: '#00ffc8', marginTop: 12 }}>Liga Perú — Primera División</h1>
+            >Calendario</button>
 
-          
+            <button
+              className={`tab-btn ${activeTab==='topscorers' ? 'active' : ''}`}
+              onClick={async ()=>{ setActiveTab('topscorers'); if(!topScorers || topScorers.length===0) await fetchTopScorers(); }}
+              disabled={topScorersLoading}
+            >Goleadores</button>
+          </div>
+
+          <h1 style={{ color: '#00ffc8', marginTop: 12 }}>Liga Perú — Primera División</h1>
 
         {loading && <p style={{ color: '#aaa', marginTop: 18 }}>Cargando...</p>}
         {error && <p style={{ color: '#ff8b8b', marginTop: 18 }}>{error}</p>}
@@ -188,18 +229,25 @@ export default function PeruPrimera() {
               </thead>
               <tbody>
                 {standings && standings.length ? standings.map((row: any, idx: number) => {
-                  const position = idx + 1;
-                  const nameRaw = row.team?.name ?? row.name ?? row.team ?? '—';
+                  const position = row.position ?? idx + 1;
+                  const participant = row.participant || row.team || {};
+                  const nameRaw = participant.name ?? row.name ?? row.team ?? '—';
                   const name = formatTeamName(nameRaw);
-                  const logo = formatTeamLogo(row.team?.name ?? row.name ?? '', row.team?.logo || row.team?.logo_path || row.logo || row.crest || null);
-                  const played = row.played ?? row.all?.played ?? row.J ?? 0;
-                  const win = row.win ?? row.all?.win ?? row.G ?? 0;
-                  const draw = row.draw ?? row.all?.draw ?? row.E ?? 0;
-                  const lose = row.lose ?? row.all?.lose ?? row.P ?? 0;
-                  const goalsFor = row.goalsFor ?? row.all?.goals?.for ?? row.GF ?? row.gf ?? 0;
-                  const goalsAgainst = row.goalsAgainst ?? row.all?.goals?.against ?? row.GC ?? row.ga ?? 0;
-                  const points = row.points ?? row.Pts ?? row.points ?? 0;
-                  const diff = (typeof row.goalDifference !== 'undefined') ? row.goalDifference : (goalsFor - goalsAgainst);
+                  const logo = formatTeamLogo(nameRaw, participant.image_path || participant.logo || row.logo || row.crest || null);
+                  const summary = row.summary || row.all || {};
+                  const table = row.table || {};
+                  const played = table.pj ?? summary.played ?? row.played ?? row.J ?? 0;
+                  const win = table.pg ?? summary.won ?? row.win ?? row.G ?? 0;
+                  const draw = table.pe ?? summary.draw ?? row.draw ?? row.E ?? 0;
+                  const lose = table.pp ?? summary.lost ?? row.lose ?? row.P ?? 0;
+                  const goalsFor = table.gf ?? summary.goals_for ?? row.goalsFor ?? row.GF ?? row.gf ?? 0;
+                  const goalsAgainst = table.gc ?? summary.goals_against ?? row.goalsAgainst ?? row.GC ?? row.ga ?? 0;
+                  const points = table.pts ?? summary.points ?? row.points ?? row.Pts ?? 0;
+                  const diff = (typeof summary.goal_difference !== 'undefined')
+                    ? summary.goal_difference
+                    : (typeof table.dg !== 'undefined')
+                      ? table.dg
+                      : (goalsFor - goalsAgainst);
                   const dgColor = diff > 0 ? '#7ee787' : diff < 0 ? '#ff8b8b' : '#cfe';
                   const rowBorder = position <= 3 ? '4px solid rgba(0,255,200,0.12)' : '1px solid rgba(255,255,255,0.03)';
 
@@ -207,10 +255,10 @@ export default function PeruPrimera() {
                     <tr key={idx} style={{ borderTop: rowBorder }} className={position <= 3 ? 'league-pos-top3' : ''}>
                       <td className="league-pos">{position}</td>
                       <td className="league-team-cell">
-                        <img src={logo || '/Logo_aeef.png'} alt={name} style={{ width: 28, height: 28, objectFit: 'contain', borderRadius: 4 }} onError={(e: any)=>{ if(e.currentTarget.src !== '/Logo_aeef.png') e.currentTarget.src = '/Logo_aeef.png'; }} />
+                          <img src={logo || '/Logo_aeef.png'} alt={name} style={{ width: 28, height: 28, objectFit: 'contain', borderRadius: 4 }} onError={(e: any)=>{ if(e.currentTarget.src !== '/Logo_aeef.png') e.currentTarget.src = '/Logo_aeef.png'; }} />
                         <div style={{ display: 'flex', flexDirection: 'column' }}>
                           <span style={{ fontWeight: 700 }}>{name}</span>
-                          <span style={{ color: '#9aa', fontSize: '0.85em' }}>{row.team?.shortName ?? row.shortName ?? ''}</span>
+                            <span style={{ color: '#9aa', fontSize: '0.85em' }}>{participant.short_code ?? row.shortName ?? ''}</span>
                         </div>
                       </td>
                       <td>{played}</td>
@@ -232,24 +280,55 @@ export default function PeruPrimera() {
         
 
         {activeTab === 'calendar' && summary && (
+          <MatchesCalendar
+            title="Calendario — Hoy y Proximos"
+            matches={summary?.next_fixtures}
+          />
+        )}
+
+        {activeTab === 'topscorers' && (
           <div style={{ marginTop: 20, background: 'rgba(10,14,39,0.7)', padding: 12, borderRadius: 8 }}>
-            <h3 style={{ color: '#00ffc8' }}>Calendario — Hoy y Próximos</h3>
-            {(summary.next_fixtures && summary.next_fixtures.length) ? (
-              <ul>
-                {summary.next_fixtures.map((f: any, i: number) => (
-                  <li key={i} style={{ padding: '8px 0', borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
-                    <strong>{formatTeamName(f.teams?.home?.name ?? f.home?.name ?? f.home)}</strong> — <strong>{formatTeamName(f.teams?.away?.name ?? f.away?.name ?? f.away)}</strong>
-                    <div style={{ color: '#9aa', fontSize: '0.9em' }}>{new Date(f.fixture?.date || f.date || Date.now()).toLocaleString()}</div>
-                  </li>
-                ))}
-              </ul>
-            ) : <div style={{ color: '#aaa' }}>No hay partidos en el calendario</div>}
+            <h3 style={{ color: '#00ffc8' }}>Goleadores — Liga 1</h3>
+            {topScorersLoading && <div style={{ color:'#9aa' }}>Cargando goleadores...</div>}
+            {topScorersError && <div style={{ color:'#ff8b8b' }}>{topScorersError}</div>}
+            {!topScorersLoading && topScorers && topScorers.length ? (
+              <div className="top-scorers-wrap">
+                <table className="top-scorers-table">
+                  <thead>
+                    <tr>
+                      <th style={{ width: 44 }}>POS</th>
+                      <th>NOMBRE</th>
+                      <th style={{ width: 44, textAlign: 'center' }}>G</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {topScorers.map((p:any, idx:number)=>{
+                      const pos = idx + 1;
+                      const rawPlayer = p.player ?? p.player_name ?? p.name ?? p.player?.name ?? p?.player_name ?? null;
+                      const player = (typeof rawPlayer === 'string')
+                        ? rawPlayer
+                        : (rawPlayer?.name ?? rawPlayer?.fullname ?? rawPlayer?.firstname ?? rawPlayer?.firstName ?? '');
+
+                      const goals = (p.goals ?? p.total ?? p.scored ?? p.goals_scored ?? p?.goals ?? p.statistics?.[0]?.goals?.total ?? p.statistics?.goals?.total ?? 0) as number;
+
+                      return (
+                        <tr key={idx}>
+                          <td style={{ textAlign:'center', fontWeight:800, color: '#00ffc8' }}>{pos}</td>
+                          <td style={{ fontWeight:700 }}>{player || '—'}</td>
+                          <td style={{ textAlign:'center', fontWeight:800 }}>{`${goals}`}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            ) : (!topScorersLoading && <div style={{ color:'#aaa' }}>No hay datos de goleadores</div>)}
           </div>
         )}
 
         {activeTab === 'news' && (
           <div style={{ marginTop: 20, background: 'rgba(10,14,39,0.7)', padding: 12, borderRadius: 8 }}>
-            <h3 style={{ color: '#00ffc8' }}>Noticias recientes</h3>
+            <h3 style={{ color: '#00ffc8' }}>Noticias recientes — Liga 1</h3>
             {news && news.length ? (
               <div className="news-grid">
                 {news.map((a:any, i:number) => (
@@ -280,8 +359,6 @@ export default function PeruPrimera() {
               <div>
                 <ul style={{ listStyle:'none', padding:0, margin:0 }}>
                       {summary.last_fixtures.slice(0,5).map((f:any,i:number)=> {
-                      const pk = f.id ?? f.fixture?.id ?? `${i}-${String(f.home||f.home_name||f.teams?.home?.name||'h')}-${String(f.away||f.away_name||f.teams?.away?.name||'a')}`;
-                      const p = preds[pk];
                       const homeName = formatTeamName(f.teams?.home?.name ?? f.home?.name ?? f.home ?? 'Home');
                       const awayName = formatTeamName(f.teams?.away?.name ?? f.away?.name ?? f.away ?? 'Away');
                       const homeScore = (f.goals?.home ?? f.score?.home ?? f.goals_home) ?? (f.result?.home ?? '');
@@ -292,16 +369,7 @@ export default function PeruPrimera() {
                             <span style={{ color:'#cfe' }}>{homeName} <span style={{ color:'#9aa', margin: '0 6px' }}>-</span> {awayName}</span>
                             <span style={{ color:'#fff', fontWeight:700 }}>{homeScore} - {awayScore}</span>
                           </div>
-                          <div style={{ marginTop:6, display:'flex', gap:8, alignItems:'center' }}>
-                            <button style={{...buttonStyle, padding:'6px 10px', fontSize:'0.9em'}} onClick={()=>fetchPrediction(f,i)}>Predecir</button>
-                            {p && p.loading && <span style={{ color:'#9aa' }}>Generando...</span>}
-                            {p && p.error && <span style={{ color:'#ff8b8b' }}>{p.error}</span>}
-                            {p && p.winner && (
-                              <div style={{ color:'#cfe', fontSize:'0.9em' }}>
-                                Predicción: <strong style={{ color:'#00ffc8' }}>{p.winner}</strong> — {p.scoreline} ({p.confidence}%)
-                              </div>
-                            )}
-                          </div>
+                          <div style={{ marginTop:6, display:'flex', gap:8, alignItems:'center' }} />
                         </li>
                       );
                   })}
@@ -341,6 +409,10 @@ export default function PeruPrimera() {
         .logo-item img{ width:44px; height:44px; object-fit:contain; display:block }
         .news-grid{ display:grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap:16px }
         .sidebar-aside{ width:320px }
+        .top-scorers-wrap{ margin-top:8px }
+        .top-scorers-table{ width:100%; color:#fff; border-collapse:collapse }
+        .top-scorers-table th, .top-scorers-table td{ padding:10px 8px; border-bottom:1px solid rgba(255,255,255,0.03); white-space:nowrap }
+        .top-scorers-table th{ text-align:left; color:#9fb8b0 }
 
         @media (max-width: 900px){
           .main-layout{ flex-direction:column; }
