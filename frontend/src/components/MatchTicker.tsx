@@ -208,7 +208,7 @@ export default function MatchTicker({ matches }: { matches?: Match[] }) {
           .teams{font-size:0.95rem;gap:6px;flex-direction:column;align-items:flex-start}
           .score{display:none}
           .score-top{display:inline-flex;align-self:flex-start;background:rgba(255,255,255,0.08);padding:3px 6px;border-radius:5px;font-size:0.78rem;font-weight:800;color:#fff}
-          .team-left,.team-right{max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+          .team-left,.team-right{flex:none;width:100%;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
           .time{font-size:0.75rem}
         }
         @media (max-width:380px){
