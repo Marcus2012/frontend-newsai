@@ -15,6 +15,7 @@ export default function PeruPrimera() {
   const [tableMeta, setTableMeta] = useState<any | null>(null);
   const [activeTab, setActiveTab] = useState<'news'|'table'|'calendar'>('news');
   const [news, setNews] = useState<any[] | null>(null);
+  const [upcomingMatches, setUpcomingMatches] = useState<any[] | null>(null);
 
   async function fetchTable() {
     setError(null);
@@ -58,14 +59,91 @@ export default function PeruPrimera() {
     setError(null);
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/football/public/peru-primera/fixtures?next=20`);
-      if (!res.ok) {
-        // fallback to summary if calendar endpoint not available
-        await fetchSummary();
-        return;
-      }
-      const json = await res.json();
-      setSummary(json || {});
+      const today = new Date();
+      const dateRange = Array.from({ length: 8 }, (_, idx) => {
+        const d = new Date(today);
+        d.setDate(d.getDate() + idx);
+        return d.toISOString().slice(0, 10);
+      });
+
+      const looksLikeMatchesArray = (arr: any[]) => {
+        if (!Array.isArray(arr) || arr.length === 0) return false;
+        const sample = arr[0];
+        if (typeof sample !== 'object' || sample === null) return false;
+        const keys = Object.keys(sample).map(k => k.toLowerCase());
+        const indicators = ['teams','home','away','fixture','match','utcdate','match_date','date','score','status','participants','starting_at'];
+        return indicators.some(ind => keys.some(k => k.includes(ind)));
+      };
+
+      const extractMatches = (payload: any): any[] => {
+        if (!payload) return [];
+        if (Array.isArray(payload) && looksLikeMatchesArray(payload)) return payload;
+
+        for (const key of ['data','matches','fixtures','items','response']) {
+          const v = payload[key];
+          if (Array.isArray(v) && looksLikeMatchesArray(v)) return v;
+          if (v && typeof v === 'object') {
+            if (Array.isArray(v.results) && looksLikeMatchesArray(v.results)) return v.results;
+          }
+        }
+
+        const seen = new Set<any>();
+        const stack = [payload];
+        while (stack.length) {
+          const node = stack.pop();
+          if (!node || typeof node !== 'object' || seen.has(node)) continue;
+          seen.add(node);
+          if (Array.isArray(node) && looksLikeMatchesArray(node)) return node;
+          for (const k of Object.keys(node)) {
+            const v = node[k];
+            if (Array.isArray(v)) {
+              if (looksLikeMatchesArray(v)) return v;
+            } else if (v && typeof v === 'object') {
+              stack.push(v);
+            }
+          }
+        }
+
+        if (payload.response && Array.isArray(payload.response) && payload.response[0]?.league?.fixtures && Array.isArray(payload.response[0].league.fixtures)) {
+          return payload.response[0].league.fixtures;
+        }
+
+        return [];
+      };
+
+      const results = await Promise.all(
+        dateRange.map(async (date) => {
+          const res = await fetch(`${API_BASE}/football/public/peru-primera/fixtures?date=${date}`);
+          if (!res.ok) return [];
+          const json = await res.json();
+          return extractMatches(json || {});
+        })
+      );
+
+      const start = new Date(today);
+      start.setHours(0, 0, 0, 0);
+      const end = new Date(today);
+      end.setDate(end.getDate() + 7);
+      end.setHours(23, 59, 59, 999);
+
+      const getMatchDate = (f: any) => (
+        f?.starting_at ?? f?.fixture?.date ?? f?.date ?? f?.match_date ?? f?.utcDate ?? f?.iso_date ?? null
+      );
+
+      const matches = results.flat().filter((f: any) => {
+        const rawDate = getMatchDate(f);
+        if (!rawDate) return false;
+        const dt = new Date(rawDate);
+        return dt >= start && dt <= end;
+      });
+
+      matches.sort((a: any, b: any) => {
+        const ad = new Date(getMatchDate(a) || 0).getTime();
+        const bd = new Date(getMatchDate(b) || 0).getTime();
+        return ad - bd;
+      });
+
+      setUpcomingMatches(matches.slice(0, 20));
     } catch (err: any) {
       setError(err.message || 'Error');
     } finally { setLoading(false); }
@@ -166,7 +244,7 @@ export default function PeruPrimera() {
 
             <button
               className={`tab-btn ${activeTab==='calendar' ? 'active' : ''}`}
-              onClick={async ()=>{ setActiveTab('calendar'); if(!summary) await fetchCalendar(); }}
+              onClick={async ()=>{ setActiveTab('calendar'); await fetchCalendar(); }}
               disabled={loading}
             >Calendario</button>
 
@@ -247,10 +325,11 @@ export default function PeruPrimera() {
 
         
 
-        {activeTab === 'calendar' && summary && (
+        {activeTab === 'calendar' && (
           <MatchesCalendar
             title="Calendario — Hoy y Proximos"
-            matches={summary?.next_fixtures}
+            matches={upcomingMatches}
+            loading={loading}
           />
         )}
 
