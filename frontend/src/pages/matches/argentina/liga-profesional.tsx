@@ -132,6 +132,23 @@ export default function ArgentinaLigaProfesional() {
   }
 
   const leagueObj = summary?.response?.[0]?.league || summary?.league || summary || null;
+  const filteredStandings = (standings || []).filter((row: any) => {
+    const rowSummary = row.summary || row.season?.summary || null;
+    const points = rowSummary?.points ?? row.points ?? row.Pts ?? 0;
+    return Number(points) > 0;
+  });
+
+  const groupAStandings = filteredStandings.filter((row: any) => {
+    const groupId = row.group_id ?? row.group?.id ?? row.group?.group_id;
+    return Number(groupId) === 253454;
+  });
+
+  const groupBStandings = filteredStandings.filter((row: any) => {
+    const groupId = row.group_id ?? row.group?.id ?? row.group?.group_id;
+    return Number(groupId) === 253455;
+  });
+
+  const showGroupedTables = groupAStandings.length > 0 || groupBStandings.length > 0;
 
   return (
     <div style={{ minHeight: '100vh', background: '#071026', color: '#fff' }}>
@@ -139,7 +156,7 @@ export default function ArgentinaLigaProfesional() {
       <div className="container-max main-layout">
         <div>
           <div className="logos-row">
-            {standings && standings.slice(0, 20).map((row: any, i: number) => {
+            {filteredStandings.slice(0, 20).map((row: any, i: number) => {
               const participant = row.participant || {};
               const teamName = participant.name || row.name || `ID ${participant.id || row.participant_id}`;
               const logo = participant.image_path || '/logo_placeholder.png';
@@ -165,66 +182,201 @@ export default function ArgentinaLigaProfesional() {
           {activeTab === 'table' && standings && (
             <div className="table-wrap" style={{ marginTop: 20 }}>
               <h3 style={{ color: '#00ffc8' }}>Tabla — {tableMeta?.season || ''}</h3>
-              <table className="league-table">
-                <thead>
-                  <tr style={{ textAlign: 'left', color: '#9fb8b0', borderBottom: '2px solid rgba(255,255,255,0.04)' }}>
-                    <th style={{ width: 40 }}>Pos</th>
-                    <th style={{ width: 360 }}>Equipo</th>
-                    <th style={{ width: 40 }}>PJ</th>
-                    <th style={{ width: 40 }}>PG</th>
-                    <th style={{ width: 40 }}>PE</th>
-                    <th style={{ width: 40 }}>PP</th>
-                    <th style={{ width: 50 }}>GF</th>
-                    <th style={{ width: 50 }}>GC</th>
-                    <th style={{ width: 60 }}>DG</th>
-                    <th style={{ width: 60 }}>PTS</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {standings && standings.length ? standings.map((row: any, idx: number) => {
-                    const position = row.position ?? idx + 1;
-                    const participant = row.participant || {};
-                    const name = participant.name || row.name || `ID ${participant.id || row.participant_id}`;
-                    const logo = participant.image_path || row.logo || '/logo_placeholder.png';
-                    const rowSummary = row.summary || row.season?.summary || null;
-                    const played = rowSummary?.played ?? row.played ?? row.games_played ?? row.matches_played ?? row.PJ ?? 0;
-                    const win = rowSummary?.won ?? row.win ?? row.wins ?? row.PG ?? 0;
-                    const draw = rowSummary?.draw ?? row.draw ?? row.draws ?? row.PE ?? 0;
-                    const lose = rowSummary?.lost ?? row.lose ?? row.losses ?? row.PP ?? 0;
-                    const goalsFor = rowSummary?.goals_for ?? row.goals_for ?? row.goalsfor ?? row.GF ?? 0;
-                    const goalsAgainst = rowSummary?.goals_against ?? row.goals_against ?? row.goalsagainst ?? row.GC ?? 0;
-                    const points = rowSummary?.points ?? row.points ?? row.Pts ?? 0;
-                    const diff = (typeof rowSummary?.goal_difference !== 'undefined')
-                      ? rowSummary?.goal_difference
-                      : (typeof row.goal_difference !== 'undefined')
-                        ? row.goal_difference
-                        : (goalsFor - goalsAgainst);
-                    const dgColor = diff > 0 ? '#7ee787' : diff < 0 ? '#ff8b8b' : '#cfe';
-                    const rowBorder = position <= 4 ? '4px solid rgba(0,255,200,0.12)' : '1px solid rgba(255,255,255,0.03)';
+              {showGroupedTables ? (
+                <>
+                  {groupAStandings.length > 0 && (
+                    <div style={{ marginBottom: 24 }}>
+                      <h4 style={{ color: '#9fb8b0', marginBottom: 8 }}>Tabla A</h4>
+                      <table className="league-table">
+                        <thead>
+                          <tr style={{ textAlign: 'left', color: '#9fb8b0', borderBottom: '2px solid rgba(255,255,255,0.04)' }}>
+                            <th style={{ width: 40 }}>Pos</th>
+                            <th style={{ width: 360 }}>Equipo</th>
+                            <th style={{ width: 40 }}>PJ</th>
+                            <th style={{ width: 40 }}>PG</th>
+                            <th style={{ width: 40 }}>PE</th>
+                            <th style={{ width: 40 }}>PP</th>
+                            <th style={{ width: 50 }}>GF</th>
+                            <th style={{ width: 50 }}>GC</th>
+                            <th style={{ width: 60 }}>DG</th>
+                            <th style={{ width: 60 }}>PTS</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {groupAStandings.map((row: any, idx: number) => {
+                            const position = row.position ?? idx + 1;
+                            const participant = row.participant || {};
+                            const name = participant.name || row.name || `ID ${participant.id || row.participant_id}`;
+                            const logo = participant.image_path || row.logo || '/logo_placeholder.png';
+                            const rowSummary = row.summary || row.season?.summary || null;
+                            const played = rowSummary?.played ?? row.played ?? row.games_played ?? row.matches_played ?? row.PJ ?? 0;
+                            const win = rowSummary?.won ?? row.win ?? row.wins ?? row.PG ?? 0;
+                            const draw = rowSummary?.draw ?? row.draw ?? row.draws ?? row.PE ?? 0;
+                            const lose = rowSummary?.lost ?? row.lose ?? row.losses ?? row.PP ?? 0;
+                            const goalsFor = rowSummary?.goals_for ?? row.goals_for ?? row.goalsfor ?? row.GF ?? 0;
+                            const goalsAgainst = rowSummary?.goals_against ?? row.goals_against ?? row.goalsagainst ?? row.GC ?? 0;
+                            const points = rowSummary?.points ?? row.points ?? row.Pts ?? 0;
+                            const diff = (typeof rowSummary?.goal_difference !== 'undefined')
+                              ? rowSummary?.goal_difference
+                              : (typeof row.goal_difference !== 'undefined')
+                                ? row.goal_difference
+                                : (goalsFor - goalsAgainst);
+                            const dgColor = diff > 0 ? '#7ee787' : diff < 0 ? '#ff8b8b' : '#cfe';
+                            const rowBorder = position <= 4 ? '4px solid rgba(0,255,200,0.12)' : '1px solid rgba(255,255,255,0.03)';
 
-                    return (
-                      <tr key={idx} style={{ borderTop: rowBorder }} className={position <= 4 ? 'league-pos-top3' : ''}>
-                        <td className="league-pos">{position}</td>
-                        <td className="league-team-cell">
-                          <img src={logo || '/logo_placeholder.png'} alt={name} style={{ width: 28, height: 28, objectFit: 'contain', borderRadius: 4 }} onError={(e: any)=>{ if(e.currentTarget.src !== '/logo_placeholder.png') e.currentTarget.src = '/logo_placeholder.png'; }} />
-                          <div style={{ display: 'flex', flexDirection: 'column' }}>
-                            <span style={{ fontWeight: 700 }}>{formatTeamName(name)}</span>
-                            <span style={{ color: '#9aa', fontSize: '0.85em' }}>{participant.short_code ?? row.shortName ?? ''}</span>
-                          </div>
-                        </td>
-                        <td>{played}</td>
-                        <td>{win}</td>
-                        <td>{draw}</td>
-                        <td>{lose}</td>
-                        <td>{goalsFor}</td>
-                        <td>{goalsAgainst}</td>
-                        <td className="league-dg" style={{ color: dgColor }}>{diff > 0 ? `+${diff}` : diff}</td>
-                        <td style={{ fontWeight: 900 }}>{points}</td>
-                      </tr>
-                    );
-                  }) : <tr><td colSpan={10} style={{ padding: 12, color: '#aaa' }}>Sin datos</td></tr>}
-                </tbody>
-              </table>
+                            return (
+                              <tr key={idx} style={{ borderTop: rowBorder }} className={position <= 4 ? 'league-pos-top3' : ''}>
+                                <td className="league-pos">{position}</td>
+                                <td className="league-team-cell">
+                                  <img src={logo || '/logo_placeholder.png'} alt={name} style={{ width: 28, height: 28, objectFit: 'contain', borderRadius: 4 }} onError={(e: any)=>{ if(e.currentTarget.src !== '/logo_placeholder.png') e.currentTarget.src = '/logo_placeholder.png'; }} />
+                                  <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                    <span style={{ fontWeight: 700 }}>{formatTeamName(name)}</span>
+                                    <span style={{ color: '#9aa', fontSize: '0.85em' }}>{participant.short_code ?? row.shortName ?? ''}</span>
+                                  </div>
+                                </td>
+                                <td>{played}</td>
+                                <td>{win}</td>
+                                <td>{draw}</td>
+                                <td>{lose}</td>
+                                <td>{goalsFor}</td>
+                                <td>{goalsAgainst}</td>
+                                <td className="league-dg" style={{ color: dgColor }}>{diff > 0 ? `+${diff}` : diff}</td>
+                                <td style={{ fontWeight: 900 }}>{points}</td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                  {groupBStandings.length > 0 && (
+                    <div>
+                      <h4 style={{ color: '#9fb8b0', marginBottom: 8 }}>Tabla B</h4>
+                      <table className="league-table">
+                        <thead>
+                          <tr style={{ textAlign: 'left', color: '#9fb8b0', borderBottom: '2px solid rgba(255,255,255,0.04)' }}>
+                            <th style={{ width: 40 }}>Pos</th>
+                            <th style={{ width: 360 }}>Equipo</th>
+                            <th style={{ width: 40 }}>PJ</th>
+                            <th style={{ width: 40 }}>PG</th>
+                            <th style={{ width: 40 }}>PE</th>
+                            <th style={{ width: 40 }}>PP</th>
+                            <th style={{ width: 50 }}>GF</th>
+                            <th style={{ width: 50 }}>GC</th>
+                            <th style={{ width: 60 }}>DG</th>
+                            <th style={{ width: 60 }}>PTS</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {groupBStandings.map((row: any, idx: number) => {
+                            const position = row.position ?? idx + 1;
+                            const participant = row.participant || {};
+                            const name = participant.name || row.name || `ID ${participant.id || row.participant_id}`;
+                            const logo = participant.image_path || row.logo || '/logo_placeholder.png';
+                            const rowSummary = row.summary || row.season?.summary || null;
+                            const played = rowSummary?.played ?? row.played ?? row.games_played ?? row.matches_played ?? row.PJ ?? 0;
+                            const win = rowSummary?.won ?? row.win ?? row.wins ?? row.PG ?? 0;
+                            const draw = rowSummary?.draw ?? row.draw ?? row.draws ?? row.PE ?? 0;
+                            const lose = rowSummary?.lost ?? row.lose ?? row.losses ?? row.PP ?? 0;
+                            const goalsFor = rowSummary?.goals_for ?? row.goals_for ?? row.goalsfor ?? row.GF ?? 0;
+                            const goalsAgainst = rowSummary?.goals_against ?? row.goals_against ?? row.goalsagainst ?? row.GC ?? 0;
+                            const points = rowSummary?.points ?? row.points ?? row.Pts ?? 0;
+                            const diff = (typeof rowSummary?.goal_difference !== 'undefined')
+                              ? rowSummary?.goal_difference
+                              : (typeof row.goal_difference !== 'undefined')
+                                ? row.goal_difference
+                                : (goalsFor - goalsAgainst);
+                            const dgColor = diff > 0 ? '#7ee787' : diff < 0 ? '#ff8b8b' : '#cfe';
+                            const rowBorder = position <= 4 ? '4px solid rgba(0,255,200,0.12)' : '1px solid rgba(255,255,255,0.03)';
+
+                            return (
+                              <tr key={idx} style={{ borderTop: rowBorder }} className={position <= 4 ? 'league-pos-top3' : ''}>
+                                <td className="league-pos">{position}</td>
+                                <td className="league-team-cell">
+                                  <img src={logo || '/logo_placeholder.png'} alt={name} style={{ width: 28, height: 28, objectFit: 'contain', borderRadius: 4 }} onError={(e: any)=>{ if(e.currentTarget.src !== '/logo_placeholder.png') e.currentTarget.src = '/logo_placeholder.png'; }} />
+                                  <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                    <span style={{ fontWeight: 700 }}>{formatTeamName(name)}</span>
+                                    <span style={{ color: '#9aa', fontSize: '0.85em' }}>{participant.short_code ?? row.shortName ?? ''}</span>
+                                  </div>
+                                </td>
+                                <td>{played}</td>
+                                <td>{win}</td>
+                                <td>{draw}</td>
+                                <td>{lose}</td>
+                                <td>{goalsFor}</td>
+                                <td>{goalsAgainst}</td>
+                                <td className="league-dg" style={{ color: dgColor }}>{diff > 0 ? `+${diff}` : diff}</td>
+                                <td style={{ fontWeight: 900 }}>{points}</td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <table className="league-table">
+                  <thead>
+                    <tr style={{ textAlign: 'left', color: '#9fb8b0', borderBottom: '2px solid rgba(255,255,255,0.04)' }}>
+                      <th style={{ width: 40 }}>Pos</th>
+                      <th style={{ width: 360 }}>Equipo</th>
+                      <th style={{ width: 40 }}>PJ</th>
+                      <th style={{ width: 40 }}>PG</th>
+                      <th style={{ width: 40 }}>PE</th>
+                      <th style={{ width: 40 }}>PP</th>
+                      <th style={{ width: 50 }}>GF</th>
+                      <th style={{ width: 50 }}>GC</th>
+                      <th style={{ width: 60 }}>DG</th>
+                      <th style={{ width: 60 }}>PTS</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredStandings.length ? filteredStandings.map((row: any, idx: number) => {
+                      const position = row.position ?? idx + 1;
+                      const participant = row.participant || {};
+                      const name = participant.name || row.name || `ID ${participant.id || row.participant_id}`;
+                      const logo = participant.image_path || row.logo || '/logo_placeholder.png';
+                      const rowSummary = row.summary || row.season?.summary || null;
+                      const played = rowSummary?.played ?? row.played ?? row.games_played ?? row.matches_played ?? row.PJ ?? 0;
+                      const win = rowSummary?.won ?? row.win ?? row.wins ?? row.PG ?? 0;
+                      const draw = rowSummary?.draw ?? row.draw ?? row.draws ?? row.PE ?? 0;
+                      const lose = rowSummary?.lost ?? row.lose ?? row.losses ?? row.PP ?? 0;
+                      const goalsFor = rowSummary?.goals_for ?? row.goals_for ?? row.goalsfor ?? row.GF ?? 0;
+                      const goalsAgainst = rowSummary?.goals_against ?? row.goals_against ?? row.goalsagainst ?? row.GC ?? 0;
+                      const points = rowSummary?.points ?? row.points ?? row.Pts ?? 0;
+                      const diff = (typeof rowSummary?.goal_difference !== 'undefined')
+                        ? rowSummary?.goal_difference
+                        : (typeof row.goal_difference !== 'undefined')
+                          ? row.goal_difference
+                          : (goalsFor - goalsAgainst);
+                      const dgColor = diff > 0 ? '#7ee787' : diff < 0 ? '#ff8b8b' : '#cfe';
+                      const rowBorder = position <= 4 ? '4px solid rgba(0,255,200,0.12)' : '1px solid rgba(255,255,255,0.03)';
+
+                      return (
+                        <tr key={idx} style={{ borderTop: rowBorder }} className={position <= 4 ? 'league-pos-top3' : ''}>
+                          <td className="league-pos">{position}</td>
+                          <td className="league-team-cell">
+                            <img src={logo || '/logo_placeholder.png'} alt={name} style={{ width: 28, height: 28, objectFit: 'contain', borderRadius: 4 }} onError={(e: any)=>{ if(e.currentTarget.src !== '/logo_placeholder.png') e.currentTarget.src = '/logo_placeholder.png'; }} />
+                            <div style={{ display: 'flex', flexDirection: 'column' }}>
+                              <span style={{ fontWeight: 700 }}>{formatTeamName(name)}</span>
+                              <span style={{ color: '#9aa', fontSize: '0.85em' }}>{participant.short_code ?? row.shortName ?? ''}</span>
+                            </div>
+                          </td>
+                          <td>{played}</td>
+                          <td>{win}</td>
+                          <td>{draw}</td>
+                          <td>{lose}</td>
+                          <td>{goalsFor}</td>
+                          <td>{goalsAgainst}</td>
+                          <td className="league-dg" style={{ color: dgColor }}>{diff > 0 ? `+${diff}` : diff}</td>
+                          <td style={{ fontWeight: 900 }}>{points}</td>
+                        </tr>
+                      );
+                    }) : <tr><td colSpan={10} style={{ padding: 12, color: '#aaa' }}>Sin datos</td></tr>}
+                  </tbody>
+                </table>
+              )}
             </div>
           )}
 
