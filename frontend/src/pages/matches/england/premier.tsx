@@ -13,13 +13,10 @@ export default function PremierLeague() {
   const [standings, setStandings] = useState<any[] | null>(null);
   const [summary, setSummary] = useState<any | null>(null);
   const [tableMeta, setTableMeta] = useState<any | null>(null);
-  const [activeTab, setActiveTab] = useState<'news'|'table'|'calendar'|'topscorers'>('news');
+  const [activeTab, setActiveTab] = useState<'news'|'table'|'calendar'>('news');
   const [news, setNews] = useState<any[] | null>(null);
   const [preds, setPreds] = useState<Record<string, any>>({});
   const [upcomingMatches, setUpcomingMatches] = useState<any[] | null>(null);
-  const [topScorers, setTopScorers] = useState<any[] | null>(null);
-  const [topScorersLoading, setTopScorersLoading] = useState(false);
-  const [topScorersError, setTopScorersError] = useState<string | null>(null);
 
   async function fetchTable() {
     setError(null);
@@ -118,33 +115,6 @@ export default function PremierLeague() {
     } finally { setLoading(false); }
   }
 
-  async function fetchTopScorers(season?: number) {
-    setTopScorersError(null);
-    setTopScorersLoading(true);
-    try {
-      const url = `${API_BASE}/public/premier/top-scorers${season ? `?season=${season}` : ''}`;
-      const res = await fetch(url);
-      if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
-      const json = await res.json();
-      // common response shapes
-      const candidates = json?.response || json?.scorers || json?.data || json;
-      // try to normalize to array of scorers
-      let arr: any[] = [];
-      if (Array.isArray(candidates)) arr = candidates;
-      else if (candidates && Array.isArray(candidates.results)) arr = candidates.results;
-      else if (candidates && Array.isArray(candidates.items)) arr = candidates.items;
-      // try to map known shapes
-      if (!arr.length && json?.response && Array.isArray(json.response) && json.response[0]?.league?.top_scorers) {
-        arr = json.response[0].league.top_scorers;
-      }
-      setTopScorers(arr.slice(0, 40));
-    } catch (err: any) {
-      setTopScorersError(err.message || 'Error');
-    } finally {
-      setTopScorersLoading(false);
-    }
-  }
-
   async function fetchNews() {
     setError(null);
     setLoading(true);
@@ -203,8 +173,8 @@ export default function PremierLeague() {
   return (
     <div style={{ minHeight: '100vh', background: '#071026', color: '#fff' }}>
       <Header />
-      <div className="container-max main-layout">
-        <div>
+      <div className="container-max main-layout" style={{ gridTemplateColumns: '1fr', justifyContent: 'center' }}>
+        <div style={{ width: '100%', maxWidth: 980, marginLeft: 'auto', marginRight: 'auto' }}>
           <div className="logos-row">
             {standings && standings.slice(0, 20).map((row: any, i: number) => {
               const participant = row.participant || {};
@@ -223,7 +193,6 @@ export default function PremierLeague() {
             <button className={`tab-btn ${activeTab==='news' ? 'active' : ''}`} onClick={async ()=>{ setActiveTab('news'); if(!news) await fetchNews(); }} disabled={loading}>Noticias</button>
             <button className={`tab-btn ${activeTab==='table' ? 'active' : ''}`} onClick={async ()=>{ setActiveTab('table'); if(!standings) await fetchTable(); }} disabled={loading}>Tabla</button>
             <button className={`tab-btn ${activeTab==='calendar' ? 'active' : ''}`} onClick={async ()=>{ setActiveTab('calendar'); if(!upcomingMatches || upcomingMatches.length===0) await fetchCalendar(); }} disabled={loading}>Calendario</button>
-            <button className={`tab-btn ${activeTab==='topscorers' ? 'active' : ''}`} onClick={async ()=>{ setActiveTab('topscorers'); if(!topScorers || topScorers.length===0) await fetchTopScorers(); }} disabled={topScorersLoading}>Goleadores</button>
           </div>
 
           <h1 style={{ color: '#00ffc8', marginTop: 12 }}>Premier League — England</h1>
@@ -307,54 +276,6 @@ export default function PremierLeague() {
             />
           )}
 
-              {activeTab === 'topscorers' && (
-                <div style={{ marginTop: 20, background: 'rgba(10,14,39,0.7)', padding: 12, borderRadius: 8 }}>
-                  <h3 style={{ color: '#00ffc8' }}>Goleadores — Premier</h3>
-                  {topScorersLoading && <div style={{ color:'#9aa' }}>Cargando goleadores...</div>}
-                  {topScorersError && <div style={{ color:'#ff8b8b' }}>{topScorersError}</div>}
-                  {!topScorersLoading && topScorers && topScorers.length ? (
-                    <div className="top-scorers-wrap">
-                      <table className="top-scorers-table">
-                        <thead>
-                          <tr>
-                            <th style={{ width: 44 }}>POS</th>
-                            <th>NOMBRE</th>
-                            {/*<th>EQUIPO</th>
-                            <th style={{ width: 44, textAlign: 'center' }}>P</th>*/}
-                            <th style={{ width: 44, textAlign: 'center' }}>G</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {topScorers.map((p:any, idx:number)=>{
-                            const pos = idx + 1;
-                            const rawPlayer = p.player ?? p.player_name ?? p.name ?? p.player?.name ?? p?.player_name ?? null;
-                            const player = (typeof rawPlayer === 'string')
-                              ? rawPlayer
-                              : (rawPlayer?.name ?? rawPlayer?.fullname ?? rawPlayer?.firstname ?? rawPlayer?.firstName ?? JSON.stringify(rawPlayer) );
-
-                            const rawTeam = p.team ?? p.team_name ?? p.club ?? p.team?.name ?? p?.team_name ?? null;
-                            const team = (typeof rawTeam === 'string')
-                              ? rawTeam
-                              : (rawTeam?.name ?? rawTeam?.title ?? JSON.stringify(rawTeam));
-
-                            const played = p.appearances ?? p.matches ?? p.games ?? p.played ?? p.p ?? p.matches_played ?? p.games_played ?? p.statistics?.[0]?.games?.appearances ?? null;
-                            const goals = (p.goals ?? p.total ?? p.scored ?? p.goals_scored ?? p?.goals ?? p.statistics?.[0]?.goals?.total ?? p.statistics?.goals?.total ?? 0) as number;
-
-                            return (
-                              <tr key={idx}>
-                                <td style={{ textAlign:'center', fontWeight:800, color: '#00ffc8' }}>{pos}</td>
-                                <td style={{ fontWeight:700 }}>{player}</td>
-                                <td style={{ textAlign:'center', fontWeight:800 }}>{`${goals}`}</td>
-                              </tr>
-                            );
-                          })}
-                        </tbody>
-                      </table>
-                    </div>
-                  ) : (!topScorersLoading && <div style={{ color:'#aaa' }}>No hay datos de goleadores</div>)}
-                </div>
-              )}
-
           {activeTab === 'news' && (
             <div style={{ marginTop: 20, background: 'rgba(10,14,39,0.7)', padding: 12, borderRadius: 8 }}>
               <h3 style={{ color: '#00ffc8' }}>Noticias recientes</h3>
@@ -379,66 +300,17 @@ export default function PremierLeague() {
 
         </div>
 
-        <aside className="sidebar-aside">
-          <div style={{ background:'#0b1722', padding:12, borderRadius:8 }}>
-            <h4 style={{ color:'#00ffc8', marginBottom:8 }}>Premier League</h4>
-            <div style={{ color:'#9aa', fontSize:'0.9em', marginBottom:8 }}>{summary?.date || '—'}</div>
-            {summary && (summary.last_fixtures && summary.last_fixtures.length) ? (
-              <div>
-                <ul style={{ listStyle:'none', padding:0, margin:0 }}>
-                      {summary.last_fixtures.slice(0,5).map((f:any,i:number)=> {
-                      const pk = f.id ?? f.fixture?.id ?? `${i}-${String(f.home||f.home_name||f.teams?.home?.name||'h')}-${String(f.away||f.away_name||f.teams?.away?.name||'a')}`;
-                      const p = preds[pk];
-                      const homeName = formatTeamName(f.teams?.home?.name ?? f.home?.name ?? f.home ?? 'Home');
-                      const awayName = formatTeamName(f.teams?.away?.name ?? f.away?.name ?? f.away ?? 'Away');
-                      const homeScore = (f.goals?.home ?? f.score?.home ?? f.goals_home) ?? (f.result?.home ?? '');
-                      const awayScore = (f.goals?.away ?? f.score?.away ?? f.goals_away) ?? (f.result?.away ?? '');
-                      return (
-                        <li key={i} style={{ display:'flex', flexDirection: 'column', padding:'8px 0', borderBottom:'1px solid rgba(255,255,255,0.03)' }}>
-                          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-                            <span style={{ color:'#cfe' }}>{homeName} <span style={{ color:'#9aa', margin: '0 6px' }}>-</span> {awayName}</span>
-                            <span style={{ color:'#fff', fontWeight:700 }}>{homeScore} - {awayScore}</span>
-                          </div>
-                          <div style={{ marginTop:6, display:'flex', gap:8, alignItems:'center' }}>
-                            <button style={{...buttonStyle, padding:'6px 10px', fontSize:'0.9em'}} onClick={()=>fetchPrediction(f,i)}>Predecir</button>
-                            {p && p.loading && <span style={{ color:'#9aa' }}>Generando...</span>}
-                            {p && p.error && <span style={{ color:'#ff8b8b' }}>{p.error}</span>}
-                            {p && p.winner && (
-                              <div style={{ color:'#cfe', fontSize:'0.9em' }}>
-                                Predicción: <strong style={{ color:'#00ffc8' }}>{p.winner}</strong> — {p.scoreline} ({p.confidence}%)
-                              </div>
-                            )}
-                          </div>
-                        </li>
-                      );
-                  })}
-                </ul>
-                <div style={{ borderTop:'1px solid rgba(255,255,255,0.03)', marginTop:10, paddingTop:10 }}>
-                  <h5 style={{ color:'#00ffc8', margin:0, fontSize:'0.95em' }}>Resumen de liga</h5>
-                  <pre style={{ color:'#9aa', fontSize:'0.8em', maxHeight:120, overflow:'auto' }}>{JSON.stringify(leagueObj || {}, null, 2)}</pre>
-                  <div style={{ marginTop:8 }}><Link href="/noticias" style={{ color:'#00ffc8' }}>Ver más noticias</Link></div>
-                </div>
-              </div>
-            ) : (
-              <div style={{ color:'#aaa' }}>No hay resumen disponible</div>
-            )}
-            <div style={{ marginTop:12 }}>
-              <button style={{...buttonStyle, width:'100%'}} onClick={()=>{ setActiveTab('table'); window.scrollTo({top:0, behavior:'smooth'}); }}>Ver Tabla</button>
-            </div>
-          </div>
-        </aside>
-
       </div>
 
       <style jsx global>{`
-        .main-layout{ display:flex; gap:20px; align-items:flex-start; }
+        .main-layout{ display:flex; gap:20px; align-items:flex-start; justify-content:center; }
+        .main-layout > div{ width:100%; max-width:980px; margin-left:auto; margin-right:auto; }
         .table-wrap{ background: rgba(10,14,39,0.7); padding:12px; border-radius:8px; overflow-x:auto }
         .league-table{ width:100%; color:#fff; border-collapse:collapse; min-width:0 }
         .league-table th, .league-table td{ padding:10px 8px; white-space:nowrap }
         .logos-row{ display:flex; gap:10px; align-items:center; justify-content:center; padding:8px 0; overflow-x:auto }
         .logo-item img{ width:44px; height:44px; object-fit:contain; display:block }
         .news-grid{ display:grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap:16px }
-        .sidebar-aside{ width:320px }
 
         .matches-grid{ display:flex; flex-direction:column; gap:14px }
         .match-card{ background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.02)); padding:14px; border-radius:12px; border:1px solid rgba(255,255,255,0.04); transition: transform .12s ease, box-shadow .12s ease }
@@ -468,7 +340,6 @@ export default function PremierLeague() {
           .main-layout{ flex-direction:column; }
           .logos-row{ justify-content:flex-start; padding-left:8px }
           .logo-item img{ width:40px; height:40px }
-          .sidebar-aside{ width:100% }
           .news-grid{ grid-template-columns: 1fr }
         }
 
@@ -497,7 +368,6 @@ export default function PremierLeague() {
           .match-time{font-size:1rem}
           .match-date-top{position:static;padding:6px 0;color:#9aa;font-size:0.85em;text-align:center}
           .matches-grid{gap:10px}
-          .sidebar-aside{display:block;width:100%}
         }
       `}</style>
 

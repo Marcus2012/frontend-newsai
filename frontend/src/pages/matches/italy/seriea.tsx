@@ -195,8 +195,8 @@ export default function SerieA() {
   return (
     <div style={{ minHeight: '100vh', background: '#071026', color: '#fff' }}>
       <Header />
-      <div className="container-max main-layout">
-        <div>
+      <div className="container-max main-layout" style={{ gridTemplateColumns: '1fr', justifyContent: 'center' }}>
+        <div style={{ width: '100%', maxWidth: 980, marginLeft: 'auto', marginRight: 'auto' }}>
           <div className="logos-row">
             {standings && standings.slice(0, 20).map((row: any, i: number) => {
               const participant = row.participant || {};
@@ -215,7 +215,7 @@ export default function SerieA() {
             <button className={`tab-btn ${activeTab==='news' ? 'active' : ''}`} onClick={async ()=>{ setActiveTab('news'); if(!news) await fetchNews(); }} disabled={loading}>Noticias</button>
             <button className={`tab-btn ${activeTab==='table' ? 'active' : ''}`} onClick={async ()=>{ setActiveTab('table'); if(!standings) await fetchTable(); }} disabled={loading}>Tabla</button>
             <button className={`tab-btn ${activeTab==='calendar' ? 'active' : ''}`} onClick={async ()=>{ setActiveTab('calendar'); if(!upcomingMatches || upcomingMatches.length===0) await fetchCalendar(); }} disabled={loading}>Calendario</button>
-            <button className={`tab-btn ${activeTab==='topscorers' ? 'active' : ''}`} onClick={async ()=>{ setActiveTab('topscorers'); if(!topScorers || topScorers.length===0) await fetchTopScorers(); }} disabled={topScorersLoading}>Goleadores</button>
+            {/*<button className={`tab-btn ${activeTab==='topscorers' ? 'active' : ''}`} onClick={async ()=>{ setActiveTab('topscorers'); if(!topScorers || topScorers.length===0) await fetchTopScorers(); }} disabled={topScorersLoading}>Goleadores</button>*/}
           </div>
 
           <h1 style={{ color: '#00ffc8', marginTop: 12 }}>Serie A — Italy</h1>
@@ -297,7 +297,7 @@ export default function SerieA() {
             />
           )}
 
-          {activeTab === 'topscorers' && (
+          {/*{activeTab === 'topscorers' && (
             <div style={{ marginTop: 20, background: 'rgba(10,14,39,0.7)', padding: 12, borderRadius: 8 }}>
               <h3 style={{ color: '#00ffc8' }}>Goleadores — Serie A</h3>
               {topScorersLoading && <div style={{ color:'#9aa' }}>Cargando goleadores...</div>}
@@ -341,7 +341,7 @@ export default function SerieA() {
                 </div>
               ) : (!topScorersLoading && <div style={{ color:'#aaa' }}>No hay datos de goleadores</div>)}
             </div>
-          )}
+          )} */}
 
           {activeTab === 'news' && (
             <div style={{ marginTop: 20, background: 'rgba(10,14,39,0.7)', padding: 12, borderRadius: 8 }}>
@@ -367,66 +367,17 @@ export default function SerieA() {
 
         </div>
 
-        <aside className="sidebar-aside">
-          <div style={{ background:'#0b1722', padding:12, borderRadius:8 }}>
-            <h4 style={{ color:'#00ffc8', marginBottom:8 }}>Serie A</h4>
-            <div style={{ color:'#9aa', fontSize:'0.9em', marginBottom:8 }}>{summary?.date || '—'}</div>
-            {summary && (summary.last_fixtures && summary.last_fixtures.length) ? (
-              <div>
-                <ul style={{ listStyle:'none', padding:0, margin:0 }}>
-                      {summary.last_fixtures.slice(0,5).map((f:any,i:number)=> {
-                      const pk = f.id ?? f.fixture?.id ?? `${i}-${String(f.home||f.home_name||f.teams?.home?.name||'h')}-${String(f.away||f.away_name||f.teams?.away?.name||'a')}`;
-                      const p = preds[pk];
-                      const homeName = formatTeamName(f.teams?.home?.name ?? f.home?.name ?? f.home ?? 'Home');
-                      const awayName = formatTeamName(f.teams?.away?.name ?? f.away?.name ?? f.away ?? 'Away');
-                      const homeScore = (f.goals?.home ?? f.score?.home ?? f.goals_home) ?? (f.result?.home ?? '');
-                      const awayScore = (f.goals?.away ?? f.score?.away ?? f.goals_away) ?? (f.result?.away ?? '');
-                      return (
-                        <li key={i} style={{ display:'flex', flexDirection: 'column', padding:'8px 0', borderBottom:'1px solid rgba(255,255,255,0.03)' }}>
-                          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-                            <span style={{ color:'#cfe' }}>{homeName} <span style={{ color:'#9aa', margin: '0 6px' }}>-</span> {awayName}</span>
-                            <span style={{ color:'#fff', fontWeight:700 }}>{homeScore} - {awayScore}</span>
-                          </div>
-                          <div style={{ marginTop:6, display:'flex', gap:8, alignItems:'center' }}>
-                            <button style={{...buttonStyle, padding:'6px 10px', fontSize:'0.9em'}} onClick={()=>fetchPrediction(f,i)}>Predecir</button>
-                            {p && p.loading && <span style={{ color:'#9aa' }}>Generando...</span>}
-                            {p && p.error && <span style={{ color:'#ff8b8b' }}>{p.error}</span>}
-                            {p && p.winner && (
-                              <div style={{ color:'#cfe', fontSize:'0.9em' }}>
-                                Predicción: <strong style={{ color:'#00ffc8' }}>{p.winner}</strong> — {p.scoreline} ({p.confidence}%)
-                              </div>
-                            )}
-                          </div>
-                        </li>
-                      );
-                  })}
-                </ul>
-                <div style={{ borderTop:'1px solid rgba(255,255,255,0.03)', marginTop:10, paddingTop:10 }}>
-                  <h5 style={{ color:'#00ffc8', margin:0, fontSize:'0.95em' }}>Resumen de liga</h5>
-                  <pre style={{ color:'#9aa', fontSize:'0.8em', maxHeight:120, overflow:'auto' }}>{JSON.stringify(leagueObj || {}, null, 2)}</pre>
-                  <div style={{ marginTop:8 }}><Link href="/noticias" style={{ color:'#00ffc8' }}>Ver más noticias</Link></div>
-                </div>
-              </div>
-            ) : (
-              <div style={{ color:'#aaa' }}>No hay resumen disponible</div>
-            )}
-            <div style={{ marginTop:12 }}>
-              <button style={{...buttonStyle, width:'100%'}} onClick={()=>{ setActiveTab('table'); window.scrollTo({top:0, behavior:'smooth'}); }}>Ver Tabla</button>
-            </div>
-          </div>
-        </aside>
-
       </div>
 
       <style jsx global>{`
-        .main-layout{ display:flex; gap:20px; align-items:flex-start; }
+        .main-layout{ display:flex; gap:20px; align-items:flex-start; justify-content:center; }
+        .main-layout > div{ width:100%; max-width:980px; margin-left:auto; margin-right:auto; }
         .table-wrap{ background: rgba(10,14,39,0.7); padding:12px; border-radius:8px; overflow-x:auto }
         .league-table{ width:100%; color:#fff; border-collapse:collapse; min-width:0 }
         .league-table th, .league-table td{ padding:10px 8px; white-space:nowrap }
         .logos-row{ display:flex; gap:10px; align-items:center; justify-content:center; padding:8px 0; overflow-x:auto }
         .logo-item img{ width:44px; height:44px; object-fit:contain; display:block }
         .news-grid{ display:grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap:16px }
-        .sidebar-aside{ width:320px }
         .matches-grid{ display:flex; flex-direction:column; gap:14px }
         .match-card{ background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.02)); padding:14px; border-radius:12px; border:1px solid rgba(255,255,255,0.04); transition: transform .12s ease, box-shadow .12s ease }
         .match-card:hover{ transform: translateY(-6px); box-shadow: 0 12px 30px rgba(2,6,23,0.6) }
@@ -453,7 +404,6 @@ export default function SerieA() {
           .main-layout{ flex-direction:column; }
           .logos-row{ justify-content:flex-start; padding-left:8px }
           .logo-item img{ width:40px; height:40px }
-          .sidebar-aside{ width:100% }
           .news-grid{ grid-template-columns: 1fr }
         }
 
@@ -482,7 +432,6 @@ export default function SerieA() {
           .match-time{font-size:1rem}
           .match-date-top{position:static;padding:6px 0;color:#9aa;font-size:0.85em;text-align:center}
           .matches-grid{gap:10px}
-          .sidebar-aside{display:block;width:100%}
         }
       `}</style>
 

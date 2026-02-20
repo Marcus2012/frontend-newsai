@@ -148,9 +148,10 @@ export default function HomePage({ articles }: Props) {
       </div>
 
       {/* Match ticker similar to reference */}
-      <div className="container-max">
+      {/*<div className="container-max">
         <MatchTicker />
       </div>
+      */}
 
       {/*
       <div style={{ maxWidth: '100%', padding: '0 40px' }}>

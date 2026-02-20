@@ -504,16 +504,16 @@ export default function Header() {
           .auth-body h3{font-size:1rem}
         }
 
-        .mobile-toggle{display:none;background:transparent;border:1px solid rgba(255,255,255,0.05);color:#00ffc8;padding:8px;border-radius:6px;font-size:18px;z-index:1600}
+        .mobile-toggle{display:none;background:transparent;border:1px solid rgba(255,255,255,0.05);color:#00ffc8;padding:10px 12px;border-radius:8px;font-size:22px;z-index:1600}
 
-        .mobile-menu{display:none;flex-direction:column;gap:10px;padding:12px 16px;position:absolute;left:0;right:0;top:100%;background:rgba(10,14,39,0.98);border-top:1px solid rgba(0,255,200,0.04);z-index:1300;max-height:calc(var(--vh,1vh) * 100 - 64px);overflow:auto}
-        .mobile-menu a{color:#fff;text-decoration:none;padding:8px 0}
+        .mobile-menu{display:none;flex-direction:column;gap:12px;padding:16px 18px;position:absolute;left:0;right:0;top:100%;background:rgba(10,14,39,0.98);border-top:1px solid rgba(0,255,200,0.04);z-index:1300;max-height:calc(var(--vh,1vh) * 100 - 64px);overflow:auto}
+        .mobile-menu a{color:#fff;text-decoration:none;padding:10px 0;font-size:1.05rem}
         .mobile-menu a:link, .mobile-menu a:visited, .mobile-menu a:hover, .mobile-menu a:active{color:#fff !important}
 
         .mobile-leagues {display:flex;flex-direction:column}
-        .mobile-leagues-toggle{background:transparent;border:none;color:#fff;text-align:left;padding:8px 0;cursor:pointer;font-weight:600}
+        .mobile-leagues-toggle{background:transparent;border:none;color:#fff;text-align:left;padding:10px 0;cursor:pointer;font-weight:700;font-size:1.05rem}
         .mobile-submenu{display:flex;flex-direction:column;gap:6px;padding-left:12px;margin:6px 0 8px;border-left:1px solid rgba(255,255,255,0.08)}
-        .mobile-submenu a{padding:8px 0;color:#cfe;border-bottom:1px solid rgba(255,255,255,0.06)}
+        .mobile-submenu a{padding:10px 0;color:#cfe;border-bottom:1px solid rgba(255,255,255,0.06);font-size:1rem}
         .mobile-submenu a:last-child{border-bottom:none}
 
         @media (max-width: 640px){

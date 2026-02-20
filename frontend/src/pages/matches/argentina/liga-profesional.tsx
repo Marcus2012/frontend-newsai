@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Header from '../../../components/Header';
-import { formatTeamName, formatTeamLogo } from '../../../lib/teamUtils';
-import Link from 'next/link';
+import { formatTeamName } from '../../../lib/teamUtils';
 import MatchesCalendar from '../../../components/MatchesCalendar';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://127.0.0.1:8000';
@@ -153,8 +152,8 @@ export default function ArgentinaLigaProfesional() {
   return (
     <div style={{ minHeight: '100vh', background: '#071026', color: '#fff' }}>
       <Header />
-      <div className="container-max main-layout">
-        <div>
+      <div className="container-max main-layout" style={{ gridTemplateColumns: '1fr', justifyContent: 'center' }}>
+        <div style={{ width: '100%', maxWidth: 980, marginLeft: 'auto', marginRight: 'auto' }}>
           <div className="logos-row">
             {filteredStandings.slice(0, 20).map((row: any, i: number) => {
               const participant = row.participant || {};
@@ -186,7 +185,7 @@ export default function ArgentinaLigaProfesional() {
                 <>
                   {groupAStandings.length > 0 && (
                     <div style={{ marginBottom: 24 }}>
-                      <h4 style={{ color: '#9fb8b0', marginBottom: 8 }}>Tabla A</h4>
+                      <h4 style={{ color: '#9fb8b0', marginBottom: 8 }}>Grupo A</h4>
                       <table className="league-table">
                         <thead>
                           <tr style={{ textAlign: 'left', color: '#9fb8b0', borderBottom: '2px solid rgba(255,255,255,0.04)' }}>
@@ -251,7 +250,7 @@ export default function ArgentinaLigaProfesional() {
                   )}
                   {groupBStandings.length > 0 && (
                     <div>
-                      <h4 style={{ color: '#9fb8b0', marginBottom: 8 }}>Tabla B</h4>
+                      <h4 style={{ color: '#9fb8b0', marginBottom: 8 }}>Grupo B</h4>
                       <table className="league-table">
                         <thead>
                           <tr style={{ textAlign: 'left', color: '#9fb8b0', borderBottom: '2px solid rgba(255,255,255,0.04)' }}>
@@ -391,65 +390,39 @@ export default function ArgentinaLigaProfesional() {
           )}
         </div>
 
-        <aside className="sidebar-aside">
-          <div style={{ background:'#0b1722', padding:12, borderRadius:8 }}>
-            <h4 style={{ color:'#00ffc8', marginBottom:8 }}>Argentina Liga Profesional</h4>
-            <div style={{ color:'#9aa', fontSize:'0.9em', marginBottom:8 }}>{summary?.date || '—'}</div>
-            {summary && (summary.last_fixtures && summary.last_fixtures.length) ? (
-              <div>
-                <ul style={{ listStyle:'none', padding:0, margin:0 }}>
-                  {summary.last_fixtures.slice(0,5).map((f:any,i:number)=> {
-                    const pk = f.id ?? f.fixture?.id ?? `${i}-${String(f.home||f.home_name||f.teams?.home?.name||'h')}-${String(f.away||f.away_name||f.teams?.away?.name||'a')}`;
-                    const p = preds[pk];
-                    const homeName = formatTeamName(f.teams?.home?.name ?? f.home?.name ?? f.home ?? 'Home');
-                    const awayName = formatTeamName(f.teams?.away?.name ?? f.away?.name ?? f.away ?? 'Away');
-                    const homeScore = (f.goals?.home ?? f.score?.home ?? f.goals_home) ?? (f.result?.home ?? '');
-                    const awayScore = (f.goals?.away ?? f.score?.away ?? f.goals_away) ?? (f.result?.away ?? '');
-                    return (
-                      <li key={i} style={{ display:'flex', flexDirection: 'column', padding:'8px 0', borderBottom:'1px solid rgba(255,255,255,0.03)' }}>
-                        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-                          <span style={{ color:'#cfe' }}>{homeName} <span style={{ color:'#9aa', margin: '0 6px' }}>-</span> {awayName}</span>
-                          <span style={{ color:'#fff', fontWeight:700 }}>{homeScore} - {awayScore}</span>
-                        </div>
-                        <div style={{ marginTop:6, display:'flex', gap:8, alignItems:'center' }}>
-                          <button style={{...buttonStyle, padding:'6px 10px', fontSize:'0.9em'}} onClick={()=>fetchPrediction(f,i)}>Predecir</button>
-                          {p && p.loading && <span style={{ color:'#9aa' }}>Generando...</span>}
-                          {p && p.error && <span style={{ color:'#ff8b8b' }}>{p.error}</span>}
-                          {p && p.winner && (
-                            <div style={{ color:'#cfe', fontSize:'0.9em' }}>
-                              Prediccion: <strong style={{ color:'#00ffc8' }}>{p.winner}</strong> — {p.scoreline} ({p.confidence}%)
-                            </div>
-                          )}
-                        </div>
-                      </li>
-                    );
-                  })}
-                </ul>
-                <div style={{ borderTop:'1px solid rgba(255,255,255,0.03)', marginTop:10, paddingTop:10 }}>
-                  <h5 style={{ color:'#00ffc8', margin:0, fontSize:'0.95em' }}>Resumen de liga</h5>
-                  <pre style={{ color:'#9aa', fontSize:'0.8em', maxHeight:120, overflow:'auto' }}>{JSON.stringify(leagueObj || {}, null, 2)}</pre>
-                  <div style={{ marginTop:8 }}><Link href="/noticias" style={{ color:'#00ffc8' }}>Ver mas noticias</Link></div>
-                </div>
-              </div>
-            ) : (
-              <div style={{ color:'#aaa' }}>No hay resumen disponible</div>
-            )}
-            <div style={{ marginTop:12 }}>
-              <button style={{...buttonStyle, width:'100%'}} onClick={()=>{ setActiveTab('table'); window.scrollTo({top:0, behavior:'smooth'}); }}>Ver Tabla</button>
-            </div>
-          </div>
-        </aside>
       </div>
+
+      <style jsx global>{`
+        .main-layout{ display:flex; gap:20px; align-items:flex-start; justify-content:center; }
+        .main-layout > div{ width:100%; max-width:980px; margin-left:auto; margin-right:auto; }
+        .table-wrap{ background: rgba(10,14,39,0.7); padding:12px; border-radius:8px; overflow-x:auto }
+        .league-table{ width:100%; color:#fff; border-collapse:collapse; min-width:0 }
+        .league-table th, .league-table td{ padding:10px 8px; white-space:nowrap }
+        .logos-row{ display:flex; gap:10px; align-items:center; justify-content:center; padding:8px 0; overflow-x:auto }
+        .logo-item img{ width:44px; height:44px; object-fit:contain; display:block }
+
+        @media (max-width: 900px){
+          .main-layout{ flex-direction:column; }
+          .logos-row{ justify-content:flex-start; padding-left:8px }
+          .logo-item img{ width:40px; height:40px }
+        }
+
+        @media (max-width: 520px){
+          h1{ font-size:1.4rem }
+          .league-table th:nth-child(4), .league-table th:nth-child(5), .league-table th:nth-child(6), .league-table th:nth-child(7), .league-table th:nth-child(8){ display:none }
+          .league-table td:nth-child(4), .league-table td:nth-child(5), .league-table td:nth-child(6), .league-table td:nth-child(7), .league-table td:nth-child(8){ display:none }
+          .league-table thead{ display:table-header-group }
+          .league-team-cell img{ width:26px; height:26px }
+          .logo-item img{ width:36px; height:36px }
+        }
+
+        @media (max-width: 420px){
+          .tabs-row{display:flex;gap:8px;overflow-x:auto;padding:8px 0}
+          .tab-btn{flex:0 0 auto;padding:8px 10px;font-size:0.95rem}
+          .logos-row{gap:8px;padding-left:6px}
+          .logo-item img{width:32px;height:32px}
+        }
+      `}</style>
     </div>
   );
 }
-
-const buttonStyle: React.CSSProperties = {
-  background: 'linear-gradient(90deg,#063349,#08385a)',
-  border: '1px solid rgba(0,255,200,0.08)',
-  color: '#fff',
-  padding: '10px 14px',
-  borderRadius: 8,
-  cursor: 'pointer',
-  fontWeight: 700
-};
