@@ -60,11 +60,6 @@ export default function PeruPrimera() {
     setLoading(true);
     try {
       const today = new Date();
-      const dateRange = Array.from({ length: 8 }, (_, idx) => {
-        const d = new Date(today);
-        d.setDate(d.getDate() + idx);
-        return d.toISOString().slice(0, 10);
-      });
 
       const looksLikeMatchesArray = (arr: any[]) => {
         if (!Array.isArray(arr) || arr.length === 0) return false;
@@ -75,15 +70,27 @@ export default function PeruPrimera() {
         return indicators.some(ind => keys.some(k => k.includes(ind)));
       };
 
+      const looksLikeMatchObject = (obj: any) => {
+        if (!obj || typeof obj !== 'object' || Array.isArray(obj)) return false;
+        const keys = Object.keys(obj).map(k => k.toLowerCase());
+        const indicators = ['teams','home','away','fixture','match','utcdate','match_date','date','score','scores','status','participants','starting_at'];
+        return indicators.some(ind => keys.some(k => k.includes(ind)));
+      };
+
       const extractMatches = (payload: any): any[] => {
         if (!payload) return [];
         if (Array.isArray(payload) && looksLikeMatchesArray(payload)) return payload;
+        if (looksLikeMatchObject(payload)) return [payload];
 
         for (const key of ['data','matches','fixtures','items','response']) {
           const v = payload[key];
           if (Array.isArray(v) && looksLikeMatchesArray(v)) return v;
+          if (v && looksLikeMatchObject(v)) return [v];
+          if (v?.fixtures && Array.isArray(v.fixtures) && looksLikeMatchesArray(v.fixtures)) return v.fixtures;
+          if (v?.matches && Array.isArray(v.matches) && looksLikeMatchesArray(v.matches)) return v.matches;
           if (v && typeof v === 'object') {
             if (Array.isArray(v.results) && looksLikeMatchesArray(v.results)) return v.results;
+            if (looksLikeMatchObject(v.results)) return [v.results];
           }
         }
 
@@ -94,6 +101,7 @@ export default function PeruPrimera() {
           if (!node || typeof node !== 'object' || seen.has(node)) continue;
           seen.add(node);
           if (Array.isArray(node) && looksLikeMatchesArray(node)) return node;
+          if (looksLikeMatchObject(node)) return [node];
           for (const k of Object.keys(node)) {
             const v = node[k];
             if (Array.isArray(v)) {
@@ -111,26 +119,36 @@ export default function PeruPrimera() {
         return [];
       };
 
-      const results = await Promise.all(
-        dateRange.map(async (date) => {
-          const res = await fetch(`${API_BASE}/football/public/peru-primera/fixtures?date=${date}`);
-          if (!res.ok) return [];
-          const json = await res.json();
-          return extractMatches(json || {});
-        })
-      );
-
       const start = new Date(today);
+      start.setDate(start.getDate() - 1);
       start.setHours(0, 0, 0, 0);
       const end = new Date(today);
-      end.setDate(end.getDate() + 7);
+      end.setDate(end.getDate() + 6);
       end.setHours(23, 59, 59, 999);
+      const startStr = start.toISOString().slice(0, 10);
+      const endStr = end.toISOString().slice(0, 10);
+
+      // use RAW (no season filtering) endpoint to avoid missing fixtures
+      const res = await fetch(`${API_BASE}/football/public/peru-primera/fixtures/between/raw?start=${startStr}&end=${endStr}&max_pages=20`);
+      if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+      const json = await res.json();
+      const results = [extractMatches(json || {})];
 
       const getMatchDate = (f: any) => (
         f?.starting_at ?? f?.fixture?.date ?? f?.date ?? f?.match_date ?? f?.utcDate ?? f?.iso_date ?? null
       );
 
+      const isLeague764 = (f: any) => {
+        if (!f || typeof f !== 'object') return false;
+        if (f.league_id === 764) return true;
+        if (f.league && (f.league.id === 764 || f.league.league_id === 764)) return true;
+        if (f.competition && (f.competition.id === 764 || f.competition.league_id === 764)) return true;
+        if (f?.season && (f.season.league_id === 764 || f.season.id === 764)) return true;
+        return false;
+      };
+
       const matches = results.flat().filter((f: any) => {
+        if (!isLeague764(f)) return false;
         const rawDate = getMatchDate(f);
         if (!rawDate) return false;
         const dt = new Date(rawDate);
@@ -143,6 +161,13 @@ export default function PeruPrimera() {
         return ad - bd;
       });
 
+      // debug: log fetched matches to help diagnose missing fixtures
+      try {
+        // eslint-disable-next-line no-console
+        console.log('fetchCalendar: total fixtures after filter:', matches.length);
+        // eslint-disable-next-line no-console
+        console.log(matches.map((m: any) => ({ name: m.name ?? m.title ?? m.fullname ?? '', date: getMatchDate(m) })));
+      } catch (e) {}
       setUpcomingMatches(matches.slice(0, 20));
     } catch (err: any) {
       setError(err.message || 'Error');
