@@ -132,6 +132,11 @@ export default function MexicoLigaMX() {
   }
 
   const leagueObj = summary?.response?.[0]?.league || summary?.league || summary || null;
+  const filteredStandings = (standings || []).filter((row: any) => {
+    const rowSummary = row.summary || row.season?.summary || null;
+    const played = rowSummary?.played ?? row.played ?? row.games_played ?? row.matches_played ?? row.PJ ?? 0;
+    return Number(played) !== 17;
+  });
 
   return (
     <div style={{ minHeight: '100vh', background: '#071026', color: '#fff' }}>
@@ -139,7 +144,7 @@ export default function MexicoLigaMX() {
       <div className="container-max main-layout" style={{ gridTemplateColumns: '1fr', justifyContent: 'center' }}>
         <div style={{ width: '100%', maxWidth: 980, marginLeft: 'auto', marginRight: 'auto' }}>
           <div className="logos-row">
-            {standings && standings.slice(0, 20).map((row: any, i: number) => {
+            {filteredStandings.slice(0, 20).map((row: any, i: number) => {
               const participant = row.participant || {};
               const teamName = participant.name || row.name || `ID ${participant.id || row.participant_id}`;
               const logo = participant.image_path || '/logo_placeholder.png';
@@ -181,7 +186,7 @@ export default function MexicoLigaMX() {
                   </tr>
                 </thead>
                 <tbody>
-                  {standings && standings.length ? standings.map((row: any, idx: number) => {
+                  {filteredStandings.length ? filteredStandings.map((row: any, idx: number) => {
                     const position = row.position ?? idx + 1;
                     const participant = row.participant || {};
                     const name = participant.name || row.name || `ID ${participant.id || row.participant_id}`;

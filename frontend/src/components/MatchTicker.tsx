@@ -84,8 +84,9 @@ export default function MatchTicker({ matches }: { matches?: Match[] }) {
       const away = awayP?.name ?? awayP?.participant?.name ?? f.teams?.away?.name ?? f.away?.name ?? f.away ?? f.away_team ?? (f.away_team_name || '');
       const date = getMatchDate(f);
       const dt = date ? new Date(date) : null;
-      const time = dt ? dt.toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' }) : '';
-      const day = dt ? dt.toLocaleDateString('es-PE', { weekday: 'short', day: '2-digit', month: 'short' }) : '';
+      const adjusted = dt ? new Date(dt.getTime() - 5 * 60 * 60 * 1000) : null;
+      const time = adjusted ? adjusted.toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' }) : '';
+      const day = adjusted ? adjusted.toLocaleDateString('es-PE', { weekday: 'short', day: '2-digit', month: 'short' }) : '';
 
       const homeScore = (f.result?.home ?? f.score?.home ?? f.goals?.home ?? f.goals_home ?? null);
       const awayScore = (f.result?.away ?? f.score?.away ?? f.goals?.away ?? f.goals_away ?? null);
@@ -202,14 +203,18 @@ export default function MatchTicker({ matches }: { matches?: Match[] }) {
           .match-ticker{padding:10px}
           .ticker-viewport{overflow:visible}
           .ticker-track{gap:10px;animation:none;flex-direction:column}
-          .match{min-width:0;width:100%;padding:10px;gap:6px}
+          .match{min-width:0;width:93%;padding:10px;gap:6px}
           .league{font-size:0.78rem}
           .day{font-size:0.74rem}
+          .match-top{order:1}
+          .time{order:2}
+          .teams{order:3}
+          .score-top{order:4}
           .teams{font-size:0.95rem;gap:6px;flex-direction:column;align-items:flex-start}
           .score{display:none}
           .score-top{display:inline-flex;align-self:flex-start;background:rgba(255,255,255,0.08);padding:3px 6px;border-radius:5px;font-size:0.78rem;font-weight:800;color:#fff}
           .team-left,.team-right{flex:none;width:100%;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-          .time{font-size:0.75rem}
+          .time{font-size:0.75rem;align-self:flex-end}
         }
         @media (max-width:380px){
           .match{min-width:155px}

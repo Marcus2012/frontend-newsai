@@ -282,9 +282,8 @@ export default function Header() {
           <Link href="/contacto">Contacto</Link>
           <div className="social-icons">
             <a href="https://x.com/asieselfutbol_" className="x" target="_blank" rel="noopener noreferrer" aria-label="X">
-              <svg viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg" aria-hidden>
-                <circle cx="22" cy="22" r="22" fill="#000" />
-                <path d="M15 15 L29 29 M29 15 L15 29" stroke="#fff" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" />
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.505 11.24h-6.63l-5.19-6.79-5.94 6.79H1.76l7.73-8.84L1.3 2.25h6.8l4.7 6.2 5.44-6.2zm-1.16 17.5h1.83L7.42 4.13H5.46l11.62 15.62z" fill="#fff"/>
               </svg>
             </a>
             <a href="https://www.facebook.com/asieselfutbol" className="facebook" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
@@ -297,31 +296,17 @@ export default function Header() {
               </svg>
             </a>
             <a href="https://www.instagram.com/asieselfutbol/#" className="instagram" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
-              <svg viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                  <radialGradient id="ig" cx="30%" cy="107%" r="150%">
-                    <stop offset="0%" stopColor="#fdf497"/>
-                    <stop offset="5%" stopColor="#fdf497"/>
-                    <stop offset="45%" stopColor="#fd5949"/>
-                    <stop offset="60%" stopColor="#d6249f"/>
-                    <stop offset="90%" stopColor="#285AEB"/>
-                  </radialGradient>
-                </defs>
-                <circle cx="22" cy="22" r="22" fill="url(#ig)"/>
-                <rect x="11" y="11" width="22" height="22" rx="7" fill="none" stroke="#fff" strokeWidth="2.5"/>
-                <circle cx="22" cy="22" r="7" fill="none" stroke="#fff" strokeWidth="2.5"/>
-                <circle cx="30.5" cy="15.5" r="2.2" fill="#fff"/>
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+                <rect x="4.8" y="4.8" width="14.4" height="14.4" rx="4.6" fill="none" stroke="#fff" strokeWidth="1.9"/>
+                <circle cx="12" cy="12" r="4.1" fill="none" stroke="#fff" strokeWidth="1.9"/>
+                <circle cx="16.4" cy="7.6" r="1.15" fill="#fff"/>
               </svg>
             </a>
             <a href="https://www.tiktok.com/@asieselfutbol.com" className="tiktok" target="_blank" rel="noopener noreferrer" aria-label="TikTok">
-              <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden>
-                <circle cx="32" cy="32" r="32" fill="#000" />
-                <g>
-                  <path d="M38.5 18.5c1.7 1.3 3.7 2.1 5.9 2.1v5.1c-2.1-.1-4.1-.8-5.9-2v14.2c0 5.5-4.5 10-10 10s-10-4.5-10-10 4.5-10 10-10c.5 0 1 .1 1.5.2v5.5c-.5-.1-1-.2-1.5-.2-2.5 0-4.5 2-4.5 4.5s2 4.5 4.5 4.5 4.5-2 4.5-4.5V12h6c.2 3 2.7 5.5 5.7 5.7v4.3c-1.9-.2-3.7-.7-5.2-1.5z" fill="#fff"/>
-                  <path d="M38.5 18.5c1.7 1.3 3.7 2.1 5.9 2.1v2.2c-2.1-.1-4.1-.8-5.9-2v-2.3z" fill="#25F4EE"/>
-                  <path d="M38.5 12h-6v23.5c0 2.5-2 4.5-4.5 4.5-.7 0-1.4-.2-2-.4v3.2c.6.1 1.3.2 2 .2 5.5 0 10-4.5 10-10V12z" fill="#FE2C55"/>
-                  <path d="M32.5 12v23.5c0 2.5-2 4.5-4.5 4.5-.7 0-1.4-.2-2-.4v-2.2c.6.1 1.3.2 2 .2 2.5 0 4.5-2 4.5-4.5V12h.5z" fill="#25F4EE"/>
-                </g>
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+                <path d="M17.2 2.5h2.4c.2 1.8 1.4 3.3 3 3.7v2.5c-1.2.1-2.4-.3-3.4-1v6.2c0 3.6-2.9 6.6-6.6 6.6s-6.6-2.9-6.6-6.6 2.9-6.6 6.6-6.6c.6 0 1.1.1 1.6.2v2.7c-.5-.2-1-.3-1.6-.3-2.1 0-3.8 1.7-3.8 3.8s1.7 3.8 3.8 3.8 3.8-1.7 3.8-3.8V2.5z" fill="#25F4EE" transform="translate(0.9,0.7)"/>
+                <path d="M17.2 2.5h2.4c.2 1.8 1.4 3.3 3 3.7v2.5c-1.2.1-2.4-.3-3.4-1v6.2c0 3.6-2.9 6.6-6.6 6.6s-6.6-2.9-6.6-6.6 2.9-6.6 6.6-6.6c.6 0 1.1.1 1.6.2v2.7c-.5-.2-1-.3-1.6-.3-2.1 0-3.8 1.7-3.8 3.8s1.7 3.8 3.8 3.8 3.8-1.7 3.8-3.8V2.5z" fill="#FE2C55" transform="translate(-0.7,-0.6)"/>
+                <path d="M17.2 2.5h2.4c.2 1.8 1.4 3.3 3 3.7v2.5c-1.2.1-2.4-.3-3.4-1v6.2c0 3.6-2.9 6.6-6.6 6.6s-6.6-2.9-6.6-6.6 2.9-6.6 6.6-6.6c.6 0 1.1.1 1.6.2v2.7c-.5-.2-1-.3-1.6-.3-2.1 0-3.8 1.7-3.8 3.8s1.7 3.8 3.8 3.8 3.8-1.7 3.8-3.8V2.5z" fill="#fff"/>
               </svg>
             </a>
           </div>
@@ -419,10 +404,11 @@ export default function Header() {
         .social-icons a.x{background:#000;}
         .social-icons a.facebook{background:#1877F2;}
         .social-icons a.youtube{background:#FF0000;}
-        .social-icons a.instagram{background:radial-gradient(circle at 30% 110%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%);}
+        .social-icons a.instagram{background:radial-gradient(circle at 30% 110%, #fdf497 0%, #fdf497 8%, #fd5949 45%, #d6249f 62%, #285AEB 90%);}
         .social-icons a.threads{background:#fff;}
         .social-icons a.tiktok{background:#000;}
         .social-icons a svg{width:24px;height:24px;}
+        .social-icons a.tiktok svg{transform:translateX(-0.6px);transform-origin:center;}
         .has-dropdown{position:relative}
         .has-mega{position:relative}
         .has-mega .mega{position:absolute;left:0;top:100%;z-index:1600;display:none;background:rgba(10,14,39,0.98);padding:16px;border-radius:12px;box-shadow:0 20px 60px rgba(2,6,23,0.6);min-width:420px;color:#fff}
