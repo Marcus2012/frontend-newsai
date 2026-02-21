@@ -195,7 +195,7 @@ export default function PremierLeague() {
             <button className={`tab-btn ${activeTab==='calendar' ? 'active' : ''}`} onClick={async ()=>{ setActiveTab('calendar'); if(!upcomingMatches || upcomingMatches.length===0) await fetchCalendar(); }} disabled={loading}>Calendario</button>
           </div>
 
-          <h1 style={{ color: '#00ffc8', marginTop: 12 }}>Premier League — England</h1>
+          <h1 style={{ color: '#00ffc8', marginTop: 12 }}>Premier League — Inglaterra</h1>
 
           {loading && <p style={{ color: '#aaa', marginTop: 18 }}>Cargando...</p>}
           {error && <p style={{ color: '#ff8b8b', marginTop: 18 }}>{error}</p>}
