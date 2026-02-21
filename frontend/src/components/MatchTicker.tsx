@@ -88,8 +88,42 @@ export default function MatchTicker({ matches }: { matches?: Match[] }) {
       const time = adjusted ? adjusted.toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' }) : '';
       const day = adjusted ? adjusted.toLocaleDateString('es-PE', { weekday: 'short', day: '2-digit', month: 'short' }) : '';
 
-      const homeScore = (f.result?.home ?? f.score?.home ?? f.goals?.home ?? f.goals_home ?? null);
-      const awayScore = (f.result?.away ?? f.score?.away ?? f.goals?.away ?? f.goals_away ?? null);
+      const homeId = homeP?.id ?? homeP?.participant_id ?? homeP?.participant?.id ?? null;
+      const awayId = awayP?.id ?? awayP?.participant_id ?? awayP?.participant?.id ?? null;
+      const scores = f?.scores ?? f?.fixture?.scores ?? [];
+      const normalizeScores = Array.isArray(scores) ? scores.map((s: any) => ({
+        participantId: s.participant_id ?? s.participant?.id ?? s.participantId ?? s.team_id ?? null,
+        participantSide: String(s.score?.participant ?? s.participant ?? s.side ?? s.location ?? '').toLowerCase(),
+        goals: s.score?.goals ?? s.goals ?? s.score?.value ?? null,
+        typeId: s.type_id ?? s.score?.type_id ?? null,
+        description: String(s.description ?? s.score?.description ?? '').toLowerCase(),
+      })) : [];
+
+      const scorePriority = (desc: string) => {
+        if (/final|ft|full|result|regular|end/.test(desc)) return 3;
+        if (/current|live/.test(desc)) return 2;
+        return 1;
+      };
+
+      const pickGoals = (items: any[]) => {
+        if (!items.length) return null;
+        const ranked = items
+          .map(i => ({ ...i, _prio: scorePriority(i.description) }))
+          .sort((a, b) => (b._prio - a._prio) || ((Number(b.typeId) || 0) - (Number(a.typeId) || 0)));
+        return ranked[0]?.goals ?? null;
+      };
+
+      const fromScoresById = (id: any) => pickGoals(normalizeScores.filter(i => i.participantId === id && i.goals !== null));
+      const fromScoresBySide = (side: string) => pickGoals(normalizeScores.filter(i => i.participantSide === side && i.goals !== null));
+
+      const homeScore = (
+        f.result?.home ?? f.score?.home ?? f.goals?.home ?? f.goals_home ??
+        (homeId ? fromScoresById(homeId) : fromScoresBySide('home'))
+      );
+      const awayScore = (
+        f.result?.away ?? f.score?.away ?? f.goals?.away ?? f.goals_away ??
+        (awayId ? fromScoresById(awayId) : fromScoresBySide('away'))
+      );
       const score = (homeScore !== null && awayScore !== null) ? `${homeScore} - ${awayScore}` : '-';
 
       return {
@@ -104,9 +138,11 @@ export default function MatchTicker({ matches }: { matches?: Match[] }) {
 
     const fetchFixtures = async () => {
       const today = new Date();
-      const dateRange = Array.from({ length: 8 }, (_, idx) => {
+      const startOffset = -3;
+      const endOffset = 7;
+      const dateRange = Array.from({ length: endOffset - startOffset + 1 }, (_, idx) => {
         const d = new Date(today);
-        d.setDate(d.getDate() + idx);
+        d.setDate(d.getDate() + startOffset + idx);
         return d.toISOString().slice(0, 10);
       });
 
@@ -120,9 +156,10 @@ export default function MatchTicker({ matches }: { matches?: Match[] }) {
       );
 
       const start = new Date(today);
+      start.setDate(start.getDate() + startOffset);
       start.setHours(0, 0, 0, 0);
       const end = new Date(today);
-      end.setDate(end.getDate() + 7);
+      end.setDate(end.getDate() + endOffset);
       end.setHours(23, 59, 59, 999);
 
       const filtered = results.flat().filter((f: any) => {

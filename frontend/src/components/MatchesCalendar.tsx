@@ -46,8 +46,9 @@ export default function MatchesCalendar({
 
             const date = f.starting_at ?? f.fixture?.date ?? f.date ?? f.match_date ?? f.utcDate ?? f.iso_date ?? null;
             const dt = date ? new Date(date) : null;
-            const formattedDate = dt ? dt.toLocaleDateString('es-PE', { day: '2-digit', month: 'numeric', year: 'numeric' }) : '';
-            const formattedTime = dt ? dt.toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' }) : '';
+            const adjusted = dt ? new Date(dt.getTime() - 5 * 60 * 60 * 1000) : null;
+            const formattedDate = adjusted ? adjusted.toLocaleDateString('es-PE', { day: '2-digit', month: 'numeric', year: 'numeric' }) : '';
+            const formattedTime = adjusted ? adjusted.toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' }) : '';
 
             return (
               <div key={i} className="match-card">
