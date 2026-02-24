@@ -20,19 +20,42 @@ export default function MyApp({ Component, pageProps }: AppProps) {
 
     useEffect(() => {
       function loadScript(callback: () => void) {
-        const head = document.getElementsByTagName("head")[0];
-        const script = document.createElement("script");
-        script.type = "text/javascript";
-        script.src = "https://tracker.metricool.com/resources/be.js";
+        const head = document.getElementsByTagName('head')[0];
+        const existing = document.querySelector('script[src="https://tracker.metricool.com/resources/be.js"]');
+        if (existing) {
+          // If script already present, call callback asynchronously
+          setTimeout(callback, 0);
+          return;
+        }
+        const script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.src = 'https://tracker.metricool.com/resources/be.js';
         script.onload = callback;
+        script.onerror = () => console.error('Metricool script failed to load');
         head.appendChild(script);
       }
+      const HASH = '8cc6a4ba2e515faa79e7a2f8032a1d47';
       loadScript(function () {
+        // Debug logs to help verify script and hash
         // @ts-ignore
-        if (window.beTracker && window.beTracker.t) {
+        console.log('Metricool: load callback', { beTracker: (window as any).beTracker });
+        // @ts-ignore
+        if ((window as any).beTracker && (window as any).beTracker.t) {
           // @ts-ignore
-          window.beTracker.t({ hash: "8cc6a4ba2e515faa79e7a2f8032a1d47" });
+          (window as any).beTracker.t({ hash: HASH });
+          console.log('Metricool: tracker invoked with hash', HASH);
+        } else {
+          console.warn('Metricool: beTracker object not available after load');
         }
+
+        // Inject a meta tag into <head> so you can easily verify the hash in Elements
+        let meta = document.querySelector('meta[name="metricool-hash"]') as HTMLMetaElement | null;
+        if (!meta) {
+          meta = document.createElement('meta');
+          meta.name = 'metricool-hash';
+          document.getElementsByTagName('head')[0].appendChild(meta);
+        }
+        meta.content = HASH;
       });
     }, []);
 
