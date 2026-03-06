@@ -37,6 +37,7 @@ export default function Header() {
 
   const [mobileLeaguesOpenEurope, setMobileLeaguesOpenEurope] = useState(false);
   const [mobileLeaguesOpenAmerica, setMobileLeaguesOpenAmerica] = useState(false);
+  const [mobileLeaguesOpenConmebol, setMobileLeaguesOpenConmebol] = useState(false);
   const [isClient, setIsClient] = useState(false);
   
   useEffect(() => {
@@ -272,6 +273,11 @@ export default function Header() {
                   <Link href="/matches/usa/mls">USA MLS</Link>
                   <Link href="/matches/mexico/liga-mx">Mexico Liga MX</Link>
                 </div>
+                <div className="dropdown-section">
+                  <div className="dropdown-title">CONMEBOL</div>
+                  <Link href="/matches/conmebol/copa-libertadores">Copa Libertadores</Link>
+                  <Link href="/matches/conmebol/copa-sudamericana">Copa Sudamericana</Link>
+                </div>
               </div>
           </div>
 
@@ -358,6 +364,16 @@ export default function Header() {
                 <a href="/matches/ecuador/liga-pro">Ecuador Liga Pro</a>
                 <a href="/matches/usa/mls">USA MLS</a>
                 <a href="/matches/mexico/liga-mx">Mexico Liga MX</a>
+              </div>
+            )}
+          </div>
+
+          <div className="mobile-leagues">
+            <button className="mobile-leagues-toggle" onClick={() => setMobileLeaguesOpenConmebol(prev => !prev)} aria-expanded={mobileLeaguesOpenConmebol} type="button">CONMEBOL ▾</button>
+            {mobileLeaguesOpenConmebol && (
+              <div className="mobile-submenu">
+                <a href="/matches/conmebol/copa-libertadores">Copa Libertadores</a>
+                <a href="/matches/conmebol/copa-sudamericana">Copa Sudamericana</a>
               </div>
             )}
           </div>

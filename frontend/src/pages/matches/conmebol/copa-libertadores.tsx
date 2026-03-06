@@ -48,7 +48,17 @@ export default function CopaLibertadores() {
     setError(null);
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/football/public/copa-libertadores/fixtures?next=20`);
+      const today = new Date();
+      const start = new Date(today);
+      start.setDate(start.getDate() - 1);
+      start.setHours(0, 0, 0, 0);
+      const end = new Date(today);
+      end.setDate(end.getDate() + 7);
+      end.setHours(23, 59, 59, 999);
+      const startStr = start.toISOString().slice(0, 10);
+      const endStr = end.toISOString().slice(0, 10);
+      // use RAW (no season filtering) endpoint to avoid missing fixtures
+      const res = await fetch(`${API_BASE}/football/public/copa-libertadores/fixtures/between/raw?start=${startStr}&end=${endStr}&max_pages=8`);
       if (!res.ok) {
         await fetchSummary();
         return;
@@ -101,7 +111,17 @@ export default function CopaLibertadores() {
       };
 
       const matches = extractMatches(json || {});
-      setUpcomingMatches(matches.slice(0, 20));
+      const getCompText = (m: any) => {
+        const vals = [m?.league?.name, m?.league_name, m?.competition?.name, m?.tournament, m?.tournament_name, m?.competition_name];
+        return vals.filter(Boolean).join(' ').toLowerCase();
+      };
+
+      const filtered = matches.filter((m: any) => {
+        const txt = getCompText(m);
+        return txt.includes('libertadores') || txt.includes('copa libertadores');
+      });
+
+      setUpcomingMatches((filtered.length ? filtered : matches).slice(0, 20));
       setSummary(json || {});
     } catch (err: any) {
       setError(err.message || 'Error');
@@ -153,7 +173,7 @@ export default function CopaLibertadores() {
           </div>
 
           <div className="tabs-row">
-            <button className={`tab-btn ${activeTab==='table' ? 'active' : ''}`} onClick={async ()=>{ setActiveTab('table'); if(!standings) await fetchTable(); }} disabled={loading}>Tabla</button>
+            <button className={`tab-btn ${activeTab==='table' ? 'active' : ''}`} onClick={async ()=>{ setActiveTab('table'); if(!standings || (Array.isArray(standings) && standings.length === 0)) await fetchTable(); }} disabled={loading}>Tabla</button>
             <button className={`tab-btn ${activeTab==='calendar' ? 'active' : ''}`} onClick={async ()=>{ setActiveTab('calendar'); if(!upcomingMatches || upcomingMatches.length===0) await fetchCalendar(); }} disabled={loading}>Calendario</button>
           </div>
 

@@ -48,7 +48,17 @@ export default function CopaSudamericana() {
     setError(null);
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/football/public/copa-sudamericana/fixtures?next=20`);
+      const today = new Date();
+      const start = new Date(today);
+      start.setDate(start.getDate() - 1);
+      start.setHours(0, 0, 0, 0);
+      const end = new Date(today);
+      end.setDate(end.getDate() + 7);
+      end.setHours(23, 59, 59, 999);
+      const startStr = start.toISOString().slice(0, 10);
+      const endStr = end.toISOString().slice(0, 10);
+      // use RAW (no season filtering) endpoint to avoid missing fixtures
+      const res = await fetch(`${API_BASE}/football/public/copa-sudamericana/fixtures/between/raw?start=${startStr}&end=${endStr}&max_pages=8`);
       if (!res.ok) {
         await fetchSummary();
         return;
@@ -101,7 +111,35 @@ export default function CopaSudamericana() {
       };
 
       const matches = extractMatches(json || {});
-      setUpcomingMatches(matches.slice(0, 20));
+
+      const getCompText = (m: any) => {
+        const vals = [m?.league?.name, m?.league_name, m?.competition?.name, m?.tournament, m?.tournament_name, m?.competition_name];
+        return vals.filter(Boolean).join(' ').toLowerCase();
+      };
+
+      const filtered = matches.filter((m: any) => {
+        const txt = getCompText(m);
+        const idMatches = [
+          m?.league_id,
+          m?.league?.id,
+          m?.league?.league_id,
+          m?.competition_id,
+          m?.competition?.id,
+          m?.tournament_id,
+          m?.season_id,
+          m?.season?.id
+        ].filter(Boolean).map(Number);
+
+        // Known Copa Sudamericana identifiers observed in API
+        const knownLeagueIds = [1116];
+        const knownSeasonIds = [26783];
+
+        const hasKnownId = idMatches.some(n => knownLeagueIds.includes(n) || knownSeasonIds.includes(n));
+
+        return hasKnownId || txt.includes('sudamericana') || txt.includes('copa sudamericana');
+      });
+
+      setUpcomingMatches((filtered.length ? filtered : matches).slice(0, 20));
       setSummary(json || {});
     } catch (err: any) {
       setError(err.message || 'Error');
