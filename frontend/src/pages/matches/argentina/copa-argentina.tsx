@@ -230,7 +230,7 @@ export default function ArgentinaCopaArgentina() {
 
           {activeTab === 'calendar' && (
             <MatchesCalendar
-              title="Calendario — Proximos"
+              title="Calendario — Partidos"
               matches={upcomingMatches}
               loading={loading}
               preds={preds}

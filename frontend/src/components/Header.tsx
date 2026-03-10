@@ -231,7 +231,9 @@ export default function Header() {
     <header className="site-header">
       <div className="inner">
         <div className="brand">
-          <img src="/Logo_aeef.png" alt="Logo" className="logo" />
+          <Link href="/">
+            <img src="/Logo_aeef.png" alt="Logo" className="logo" style={{ cursor: 'pointer' }} />
+          </Link>
           <div className="brand-text">
             {/*
             <div className="brand-title">asi es el futbol</div>

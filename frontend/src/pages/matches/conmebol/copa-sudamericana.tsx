@@ -118,28 +118,10 @@ export default function CopaSudamericana() {
       };
 
       const filtered = matches.filter((m: any) => {
-        const txt = getCompText(m);
-        const idMatches = [
-          m?.league_id,
-          m?.league?.id,
-          m?.league?.league_id,
-          m?.competition_id,
-          m?.competition?.id,
-          m?.tournament_id,
-          m?.season_id,
-          m?.season?.id
-        ].filter(Boolean).map(Number);
-
-        // Known Copa Sudamericana identifiers observed in API
-        const knownLeagueIds = [1116];
-        const knownSeasonIds = [26783];
-
-        const hasKnownId = idMatches.some(n => knownLeagueIds.includes(n) || knownSeasonIds.includes(n));
-
-        return hasKnownId || txt.includes('sudamericana') || txt.includes('copa sudamericana');
+        return m.league_id === 1116 && m.season_id === 26783;
       });
 
-      setUpcomingMatches((filtered.length ? filtered : matches).slice(0, 20));
+      setUpcomingMatches(filtered.slice(0, 20));
       setSummary(json || {});
     } catch (err: any) {
       setError(err.message || 'Error');
@@ -268,7 +250,7 @@ export default function CopaSudamericana() {
 
           {activeTab === 'calendar' && (
             <MatchesCalendar
-              title="Calendario — Proximos"
+              title="Calendario — Partidos"
               matches={upcomingMatches}
               loading={loading}
               preds={preds}

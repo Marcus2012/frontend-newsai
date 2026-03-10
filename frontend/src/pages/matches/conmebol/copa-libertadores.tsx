@@ -117,11 +117,10 @@ export default function CopaLibertadores() {
       };
 
       const filtered = matches.filter((m: any) => {
-        const txt = getCompText(m);
-        return txt.includes('libertadores') || txt.includes('copa libertadores');
+        return m.league_id === 1122 && m.season_id === 26784;
       });
 
-      setUpcomingMatches((filtered.length ? filtered : matches).slice(0, 20));
+      setUpcomingMatches(filtered.slice(0, 20));
       setSummary(json || {});
     } catch (err: any) {
       setError(err.message || 'Error');
@@ -250,7 +249,7 @@ export default function CopaLibertadores() {
 
           {activeTab === 'calendar' && (
             <MatchesCalendar
-              title="Calendario — Proximos"
+              title="Calendario — Partidos"
               matches={upcomingMatches}
               loading={loading}
               preds={preds}

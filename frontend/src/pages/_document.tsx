@@ -5,9 +5,9 @@ class MyDocument extends Document {
     return (
       <Html lang="es">
         <Head>
-          <link rel="icon" type="image/svg+xml" href="/asieselfutbol.svg" />
-          <link rel="icon" href="/asieselfutbol.svg" />
-          <link rel="apple-touch-icon" href="/asieselfutbol.svg" />
+          <link rel="icon" type="image/png" href="/Logo_aeef.png" />
+          <link rel="icon" href="/Logo_aeef.png" />
+          <link rel="apple-touch-icon" href="/Logo_aeef.png" />
           <link rel="manifest" href="/manifest.webmanifest" />
           <script
             dangerouslySetInnerHTML={{
