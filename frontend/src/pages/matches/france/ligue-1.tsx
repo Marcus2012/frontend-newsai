@@ -247,7 +247,7 @@ export default function Ligue1() {
 
           {activeTab === 'calendar' && (
             <MatchesCalendar
-              title="Calendario — Partidos HOY"
+              title="Calendario — Partidos"
               matches={upcomingMatches}
               loading={loading}
             />
