@@ -50,7 +50,6 @@ export default function CopaSudamericana() {
     try {
       const today = new Date();
       const start = new Date(today);
-      start.setDate(start.getDate() - 1);
       start.setHours(0, 0, 0, 0);
       const end = new Date(today);
       end.setDate(end.getDate() + 7);
@@ -117,8 +116,14 @@ export default function CopaSudamericana() {
         return vals.filter(Boolean).join(' ').toLowerCase();
       };
 
+      const todayLocal = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
       const filtered = matches.filter((m: any) => {
-        return m.league_id === 1116 && m.season_id === 26783;
+        if (m.league_id !== 1116 || m.season_id !== 26783) return false;
+        const d = m.starting_at || m.fixture?.date || m.date || m.match_date || m.utcDate || m.iso_date || '';
+        const dt = new Date(d);
+        const adjusted = new Date(dt.getTime() - 5 * 60 * 60 * 1000);
+        const localDate = `${adjusted.getFullYear()}-${String(adjusted.getMonth()+1).padStart(2,'0')}-${String(adjusted.getDate()).padStart(2,'0')}`;
+        return localDate >= todayLocal;
       });
 
       setUpcomingMatches(filtered.slice(0, 20));

@@ -120,7 +120,6 @@ export default function PeruPrimera() {
       };
 
       const start = new Date(today);
-      start.setDate(start.getDate() - 1);
       start.setHours(0, 0, 0, 0);
       const end = new Date(today);
       end.setDate(end.getDate() + 6);
@@ -147,12 +146,15 @@ export default function PeruPrimera() {
         return false;
       };
 
+      const todayLocal = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
       const matches = results.flat().filter((f: any) => {
         if (!isLeague764(f)) return false;
         const rawDate = getMatchDate(f);
         if (!rawDate) return false;
         const dt = new Date(rawDate);
-        return dt >= start && dt <= end;
+        const adjusted = new Date(dt.getTime() - 5 * 60 * 60 * 1000);
+        const localDate = `${adjusted.getFullYear()}-${String(adjusted.getMonth()+1).padStart(2,'0')}-${String(adjusted.getDate()).padStart(2,'0')}`;
+        return localDate >= todayLocal && dt <= end;
       });
 
       matches.sort((a: any, b: any) => {

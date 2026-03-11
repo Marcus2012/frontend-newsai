@@ -50,7 +50,16 @@ export default function PremierLeague() {
     setError(null);
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/football/public/premier/fixtures?next=20`);
+      const today = new Date();
+      const start = new Date(today);
+      start.setHours(0, 0, 0, 0);
+      const end = new Date(today);
+      end.setDate(end.getDate() + 7);
+      end.setHours(23, 59, 59, 999);
+      const startStr = start.toISOString().slice(0, 10);
+      const endStr = end.toISOString().slice(0, 10);
+      // use RAW (no season filtering) endpoint to avoid missing fixtures
+      const res = await fetch(`${API_BASE}/football/public/premier-league/fixtures/between/raw?start=${startStr}&end=${endStr}&max_pages=8`);
       if (!res.ok) {
         await fetchSummary();
         return;
@@ -108,7 +117,18 @@ export default function PremierLeague() {
       };
 
       const matches = extractMatches(json || {});
-      setUpcomingMatches(matches.slice(0, 20));
+
+      const todayLocal = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+      const filtered = matches.filter((m: any) => {
+        if (m.league_id !== 8 || m.season_id !== 25583) return false;
+        const d = m.starting_at || m.fixture?.date || m.date || m.match_date || m.utcDate || m.iso_date || '';
+        const dt = new Date(d);
+        const adjusted = new Date(dt.getTime() - 5 * 60 * 60 * 1000);
+        const localDate = `${adjusted.getFullYear()}-${String(adjusted.getMonth()+1).padStart(2,'0')}-${String(adjusted.getDate()).padStart(2,'0')}`;
+        return localDate >= todayLocal;
+      });
+
+      setUpcomingMatches(filtered.slice(0, 20));
       setSummary(json || {});
     } catch (err: any) {
       setError(err.message || 'Error');
@@ -270,9 +290,11 @@ export default function PremierLeague() {
 
           {activeTab === 'calendar' && (
             <MatchesCalendar
-              title="Calendario — Partidos HOY"
+              title="Calendario — Partidos"
               matches={upcomingMatches}
               loading={loading}
+              preds={preds}
+              onPredict={fetchPrediction}
             />
           )}
 

@@ -50,13 +50,13 @@ export default function CopaLibertadores() {
     try {
       const today = new Date();
       const start = new Date(today);
-      start.setDate(start.getDate() - 1);
       start.setHours(0, 0, 0, 0);
       const end = new Date(today);
       end.setDate(end.getDate() + 7);
       end.setHours(23, 59, 59, 999);
       const startStr = start.toISOString().slice(0, 10);
       const endStr = end.toISOString().slice(0, 10);
+      const todayLocal = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
       // use RAW (no season filtering) endpoint to avoid missing fixtures
       const res = await fetch(`${API_BASE}/football/public/copa-libertadores/fixtures/between/raw?start=${startStr}&end=${endStr}&max_pages=8`);
       if (!res.ok) {
@@ -117,7 +117,13 @@ export default function CopaLibertadores() {
       };
 
       const filtered = matches.filter((m: any) => {
-        return m.league_id === 1122 && m.season_id === 26784;
+        if (m.league_id !== 1122 || m.season_id !== 26784) return false;
+        const d = m.starting_at || m.fixture?.date || m.date || m.match_date || m.utcDate || m.iso_date || '';
+        const dt = new Date(d);
+        // Apply same -5h offset as MatchesCalendar so filter matches displayed date
+        const adjusted = new Date(dt.getTime() - 5 * 60 * 60 * 1000);
+        const localDate = `${adjusted.getFullYear()}-${String(adjusted.getMonth()+1).padStart(2,'0')}-${String(adjusted.getDate()).padStart(2,'0')}`;
+        return localDate >= todayLocal;
       });
 
       setUpcomingMatches(filtered.slice(0, 20));
