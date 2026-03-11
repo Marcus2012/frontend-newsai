@@ -25,7 +25,7 @@ export default function SerieA() {
     setError(null);
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/football/public/seriea/standings`);
+      const res = await fetch(`${API_BASE}/football/public/serie-a/standings`);
       if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
       const json = await res.json();
       const s = json?.response?.[0]?.league?.standings?.[0] || json?.standings || json?.response || json?.data || [];
