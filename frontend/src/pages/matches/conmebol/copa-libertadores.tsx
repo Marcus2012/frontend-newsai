@@ -13,6 +13,7 @@ export default function CopaLibertadores() {
   const [summary, setSummary] = useState<any | null>(null);
   const [tableMeta, setTableMeta] = useState<any | null>(null);
   const [activeTab, setActiveTab] = useState<'table'|'calendar'>('table');
+  const [groups, setGroups] = useState<any[] | null>(null);
   const [preds, setPreds] = useState<Record<string, any>>({});
   const [upcomingMatches, setUpcomingMatches] = useState<any[] | null>(null);
 
@@ -24,7 +25,29 @@ export default function CopaLibertadores() {
       if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
       const json = await res.json();
       const s = json?.response?.[0]?.league?.standings?.[0] || json?.standings || json?.response || json?.data || [];
-      setStandings(Array.isArray(s) ? s : []);
+      const rows = Array.isArray(s) ? s : [];
+      setStandings(rows);
+
+      // Build groups from group_id if present and no top-level groups provided
+      if (json?.groups && Array.isArray(json.groups) && json.groups.length > 0) {
+        setGroups(json.groups);
+      } else {
+        const groupIds = Array.from(new Set(rows.map((r: any) => r.group_id).filter(Boolean)));
+        if (groupIds.length > 1) {
+          const sorted = (groupIds as number[]).sort((a, b) => a - b);
+          const built = sorted.map((gid, idx) => ({
+            group_id: gid,
+            group_name: `Grupo ${String.fromCharCode(65 + idx)}`,
+            standings: rows
+              .filter((r: any) => r.group_id === gid)
+              .sort((a: any, b: any) => (a.position ?? 99) - (b.position ?? 99)),
+          }));
+          setGroups(built);
+        } else {
+          setGroups(null);
+        }
+      }
+
       setTableMeta({ season: json?.season || json?.response?.[0]?.league?.season || null });
     } catch (err: any) {
       setError(err.message || 'Error');
@@ -158,13 +181,83 @@ export default function CopaLibertadores() {
 
   const leagueObj = summary?.response?.[0]?.league || summary?.league || summary || null;
 
+  function renderStandingsTable(rows: any[]) {
+    return (
+      <table className="league-table">
+        <thead>
+          <tr style={{ textAlign: 'left', color: '#9fb8b0', borderBottom: '2px solid rgba(255,255,255,0.04)' }}>
+            <th style={{ width: 40 }}>Pos</th>
+            <th style={{ width: 360 }}>Equipo</th>
+            <th style={{ width: 40 }}>PJ</th>
+            <th style={{ width: 40 }}>PG</th>
+            <th style={{ width: 40 }}>PE</th>
+            <th style={{ width: 40 }}>PP</th>
+            <th style={{ width: 50 }}>GF</th>
+            <th style={{ width: 50 }}>GC</th>
+            <th style={{ width: 60 }}>DG</th>
+            <th style={{ width: 60 }}>PTS</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows && rows.length ? rows.map((row: any, idx: number) => {
+            const position = row.position ?? idx + 1;
+            const participant = row.participant || {};
+            const name = participant.name || row.name || `ID ${participant.id || row.participant_id}`;
+            const logo = participant.image_path || row.logo || '/logo_placeholder.png';
+            const t = row.table || {};
+            const rowSummary = row.summary || row.season?.summary || null;
+            const played = t.pj ?? rowSummary?.played ?? row.played ?? row.games_played ?? row.matches_played ?? row.PJ ?? 0;
+            const win = t.pg ?? rowSummary?.won ?? row.win ?? row.wins ?? row.PG ?? 0;
+            const draw = t.pe ?? rowSummary?.draw ?? row.draw ?? row.draws ?? row.PE ?? 0;
+            const lose = t.pp ?? rowSummary?.lost ?? row.lose ?? row.losses ?? row.PP ?? 0;
+            const goalsFor = t.gf ?? rowSummary?.goals_for ?? row.goals_for ?? row.goalsfor ?? row.GF ?? 0;
+            const goalsAgainst = t.gc ?? rowSummary?.goals_against ?? row.goals_against ?? row.goalsagainst ?? row.GC ?? 0;
+            const points = t.pts ?? rowSummary?.points ?? row.points ?? row.Pts ?? 0;
+            const diff = t.dg ?? (typeof rowSummary?.goal_difference !== 'undefined'
+              ? rowSummary?.goal_difference
+              : (typeof row.goal_difference !== 'undefined')
+                ? row.goal_difference
+                : (goalsFor - goalsAgainst));
+            const dgColor = diff > 0 ? '#7ee787' : diff < 0 ? '#ff8b8b' : '#cfe';
+            const topN = (rows.length <= 6) ? 2 : 4;
+            const rowBorder = position <= topN ? '4px solid rgba(0,255,200,0.12)' : '1px solid rgba(255,255,255,0.03)';
+
+            return (
+              <tr key={idx} style={{ borderTop: rowBorder }} className={position <= topN ? 'league-pos-top3' : ''}>
+                <td className="league-pos">{position}</td>
+                <td className="league-team-cell">
+                  <img src={logo || '/logo_placeholder.png'} alt={name} style={{ width: 28, height: 28, objectFit: 'contain', borderRadius: 4 }} onError={(e: any)=>{ if(e.currentTarget.src !== '/logo_placeholder.png') e.currentTarget.src = '/logo_placeholder.png'; }} />
+                  <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <span style={{ fontWeight: 700 }}>{formatTeamName(name)}</span>
+                    <span style={{ color: '#9aa', fontSize: '0.85em' }}>{participant.short_code ?? row.shortName ?? ''}</span>
+                  </div>
+                </td>
+                <td>{played}</td>
+                <td>{win}</td>
+                <td>{draw}</td>
+                <td>{lose}</td>
+                <td>{goalsFor}</td>
+                <td>{goalsAgainst}</td>
+                <td className="league-dg" style={{ color: dgColor }}>{diff > 0 ? `+${diff}` : diff}</td>
+                <td style={{ fontWeight: 900 }}>{points}</td>
+              </tr>
+            );
+          }) : <tr><td colSpan={10} style={{ padding: 12, color: '#aaa' }}>Sin datos</td></tr>}
+        </tbody>
+      </table>
+    );
+  }
+
   return (
     <div style={{ minHeight: '100vh', background: '#071026', color: '#fff' }}>
       <Header />
       <div className="container-max main-layout" style={{ gridTemplateColumns: '1fr', justifyContent: 'center' }}>
         <div style={{ width: '100%', maxWidth: 980, marginLeft: 'auto', marginRight: 'auto' }}>
           <div className="logos-row">
-            {standings && standings.slice(0, 20).map((row: any, i: number) => {
+            {(groups && groups.length > 0
+              ? groups.flatMap((g: any) => (g.standings || []).slice(0, 4))
+              : (standings || []).slice(0, 20)
+            ).map((row: any, i: number) => {
               const participant = row.participant || {};
               const teamName = participant.name || row.name || `ID ${participant.id || row.participant_id}`;
               const logo = participant.image_path || '/logo_placeholder.png';
@@ -190,66 +283,16 @@ export default function CopaLibertadores() {
           {activeTab === 'table' && standings && (
             <div className="table-wrap" style={{ marginTop: 20 }}>
               <h3 style={{ color: '#00ffc8' }}>Tabla — {tableMeta?.season || ''}</h3>
-              <table className="league-table">
-                <thead>
-                  <tr style={{ textAlign: 'left', color: '#9fb8b0', borderBottom: '2px solid rgba(255,255,255,0.04)' }}>
-                    <th style={{ width: 40 }}>Pos</th>
-                    <th style={{ width: 360 }}>Equipo</th>
-                    <th style={{ width: 40 }}>PJ</th>
-                    <th style={{ width: 40 }}>PG</th>
-                    <th style={{ width: 40 }}>PE</th>
-                    <th style={{ width: 40 }}>PP</th>
-                    <th style={{ width: 50 }}>GF</th>
-                    <th style={{ width: 50 }}>GC</th>
-                    <th style={{ width: 60 }}>DG</th>
-                    <th style={{ width: 60 }}>PTS</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {standings && standings.length ? standings.map((row: any, idx: number) => {
-                    const position = row.position ?? idx + 1;
-                    const participant = row.participant || {};
-                    const name = participant.name || row.name || `ID ${participant.id || row.participant_id}`;
-                    const logo = participant.image_path || row.logo || '/logo_placeholder.png';
-                    const rowSummary = row.summary || row.season?.summary || null;
-                    const played = rowSummary?.played ?? row.played ?? row.games_played ?? row.matches_played ?? row.PJ ?? 0;
-                    const win = rowSummary?.won ?? row.win ?? row.wins ?? row.PG ?? 0;
-                    const draw = rowSummary?.draw ?? row.draw ?? row.draws ?? row.PE ?? 0;
-                    const lose = rowSummary?.lost ?? row.lose ?? row.losses ?? row.PP ?? 0;
-                    const goalsFor = rowSummary?.goals_for ?? row.goals_for ?? row.goalsfor ?? row.GF ?? 0;
-                    const goalsAgainst = rowSummary?.goals_against ?? row.goals_against ?? row.goalsagainst ?? row.GC ?? 0;
-                    const points = rowSummary?.points ?? row.points ?? row.Pts ?? 0;
-                    const diff = (typeof rowSummary?.goal_difference !== 'undefined')
-                      ? rowSummary?.goal_difference
-                      : (typeof row.goal_difference !== 'undefined')
-                        ? row.goal_difference
-                        : (goalsFor - goalsAgainst);
-                    const dgColor = diff > 0 ? '#7ee787' : diff < 0 ? '#ff8b8b' : '#cfe';
-                    const rowBorder = position <= 4 ? '4px solid rgba(0,255,200,0.12)' : '1px solid rgba(255,255,255,0.03)';
-
-                    return (
-                      <tr key={idx} style={{ borderTop: rowBorder }} className={position <= 4 ? 'league-pos-top3' : ''}>
-                        <td className="league-pos">{position}</td>
-                        <td className="league-team-cell">
-                          <img src={logo || '/logo_placeholder.png'} alt={name} style={{ width: 28, height: 28, objectFit: 'contain', borderRadius: 4 }} onError={(e: any)=>{ if(e.currentTarget.src !== '/logo_placeholder.png') e.currentTarget.src = '/logo_placeholder.png'; }} />
-                          <div style={{ display: 'flex', flexDirection: 'column' }}>
-                            <span style={{ fontWeight: 700 }}>{formatTeamName(name)}</span>
-                            <span style={{ color: '#9aa', fontSize: '0.85em' }}>{participant.short_code ?? row.shortName ?? ''}</span>
-                          </div>
-                        </td>
-                        <td>{played}</td>
-                        <td>{win}</td>
-                        <td>{draw}</td>
-                        <td>{lose}</td>
-                        <td>{goalsFor}</td>
-                        <td>{goalsAgainst}</td>
-                        <td className="league-dg" style={{ color: dgColor }}>{diff > 0 ? `+${diff}` : diff}</td>
-                        <td style={{ fontWeight: 900 }}>{points}</td>
-                      </tr>
-                    );
-                  }) : <tr><td colSpan={10} style={{ padding: 12, color: '#aaa' }}>Sin datos</td></tr>}
-                </tbody>
-              </table>
+              {groups && groups.length > 0 ? (
+                groups.map((group: any) => (
+                  <div key={group.group_id} style={{ marginBottom: 32 }}>
+                    <h4 style={{ color: '#00ffc8', margin: '18px 0 8px' }}>{group.group_name}</h4>
+                    {renderStandingsTable(group.standings || [])}
+                  </div>
+                ))
+              ) : (
+                renderStandingsTable(standings)
+              )}
             </div>
           )}
 
