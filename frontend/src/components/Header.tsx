@@ -267,7 +267,7 @@ export default function Header() {
                 </div>
                 <div className="dropdown-section">
                   <div className="dropdown-title">Ligas America</div>
-                  <Link href="/matches/peru/primera">Peru Primera</Link>
+                  <Link href="/matches/peru/primera">Liga 1 Perú</Link>
                   <Link href="/matches/argentina/liga-profesional">Argentina Liga Profesional</Link>
                   <Link href="/matches/brasil/serie-a">Brasil Serie A</Link>
                   <Link href="/matches/colombia/liga-betplay">Colombia Liga BetPlay</Link>
