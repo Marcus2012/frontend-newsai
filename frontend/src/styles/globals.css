@@ -80,11 +80,12 @@ body{
 }
 
   /* Logos row centered under header */
-  .logos-row{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin:14px 0}
+  .logos-row{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin:14px 0}
   .logo-item{display:inline-flex;align-items:center;justify-content:center}
-  .logo-item img{width:48px;height:48px;object-fit:contain;border-radius:6px;box-shadow:0 2px 8px rgba(0,0,0,0.35)}
-  @media (max-width:420px){
-    .logo-item img{width:36px;height:36px}
+  .logo-item-img{width:44px;height:44px;box-shadow:0 2px 8px rgba(0,0,0,0.35)}
+  @media (max-width:600px){
+    .logos-row{gap:6px;margin:10px 0}
+    .logo-item-img{width:34px !important;height:34px !important}
   }
 
   /* Tabs styling */
@@ -145,4 +146,18 @@ body{
 .league-dg{font-weight:800}
 .league-pos-top3{box-shadow:inset 0 4px 0 rgba(0,255,200,0.06)}
 .league-note{font-size:0.9rem;color:var(--muted);margin-top:8px}
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;width:100%}
+@media (max-width:600px){
+  .league-table thead th,.league-table tbody td{padding:6px 5px;font-size:0.82rem}
+  .league-pos{width:24px;min-width:24px}
+  .league-team-cell{gap:7px}
+  .league-team-cell img{width:24px;height:24px}
+  /* Mobile: hide PG(4), PE(5), PP(6), GF(7), GC(8) — show only Pos, Equipo, PJ, DG, PTS */
+  .league-table th:nth-child(4),.league-table td:nth-child(4),
+  .league-table th:nth-child(5),.league-table td:nth-child(5),
+  .league-table th:nth-child(6),.league-table td:nth-child(6),
+  .league-table th:nth-child(7),.league-table td:nth-child(7),
+  .league-table th:nth-child(8),.league-table td:nth-child(8){display:none}
+  .league-table th:nth-child(2),.league-table td:nth-child(2){min-width:120px;max-width:160px}
+}
 

@@ -359,7 +359,7 @@ export default function Header() {
             <button className="mobile-leagues-toggle" onClick={() => setMobileLeaguesOpenAmerica(prev => !prev)} aria-expanded={mobileLeaguesOpenAmerica} type="button">Ligas América ▾</button>
             {mobileLeaguesOpenAmerica && (
               <div className="mobile-submenu">
-                <a href="/matches/peru/primera">Peru Primera</a>
+                <a href="/matches/peru/primera">Liga 1 Perú</a>
                 <a href="/matches/argentina/liga-profesional">Argentina Liga Profesional</a>
                 <a href="/matches/brasil/serie-a">Brasil Serie A</a>
                 <a href="/matches/colombia/liga-betplay">Colombia Liga BetPlay</a>

@@ -187,7 +187,7 @@ export default function CopaLibertadores() {
         <thead>
           <tr style={{ textAlign: 'left', color: '#9fb8b0', borderBottom: '2px solid rgba(255,255,255,0.04)' }}>
             <th style={{ width: 40 }}>Pos</th>
-            <th style={{ width: 360 }}>Equipo</th>
+            <th style={{ minWidth: 140 }}>Equipo</th>
             <th style={{ width: 40 }}>PJ</th>
             <th style={{ width: 40 }}>PG</th>
             <th style={{ width: 40 }}>PE</th>
@@ -263,8 +263,8 @@ export default function CopaLibertadores() {
               const logo = participant.image_path || '/logo_placeholder.png';
               return (
                 <div key={i} className="logo-item" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                  <img src={logo} alt={teamName} style={{ width: 44, height: 44, objectFit: 'contain', borderRadius: 8, marginBottom: 4 }} onError={(e: any) => { if (e.currentTarget.src !== '/logo_placeholder.png') e.currentTarget.src = '/logo_placeholder.png'; }} />
-                  <span style={{ color: '#cfe', fontSize: '0.85em', textAlign: 'center', maxWidth: 60, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{teamName}</span>
+                  <img src={logo} alt={teamName} className="logo-item-img" style={{ objectFit: 'contain', borderRadius: 8, marginBottom: 4 }} onError={(e: any) => { if (e.currentTarget.src !== '/logo_placeholder.png') e.currentTarget.src = '/logo_placeholder.png'; }} />
+                  <span style={{ color: '#cfe', fontSize: '0.75em', textAlign: 'center', maxWidth: 56, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{teamName}</span>
                 </div>
               );
             })}
@@ -275,7 +275,7 @@ export default function CopaLibertadores() {
             <button className={`tab-btn ${activeTab==='calendar' ? 'active' : ''}`} onClick={async ()=>{ setActiveTab('calendar'); if(!upcomingMatches || upcomingMatches.length===0) await fetchCalendar(); }} disabled={loading}>Calendario</button>
           </div>
 
-          <h1 style={{ color: '#00ffc8', marginTop: 12 }}>Copa Libertadores — CONMEBOL</h1>
+          <h1 style={{ color: '#00ffc8', marginTop: 12, fontSize: 'clamp(1.1rem, 4.5vw, 1.8rem)', lineHeight: 1.3 }}>Copa Libertadores — CONMEBOL</h1>
 
           {loading && <p style={{ color: '#aaa', marginTop: 18 }}>Cargando...</p>}
           {error && <p style={{ color: '#ff8b8b', marginTop: 18 }}>{error}</p>}
